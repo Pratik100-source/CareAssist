@@ -1,0 +1,126 @@
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import nodemailer from "nodemailer";
+import User from "./models/users.js";
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(bodyParser.json());
+
+mongoose.connect("mongodb://localhost:27017/CareAssist", {})
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB:", err);
+  });
+
+let currentOTP = null;
+let currentEmail = null;
+let otpTimeout = null;  // To manage OTP timeout
+
+// Email transporter setup
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "pratikpanthi100@gmail.com", 
+        pass: "ucxm pouw yoaf afbo" 
+  },
+});
+
+app.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  const otp = Math.floor(100000 + Math.random() * 900000); // Generate OTP
+  currentOTP = otp;
+  currentEmail = email;
+
+  // Set timeout to reset OTP after 10 minutes (600,000 ms)
+  if (otpTimeout) clearTimeout(otpTimeout);
+  otpTimeout = setTimeout(() => {
+    currentOTP = null;
+    currentEmail = null;
+  }, 600000);
+
+  try {
+    await transporter.sendMail({
+      from: "pratikpanthi100@gmail.com",
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP is: ${otp}`,
+    });
+    res.status(200).json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error(`Error sending OTP to ${email}:`, error);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+});
+
+// Step 2: Verify OTP
+app.post("/verify-otp", (req, res) => {
+  const { otp } = req.body;
+
+  if (parseInt(otp) === currentOTP) {
+    return res.status(200).send("OTP verified successfully");
+  } else {
+    return res.status(400).send("Invalid OTP");
+  }
+});
+
+// Step 3: Complete Registration
+app.post("/signup", async (req, res) => {
+  const { email, firstname, lastname, mobile, password } = req.body;
+
+  if (email !== currentEmail) {
+    return res.status(400).send("Email mismatch. Please start again.");
+  }
+
+  const user = new User({ email, firstname, lastname, mobile, password });
+  try {
+    await user.save();
+    currentOTP = null; // Reset OTP after successful registration
+    currentEmail = null;
+    return res.status(201).send("User registered successfully");
+  } catch (err) {
+    return res.status(500).send("Error registering user");
+  }
+});
+
+// Login Route
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // Directly compare passwords (not secure in production)
+    if (password !== user.password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // On successful login, send a success response
+    res.status(200).json({ message: "Login successful" });
+
+  } catch (error) {
+    console.error("Error logging in:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.listen(3003, () => {
+  console.log("Server running on port 3003");
+});

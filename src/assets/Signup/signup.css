@@ -1,0 +1,116 @@
+.signup_main {
+  width: 70%;
+  height: auto; 
+  margin: 125px auto 0 auto;
+  border: 2px solid rgba(0, 0, 0, 0.2); 
+  display: flex;
+  border-radius: 10px; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+  overflow: hidden; 
+}
+
+.signup_image {
+  flex: 2;
+  background-color: #f5f5f5; 
+}
+
+.signup_image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+}
+
+.signup_form {
+  flex: 1.75;
+  display: flex;
+  flex-direction: column;
+  padding: 2vw;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.8);
+  background-color: #ffffff; 
+  border-left: 1px solid rgba(0, 0, 0, 0.1); 
+}
+
+.signup_h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2vw;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.signup_form_input {
+  flex: 4;
+}
+
+.signup_form_input h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.5vw;
+  margin-bottom: 10px;
+}
+
+.signup_form_input .email_info,
+.signup_form_input .otp_info {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.signup_form_input .email_info input,
+.signup_form_input .otp_info input {
+  flex: 4;
+  height: 40px; 
+  padding-left: 10px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+}
+
+.signup_form_input .email_info .email_submit,
+.signup_form_input .otp_info .otp_submit {
+  flex: 1;
+  height: 40px;
+  background-color: #ff4d4d; 
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.signup_form_input .email_info .email_submit:hover,
+.signup_form_input .otp_info .otp_submit:hover {
+  background-color: #e63939; 
+}
+
+.signup_form_input .email_info .email_submit:active,
+.signup_form_input .otp_info .otp_submit:active {
+  background-color: #cc3333; 
+}
+
+input{
+  height: 30px;
+  width: 18vw;
+  margin-top: 15px;
+  padding-left: 5px;
+}
+button{
+  cursor: pointer;
+  color: white;
+  background-color: rgba(255, 0, 0, 0.823);
+  height: 30px;
+  width: 5vw;
+}
+button:hover{
+   
+  background-color: red;
+  
+}
+
+.last_signup_submit{
+  height: 30px;
+  width: 18vw;
+  margin-top: 15px;
+}
