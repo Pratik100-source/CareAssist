@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import photo from "../images/side_image.png";
+import photo from "../images/side_image.jpg";
 import { useNavigate } from "react-router-dom"; 
 import "./signup.css"
 
@@ -56,6 +56,11 @@ const Signup = () => {
     }
   };
 
+  const click_login =() =>{
+
+    navigate("/login")
+  }
+
   return (
     <div className="signup_main">
       <div className="signup_image">
@@ -65,6 +70,7 @@ const Signup = () => {
         {step === 1 && (
           <div className="signup_first">
             <h1>Signup to CareAssist</h1>
+            <p>Already have an account? <span onClick={click_login}>login</span></p>
             <input
               type="email"
               name="email"
@@ -73,7 +79,7 @@ const Signup = () => {
               onChange={handleInputChange}
               disabled={isOtpSent}
             />
-            <button onClick={handleSendOtp} disabled={isOtpSent}>Submit</button>
+            <button onClick={handleSendOtp} disabled={isOtpSent} className="first_signup_submit">Submit</button>
           </div>
         )}
         {step === 2 && (
@@ -85,11 +91,11 @@ const Signup = () => {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
             />
-            <button onClick={handleVerifyOtp}>Submit</button>
+            <button onClick={handleVerifyOtp} className="second_signup_submit">Submit</button>
           </div>
         )}
         {step === 3 && (
-          <div className="signup_form_input">
+          <div className="signup_third">
             <h1>Signup to CareAssist</h1>
             <input
               type="text"
@@ -126,7 +132,7 @@ const Signup = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
             />
-            <button onClick={handleSignup} className="last_signup_submit">Submit</button>
+            <button onClick={handleSignup} className="third_signup_submit">Submit</button>
           </div>
         )}
       </div>

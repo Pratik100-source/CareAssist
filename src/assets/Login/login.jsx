@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import photo from "../images/side_image.png"; 
+import photo from "../images/side_image.jpg"; 
 import "./login.css";
 import { useNavigate } from "react-router-dom";
 
@@ -37,13 +37,16 @@ const Login = () => {
     }
   };
 
+   const click_signup = ()=>{
+           
+    navigate("/signup")
+   }
+
   return (
     <div className="login_main">
-      <div className="login_image">
-        <img src={photo} alt="Login Visual" />
-      </div>
       <div className="login_form">
         <h1>Login to CareAssist</h1>
+        <p>Don't have an account?<span onClick={click_signup}>Signup</span></p>
         {error && <p className="error_message">{error}</p>}  
         <input
           type="email"
@@ -60,6 +63,9 @@ const Login = () => {
           onChange={handleInputChange}
         />
         <button type="submit" onClick={handleLogin}>Login</button>
+      </div>
+      <div className="login_image">
+        <img src={photo} alt="Login Visual" />
       </div>
     </div>
   );

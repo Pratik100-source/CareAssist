@@ -20,9 +20,9 @@ mongoose.connect("mongodb://localhost:27017/CareAssist", {})
 
 let currentOTP = null;
 let currentEmail = null;
-let otpTimeout = null;  // To manage OTP timeout
+let otpTimeout = null;  
 
-// Email transporter setup
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -36,16 +36,16 @@ app.post("/send-otp", async (req, res) => {
   if (!email) {
     return res.status(400).json({ message: "Email is required" });
   }
-  const otp = Math.floor(100000 + Math.random() * 900000); // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000); 
   currentOTP = otp;
   currentEmail = email;
 
-  // Set timeout to reset OTP after 10 minutes (600,000 ms)
+  
   if (otpTimeout) clearTimeout(otpTimeout);
   otpTimeout = setTimeout(() => {
     currentOTP = null;
     currentEmail = null;
-  }, 600000);
+  }, 20000);
 
   try {
     await transporter.sendMail({
@@ -61,7 +61,7 @@ app.post("/send-otp", async (req, res) => {
   }
 });
 
-// Step 2: Verify OTP
+
 app.post("/verify-otp", (req, res) => {
   const { otp } = req.body;
 
@@ -72,7 +72,7 @@ app.post("/verify-otp", (req, res) => {
   }
 });
 
-// Step 3: Complete Registration
+
 app.post("/signup", async (req, res) => {
   const { email, firstname, lastname, mobile, password } = req.body;
 
@@ -83,7 +83,7 @@ app.post("/signup", async (req, res) => {
   const user = new User({ email, firstname, lastname, mobile, password });
   try {
     await user.save();
-    currentOTP = null; // Reset OTP after successful registration
+    currentOTP = null; 
     currentEmail = null;
     return res.status(201).send("User registered successfully");
   } catch (err) {
@@ -91,7 +91,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-// Login Route
+
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -100,19 +100,19 @@ app.post("/login", async (req, res) => {
   }
 
   try {
-    // Find user by email
+    
     const user = await User.findOne({ email: email });
 
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Directly compare passwords (not secure in production)
+    
     if (password !== user.password) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // On successful login, send a success response
+    
     res.status(200).json({ message: "Login successful" });
 
   } catch (error) {
