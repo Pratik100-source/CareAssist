@@ -1,0 +1,24 @@
+.home_main{
+
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+}
+
+.top_head{
+
+    flex: 0.5;
+    background-color: red;
+}
+
+.home_body{
+    flex: 8;
+    width: 100%;
+    background-color: green;
+    background-image: url(../images/home2.jpeg);
+    background-image: cover;
+    background-repeat: no-repeat;
+    background-size:cover;
+}

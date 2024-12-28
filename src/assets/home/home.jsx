@@ -1,12 +1,22 @@
-const home = () =>{
+
+
+import Topbar from "../Topbar/topbar";
+import "./home.css";
+
+
+const Home = () =>{
     return(
     <>
-   <div>
-    <p style={{color:"red"}}>Welcome to the home page</p>
+   <div className="home_main">
+       <div className="top_head"> <Topbar/></div>
+       <div className="home_body"></div>
    </div>
     </>
+
+
+
     )
 
 }
 
-export default home;
+export default Home;

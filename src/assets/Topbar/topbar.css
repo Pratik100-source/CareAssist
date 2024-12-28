@@ -1,0 +1,50 @@
+.top_main{
+    width: 100%;
+    align-items: center;
+}
+
+.top_submain{
+    display: flex;
+    width: 70%;
+    /* text-align: center; */
+    align-items: center;
+    margin-left: 20%;
+}
+
+.top_main .top_submain img{
+    flex: 0.5;
+    /* height: 50px;
+    width: 50px; */
+    flex-direction: row;
+    width: 170px;
+    /* background-color: red; */
+}
+
+.top_main .top_submain .top_nav {
+
+    flex: 5;
+    display: flex;
+  
+    text-decoration: none;
+}
+
+.top_main .top_submain .top_nav .inside_navigator{
+    flex: 4;
+   
+    text-align: left ;
+}
+.top_main .top_submain .top_nav li{
+    display: inline-block;
+    padding-left: 2vw;
+    cursor: pointer;
+}
+
+.top_main .top_submain .top_nav li:hover{
+    color: red;
+}
+
+.top_main .top_submain .top_nav .outside_navigator{
+    flex: 3.5;
+   
+    text-align: left;
+}
