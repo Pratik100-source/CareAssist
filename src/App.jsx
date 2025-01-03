@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/signup" />} /> {/* Redirect to signup by default */}
+        <Route path="/" element={<Navigate to="/home" />} /> {/* Redirect to signup by default */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
