@@ -1,6 +1,8 @@
 .top_main{
     width: 100%;
     align-items: center;
+    /* background-color: red; */
+    height: 100%;
 }
 
 .top_submain{
@@ -9,6 +11,8 @@
     /* text-align: center; */
     align-items: center;
     margin-left: 20%;
+    height: 100%;
+    /* background-color: burlywood; */
 }
 
 .top_main .top_submain img{
@@ -16,6 +20,8 @@
     /* height: 50px;
     width: 50px; */
     flex-direction: row;
+    height: auto;
+    max-height: 100%;
     width: 170px;
     /* background-color: red; */
     cursor: pointer;

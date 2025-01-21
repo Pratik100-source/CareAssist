@@ -20,6 +20,7 @@ const Topbar = ({ onLoginClick, onSignupClick }) => {
           <ul className="outside_navigator">
             <li onClick={onLoginClick}>Login</li>
             <li onClick={onSignupClick}>Signup</li>
+            <li>Profile</li>
           </ul>
         </nav>
       </div>

@@ -5,44 +5,62 @@
     flex-direction: column;
     width: 100%;
     height: 300vh;
-    position: relative;
+    /* position: relative; */
+    overflow-y: scroll;
+    overflow: visible;
 }
 
 .top_head{
 
-    flex: 0.3;
-    background-color: red;
-    position: relative;
+    /* flex: 0.3; */
+    background-color: yellow;
+    position: sticky;
+    top: 0;
+    height: 110px;
+    z-index: 1002;
 }
 
 .home_body{
-    flex: 8;
+    flex: 6;
     width: 100%;
-    background-image: url(../images/home2.jpeg);
+    background-image: url(../images/home1_bg.jpg);
     background-image: cover;
     background-repeat: no-repeat;
     background-size:cover;
+    background-color: red;
     z-index: 1000;
-    position: relative;
+    animation: slideshow;
+    animation-delay: 3s;
+    animation-timing-function:ease-in-out;
+    -webkit-animation-timing-function: ease-in-out;
 
 }
+
+@keyframes slideshow{
+
+    0% { background-image: url(../images/home1_bg.jpg);}
+  50% { background-color:rgba(0, 0, 0, 0.5); }
+  51% { background-image: url(../images/home2_bg.jpg);  }
+  100% { background-color:rgba(0, 0, 0, 1); }
+}
+
 .second_body{
  flex: 6;
- background-image: url(../images/side_image.jpg);
+ background-image: url(../images/home2_bg.jpg);
  width: 100%;
  background-repeat: no-repeat;
  background-size: cover;
  background-image: cover;
- position: relative;
+ /* position: relative; */
 }
 .third_body{
     flex: 6;
-    background-image: url(../images/home1.jpg);
+    background-image: url(../images/home2.jpeg);
     width: 100%;
     background-image: cover;
     background-repeat: no-repeat;
     background-size:cover;
-    position: relative;
+    /* position: relative; */
 }
 
 .footer{
@@ -72,6 +90,6 @@
     /* top:23vh;  */
     border-radius: 10px; 
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
-  overflow: hidden; 
+  /* overflow: hidden;  */
 
 }
