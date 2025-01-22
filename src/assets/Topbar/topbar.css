@@ -7,10 +7,10 @@
 
 .top_submain{
     display: flex;
-    width: 70%;
+    width: auto;
     /* text-align: center; */
     align-items: center;
-    margin-left: 20%;
+    padding: 0 0 0 18vw;
     height: 100%;
     /* background-color: burlywood; */
 }
@@ -22,7 +22,7 @@
     flex-direction: row;
     height: auto;
     max-height: 100%;
-    width: 170px;
+    width: 130px;
     /* background-color: red; */
     cursor: pointer;
 }
@@ -36,7 +36,7 @@
 }
 
 .top_main .top_submain .top_nav .inside_navigator{
-    flex: 4;
+    flex: 3;
    
     text-align: left ;
 }

@@ -5,9 +5,10 @@
     flex-direction: column;
     width: 100%;
     height: 300vh;
-    /* position: relative; */
+    position: relative;
     overflow-y: scroll;
     overflow: visible;
+   
 }
 
 .top_head{
@@ -16,8 +17,9 @@
     background-color: yellow;
     position: sticky;
     top: 0;
-    height: 110px;
+    height: 80px;
     z-index: 1002;
+    width: 100%;
 }
 
 .home_body{
@@ -46,7 +48,7 @@
 
 .second_body{
  flex: 6;
- background-image: url(../images/home2_bg.jpg);
+ /* background-image: url(../images/home2_bg.jpg); */
  width: 100%;
  background-repeat: no-repeat;
  background-size: cover;
@@ -93,3 +95,22 @@
   /* overflow: hidden;  */
 
 }
+
+
+/*footer*/
+
+.footer{
+  
+    width: 100%;
+    background-color: red;
+    
+
+}
+
+
+
+
+
+
+
+
