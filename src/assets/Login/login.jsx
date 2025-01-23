@@ -4,7 +4,7 @@ import photo from "../images/side_image.jpg";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Login = ({redirectToSignup}) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,7 +25,7 @@ const Login = () => {
 
 
       if (response.status === 200) {
-        navigate("/home"); 
+        navigate("/profile"); 
       }
     } catch (error) {
       
@@ -39,7 +39,7 @@ const Login = () => {
 
    const click_signup = ()=>{
            
-    navigate("/signup")
+    redirectToSignup();
    }
 
   return (

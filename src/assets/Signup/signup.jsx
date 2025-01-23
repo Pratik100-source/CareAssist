@@ -4,7 +4,7 @@ import photo from "../images/side_image.jpg";
 import { useNavigate } from "react-router-dom"; 
 import "./signup.css"
 
-const Signup = () => {
+const Signup = ({redirectToLogin}) => {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [formData, setFormData] = useState({
@@ -49,8 +49,7 @@ const Signup = () => {
     try {
       await axios.post("http://localhost:3003/signup", formData);
       alert("Signup successful");
-      // Redirect to login or other page
-      navigate("/login");
+      redirectToLogin();
     } catch (error) {
       alert("Error signing up");
     }
@@ -58,7 +57,7 @@ const Signup = () => {
 
   const click_login =() =>{
 
-    navigate("/login")
+     redirectToLogin();
   }
 
   return (

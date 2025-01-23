@@ -1,16 +1,27 @@
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import nodemailer from "nodemailer";
-import User from "./models/users.js";
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+const path = require("path");
+const User = require("./models/users");
+
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb://localhost:27017/CareAssist", {})
+// Debug: Log MONGO_URI to check if it's being loaded correctly
+console.log("Mongo URI:", process.env.MONGO_URI);
+
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI, {})
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -45,7 +56,7 @@ app.post("/send-otp", async (req, res) => {
   otpTimeout = setTimeout(() => {
     currentOTP = null;
     currentEmail = null;
-  }, 20000);
+  }, 300000);
 
   try {
     await transporter.sendMail({
@@ -83,13 +94,15 @@ app.post("/signup", async (req, res) => {
   const user = new User({ email, firstname, lastname, mobile, password });
   try {
     await user.save();
-    currentOTP = null; 
+    currentOTP = null;
     currentEmail = null;
     return res.status(201).send("User registered successfully");
   } catch (err) {
+    console.error("Error registering user:", err);
     return res.status(500).send("Error registering user");
   }
 });
+
 
 
 app.post("/login", async (req, res) => {
@@ -124,3 +137,4 @@ app.post("/login", async (req, res) => {
 app.listen(3003, () => {
   console.log("Server running on port 3003");
 });
+

@@ -31,20 +31,9 @@
     background-size:cover;
     background-color: red;
     z-index: 1000;
-    animation: slideshow;
-    animation-delay: 3s;
-    animation-timing-function:ease-in-out;
-    -webkit-animation-timing-function: ease-in-out;
 
 }
 
-@keyframes slideshow{
-
-    0% { background-image: url(../images/home1_bg.jpg);}
-  50% { background-color:rgba(0, 0, 0, 0.5); }
-  51% { background-image: url(../images/home2_bg.jpg);  }
-  100% { background-color:rgba(0, 0, 0, 1); }
-}
 
 .second_body{
  flex: 6;
@@ -100,11 +89,10 @@
 /*footer*/
 
 .footer{
-  
+   
+    flex: 2.5;
     width: 100%;
     background-color: red;
-    
-
 }
 
 

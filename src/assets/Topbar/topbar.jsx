@@ -6,11 +6,19 @@ import { useNavigate } from "react-router-dom";
 
 const Topbar = ({ onLoginClick, onSignupClick }) => {
   const navigate = useNavigate();
+
+  const handleHomeReload = ()=>{
+
+    navigate("/home", {state:{reload:true}});
+  }
   
+
+
+
   return (
     <div className="top_main">
       <div className="top_submain">
-        <img className="logo" src={Logo} alt="Logo" onClick={() => window.location.reload()} />
+        <img className="logo" src={Logo} alt="Logo" onClick={handleHomeReload} />
         <nav className="top_nav">
           <ul className="inside_navigator">
             <li>Find Professionals</li>
