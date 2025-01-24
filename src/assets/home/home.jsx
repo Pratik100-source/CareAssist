@@ -17,16 +17,19 @@ const Home = () => {
   const location= useLocation();
 
   useEffect(() => {
-    
-    if(location.state?.reload){
-
+  
+    const shouldReload = localStorage.getItem("reload");
+    if (shouldReload === "true") {
+      localStorage.removeItem("reload"); 
+      window.location.reload();
+    } else {
+      
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.state]);
 
 
-  const handleLoginClick = () => {
-    // window.location.reload()
+  const handleLoginClick = () => {  
     navigate("/home", {state:{reload:true}});
     setIsLoginClicked(true);
     setIsSignupClicked(false);
@@ -35,14 +38,23 @@ const Home = () => {
   };
 
   const handleSignupClick = () => {
-    
     navigate("/home",{state:{reload:true}});
     setIsSignupClicked(true);
     setIsLoginClicked(false);
   };
 
+  const closeModal = () => {
+    setIsLoginClicked(false);
+    setIsSignupClicked(false);
+  };
+
   return (
     <>
+
+    {/* Overlay for Freezing the Page */}
+    {(isLoginClicked || isSignupClicked) && (
+        <div className="overlay" onClick={closeModal}></div>
+      )}
     <div className="home_main">
       <div className="top_head">
         <Topbar

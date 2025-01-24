@@ -8,7 +8,7 @@ const Topbar = ({ onLoginClick, onSignupClick }) => {
   const navigate = useNavigate();
 
   const handleHomeReload = ()=>{
-
+    localStorage.setItem("reload", "true");
     navigate("/home", {state:{reload:true}});
   }
   

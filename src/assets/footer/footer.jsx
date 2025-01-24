@@ -2,7 +2,7 @@ import "./footer.css"
 
 import bottom_logo from "../images/logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+
 
 
 const Footer = () => {
@@ -12,7 +12,8 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   const handleHomeReload = () =>{
-      
+
+    localStorage.setItem("reload", "true");
     navigate("/home", { state: { reload: true } });
   }
 
