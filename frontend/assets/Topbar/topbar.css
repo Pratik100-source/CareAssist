@@ -1,58 +1,51 @@
-.top_main{
-    width: 100%;
-    align-items: center;
-    /* background-color: red; */
-    height: 100%;
+.top_main {
+  width: 100%;
+  align-items: center;
+  height: 100%;
 }
 
-.top_submain{
-    display: flex;
-    width: auto;
-    /* text-align: center; */
-    align-items: center;
-    padding: 0 0 0 18vw;
-    height: 100%;
-    /* background-color: burlywood; */
+.top_submain {
+  display: flex;
+  width: auto;
+  align-items: center;
+  height: 100%;
 }
 
-.top_main .top_submain img{
-    flex: 0.5;
-    /* height: 50px;
-    width: 50px; */
-    flex-direction: row;
-    height: auto;
-    max-height: 100%;
-    width: 130px;
-    /* background-color: red; */
-    cursor: pointer;
+.top_main .top_submain img {
+  flex: 0.34;
+  flex-direction: row;
+  height: 40px;
+  max-width: 100%;
+  width: 2px;
+  cursor: pointer;
+  padding-right: 1.5rem;
 }
 
 .top_main .top_submain .top_nav {
+  flex: 5;
+  display: flex;
 
-    flex: 5;
-    display: flex;
-  
-    text-decoration: none;
+  text-decoration: none;
 }
 
-.top_main .top_submain .top_nav .inside_navigator{
-    flex: 3;
-   
-    text-align: left ;
+.top_main .top_submain .top_nav .inside_navigator {
+  flex: 3;
+
+  text-align: left;
 }
-.top_main .top_submain .top_nav li{
-    display: inline-block;
-    padding-left: 2vw;
-    cursor: pointer;
+.top_main .top_submain .top_nav li {
+  display: inline-block;
+  padding-left: 2vw;
+  cursor: pointer;
 }
 
-.top_main .top_submain .top_nav li:hover{
-    color: red;
+.top_main .top_submain .top_nav li:hover {
+  color: #f44336;
 }
 
-.top_main .top_submain .top_nav .outside_navigator{
-    flex: 3.5;
-   
-    text-align: left;
-    border-left: 1px solid black;
+.top_main .top_submain .top_nav .outside_navigator {
+  flex: 3.5;
+
+  text-align: left;
+  border-left: 1px solid black;
 }

@@ -5,6 +5,7 @@ import "./home.css";
 import Footer from "../footer/footer"
 import Login from "../Login/login"
 import Signup from "../Signup/signup"
+import Guide from "../Guide/guide"
 
 
 
@@ -65,8 +66,8 @@ const Home = () => {
       {isLoginClicked && <div className="login_show"><Login redirectToSignup = {handleSignupClick}/></div>}
         {isSignupClicked && <div className="signup_show"><Signup redirectToLogin = {handleLoginClick} /></div>}
       <div className="home_body" id="first_body"></div>
-      <div className="second_body">How it works</div>
-      <div className="third_body"></div>
+      <div className="second_body"><Guide/></div>
+      <div className="third_body">FAQ section</div>
       <div className="footer"><Footer/></div>
              
      
