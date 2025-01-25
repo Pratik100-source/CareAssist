@@ -24,7 +24,7 @@ const Signup = ({redirectToLogin}) => {
 
   const handleSendOtp = async () => {
     try {
-      await axios.post("http://localhost:3003/send-otp", { email: formData.email });
+      await axios.post("http://localhost:3003/api/otp/sendOtp", { email: formData.email });
       setIsOtpSent(true);
       setStep(2); 
     } catch (error) {
@@ -34,7 +34,7 @@ const Signup = ({redirectToLogin}) => {
 
   const handleVerifyOtp = async () => {
     try {
-      await axios.post("http://localhost:3003/verify-otp", { otp });
+      await axios.post("http://localhost:3003/api/otp/verifyOtp", { otp });
       setStep(3); // Proceed to registration form
     } catch (error) {
       alert("Invalid OTP");
@@ -47,10 +47,10 @@ const Signup = ({redirectToLogin}) => {
       return;
     }
     try {
-      await axios.post("http://localhost:3003/signup", formData);
+      await axios.post("http://localhost:3003/api/auth/patientSignup", formData);
       alert("Signup successful");
       redirectToLogin();
-    } catch (error) {
+    } catch{
       alert("Error signing up");
     }
   };

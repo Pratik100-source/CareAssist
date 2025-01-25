@@ -1,0 +1,74 @@
+/*footer_body*/
+
+.footer_main {
+  width: 100%;
+  /* background-color: red; */
+  padding: 2rem 0 0 15vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer_copyright_section {
+  flex: 1;
+  text-align: left;
+  padding: 2rem 0 2rem 0;
+  width: 85%;
+  border-top: 2px solid #bdbdbd;
+  /* background-color: whitesmoke */
+}
+
+.footer_submain {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 0 0 3rem 0;
+  text-align: left;
+  width: 85%;
+  flex: 2;
+}
+
+.footer_main .footer_submain .section_about {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  padding-right: 5vw;
+}
+
+.footer_main .footer_submain .section_about img {
+  height: 80px;
+  width: 180px;
+  cursor: pointer;
+  flex: 1.5;
+}
+
+.footer_main .footer_submain .section_about p {
+  font-size: 14px;
+  text-align: justify;
+  flex: 1;
+}
+
+.footer_main .footer_submain .section_services {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.footer_main .footer_submain .section_services p {
+  flex: 0.5;
+  font-weight: 600;
+}
+
+.footer_main .footer_submain .section_services ul {
+  font-size: 20px;
+  flex: 2;
+}
+
+.footer_main .footer_submain .section_services ul li {
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.footer_main .footer_submain .section_quick_links {
+}
+
+.footer_main .footer_submain .contact_us {
+}

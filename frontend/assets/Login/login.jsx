@@ -21,7 +21,7 @@ const Login = ({redirectToSignup}) => {
     setError(""); 
 
     try {
-      const response = await axios.post("http://localhost:3003/login", formData);
+      const response = await axios.post("http://localhost:3003/api/auth/login", formData);
 
 
       if (response.status === 200) {
