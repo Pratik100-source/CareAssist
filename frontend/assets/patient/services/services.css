@@ -1,0 +1,161 @@
+.services_main {
+  width: 100%;
+  height: 100%;
+  color: black;
+}
+
+.services_main .services_first .services_heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  color: black;
+}
+
+.services_main .services_first .services_sub_heading {
+  font-size: 1rem;
+  text-align: center;
+  color: black;
+}
+
+.services_main .services_second {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  row-gap: 20px;
+  column-gap: 20px;
+  height: 70%;
+  padding-top: 2.5rem;
+}
+
+/*first box */
+
+.services_main .services_second .first {
+  /* border: 2px solid black; */
+  padding-left: 2rem;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px whitesmoke;
+  background-color: whitesmoke;
+  border-radius: 15px;
+}
+
+.services_main .services_second .first .visuals {
+  flex: 0.5;
+}
+
+.services_main .services_second .first .visuals .icon {
+  font-size: 3rem;
+  color: red;
+  transform: scaleX(-1);
+  width: 40px;
+}
+.services_main .services_second .first .visuals .icon_heading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.service_main .services_second .first .visuals .written_instructions {
+  font-size: 14px;
+  flex: 2;
+}
+
+/*second box*/
+
+.services_main .services_second .second {
+  padding-left: 2rem;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px whitesmoke;
+  background-color: whitesmoke;
+  border-radius: 15px;
+}
+
+.services_main .services_second .second .visuals {
+  flex: 0.5;
+}
+
+.services_main .services_second .second .visuals .icon {
+  font-size: 3rem;
+  color: red;
+  transform: scaleX(-1);
+  width: 40px;
+}
+.services_main .services_second .second .visuals .icon_heading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.service_main .services_second .second .visuals .written_instructions {
+  font-size: 14px;
+  flex: 2;
+}
+
+/*third box*/
+
+.services_main .services_second .third {
+  padding-left: 2rem;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px whitesmoke;
+  background-color: whitesmoke;
+  border-radius: 15px;
+}
+
+.services_main .services_second .third .visuals {
+  flex: 0.5;
+}
+
+.services_main .services_second .third .visuals .icon {
+  font-size: 3rem;
+  color: red;
+  transform: scaleX(-1);
+  width: 40px;
+}
+.services_main .services_second .third .visuals .icon_heading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.service_main .services_second .third .visuals .written_instructions {
+  font-size: 14px;
+  flex: 2;
+}
+
+/*fourth box*/
+.services_main .services_second .fourth {
+  /* border: 2px solid black; */
+  padding-left: 2rem;
+  float: left;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px whitesmoke;
+  background-color: whitesmoke;
+  border-radius: 15px;
+}
+
+.services_main .services_second .fourth .visuals {
+  flex: 0.5;
+}
+
+.services_main .services_second .fourth .visuals .icon {
+  font-size: 3rem;
+  color: red;
+  transform: scaleX(-1);
+  width: 40px;
+}
+.services_main .services_second .fourth .visuals .icon_heading {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.service_main .services_second .fourth .visuals .written_instructions {
+  font-size: 14px;
+  flex: 2;
+}
