@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import './App.css';
-import Home from "./assets/home/home";
-import Profile from "./assets/Profile/Profile";
+import Home from "./assets/patient/home/home";
+import Profile from "./assets/patient/Profile/Profile";
 
 function App() {
   return (
