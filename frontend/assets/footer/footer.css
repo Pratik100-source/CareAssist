@@ -31,10 +31,10 @@
 }
 
 .footer_main .footer_submain .section_about img {
-  height: 20px;
+  height: 100%;
   width: 100px;
   cursor: pointer;
-  flex: 0.8;
+  flex: 1.1;
   float: left;
 }
 

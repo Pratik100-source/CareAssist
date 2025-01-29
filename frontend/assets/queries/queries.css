@@ -1,0 +1,127 @@
+.queries_heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.queries_content {
+  display: grid;
+  row-gap: 2rem;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  padding-top: 2rem;
+}
+
+.queries_content .one {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+.queries_content .one .icons {
+  flex: 0.1;
+  color: #ff3131;
+}
+
+.queries_content .one .qna {
+  flex: 2;
+}
+
+.queries_content .one .qna .question {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.queries_content .one .qna .answer {
+  font-size: 15px;
+  padding-top: 0.7rem;
+}
+
+.queries_content .two {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+.queries_content .two .icons {
+  flex: 0.1;
+  color: #ff3131;
+}
+
+.queries_content .two .qna {
+  flex: 2;
+}
+
+.queries_content .two .qna .question {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.queries_content .two .qna .answer {
+  font-size: 15px;
+  padding-top: 0.7rem;
+}
+
+.queries_content .three {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+.queries_content .three .icons {
+  flex: 0.1;
+  color: #ff3131;
+}
+
+.queries_content .three .qna {
+  flex: 2;
+}
+
+.queries_content .three .qna .question {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.queries_content .three .qna .answer {
+  font-size: 15px;
+  padding-top: 0.7rem;
+}
+
+.queries_content .four {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid black;
+  border-radius: 20px;
+}
+
+.queries_content .four .icons {
+  flex: 0.1;
+  color: #ff3131;
+}
+
+.queries_content .four .qna {
+  flex: 2;
+}
+
+.queries_content .four .qna .question {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.queries_content .four12 .qna .answer {
+  font-size: 15px;
+  padding-top: 0.7rem;
+}

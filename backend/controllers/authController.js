@@ -1,13 +1,31 @@
 const Patient = require("../models/patient");
 
 const patientSignup = async (req, res) => {
-  const { email, firstname, lastname, mobile, password } = req.body;
+  const { email, firstname, lastname, mobile, gender, birthdate, password } =
+    req.body;
+
+  let gender_string = null;
+
+  if (gender === "0") {
+    gender_string = "male";
+  } else if (gender === "1") {
+    gender_string = "female";
+  } else if (gender === "2") {
+    gender_string = "others";
+  } else {
+    return res.status(400).json({ message: "Invalid gender value" });
+  }
+
+  const date_parse = Date.parse(birthdate);
+  const date_object = new Date(date_parse);
 
   const newPatient = new Patient({
     email,
     firstname,
     lastname,
     mobile,
+    gender: gender_string,
+    birthdate: date_object,
     password,
   });
 

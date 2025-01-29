@@ -1,6 +1,7 @@
 import Logo from "../../images/logo.png";
 import "./topbar.css";
 import { useNavigate } from "react-router-dom";
+import { IoPersonOutline } from "react-icons/io5"
 
 
 
@@ -25,11 +26,11 @@ const Topbar = ({ onLoginClick, onSignupClick }) => {
             <li>Video Counselling</li>
             <li>How it Works?</li>
           </ul>
-          <ul className="outside_navigator">
-            <li onClick={onLoginClick}>Login</li>
-            <li onClick={onSignupClick}>Signup</li>
-            <li>Profile</li>
-          </ul>
+          <div className="outside_navigator">
+            <section onClick={onLoginClick} className="login_interface"><icon><IoPersonOutline/></icon><p>Login</p></section>
+            <section onClick={onSignupClick} className="signup_interface">Signup</section>
+            <section><p>Profile</p></section> 
+          </div>
         </nav>
       </div>
     </div>

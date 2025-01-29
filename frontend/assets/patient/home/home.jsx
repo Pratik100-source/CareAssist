@@ -6,7 +6,8 @@ import Footer from "../../footer/footer"
 import Login from "../../Login/login"
 import Signup from "../../Signup/signup"
 import Services from "../services/services"
-import Video from "../../images/background_video.mp4"
+import Queries from "../../queries/queries"
+
 
 
 
@@ -45,9 +46,25 @@ const Home = () => {
   };
 
   const closeModal = () => {
-    setIsLoginClicked(false);
+    setIsLoginClicked(false); 
     setIsSignupClicked(false);
+    console.log("Cross button clicked! Closing Signup Modal...");
+    
   };
+
+  const handlecross = () =>{
+        
+   
+   
+    setTimeout(() => {
+      setIsSignupClicked(false);
+    }, 400);
+
+    setTimeout(() => {
+      setIsLoginClicked(false);
+    }, 400);
+  }
+
 
   return (
     <>
@@ -63,26 +80,21 @@ const Home = () => {
           onSignupClick={handleSignupClick}
         />
       </div>
-      {isLoginClicked && <div className="login_show"><Login redirectToSignup = {handleSignupClick}/></div>}
-        {isSignupClicked && <div className="signup_show"><Signup redirectToLogin = {handleLoginClick} /></div>}
+      {isLoginClicked && <div className={isLoginClicked?"login_show":"login_hide"}><Login redirectToSignup = {handleSignupClick} /></div>}
+        {isSignupClicked && <div className={isSignupClicked?"signup_show":"signup_hide"}><Signup redirectToLogin = {handleLoginClick} crossSignup = {handlecross} /></div>}
         <div className="home_body" id="first_body">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="background-video"
-          >
-            <source src={Video} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
           <div className="home_body_content">
-            <h1>Welcome to CareAssist</h1>
-            <p>Bringing personalized healthcare to your doorstep.</p>
+            <h1>Bringing Quality Healthcare <br />
+              to Your Doorstep</h1>
+              <p>Say goodbye to waiting rooms and long queues. With CareAssist, 
+                hire trusted professionals who bring care to your home or connect with 
+                you online when you need it most.</p>
+
+                <button>Consult now</button>
           </div>
         </div>
       <div className="second_body"><Services/></div>
-      <div className="third_body">FAQ section</div>
+      <div className="third_body"><Queries/></div>
       <div className="footer"><Footer/></div>
              
      

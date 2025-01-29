@@ -5,6 +5,14 @@ const patientSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
   mobile: Number,
+  gender: {
+    type: String,
+    required: true,
+  },
+  birthdate: {
+    type: Object,
+    required: true,
+  },
   password: String,
 });
 

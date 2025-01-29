@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import photo from "../images/side_image.jpg";
-import { useNavigate } from "react-router-dom"; 
-import "./signup.css"
+import { useNavigate } from "react-router-dom";
+import "./signup.css";
+import { RxCross2 } from "react-icons/rx";
+import PropTypes from "prop-types";
 
-const Signup = ({redirectToLogin}) => {
+const Signup = ({ redirectToLogin, crossSignup }) => {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [formData, setFormData] = useState({
@@ -12,11 +14,14 @@ const Signup = ({redirectToLogin}) => {
     firstname: "",
     lastname: "",
     mobile: "",
+    gender: "0",
+    birthdate: "",
     password: "",
     confirmPassword: "",
   });
-  const navigate = useNavigate(); 
-  const [isOtpSent, setIsOtpSent] = useState(false); 
+
+  const navigate = useNavigate();
+  const [isOtpSent, setIsOtpSent] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,9 +29,11 @@ const Signup = ({redirectToLogin}) => {
 
   const handleSendOtp = async () => {
     try {
-      await axios.post("http://localhost:3003/api/otp/sendOtp", { email: formData.email });
+      await axios.post("http://localhost:3003/api/otp/sendOtp", {
+        email: formData.email,
+      });
       setIsOtpSent(true);
-      setStep(2); 
+      setStep(2);
     } catch (error) {
       alert("Error sending OTP");
     }
@@ -47,21 +54,34 @@ const Signup = ({redirectToLogin}) => {
       return;
     }
     try {
-      await axios.post("http://localhost:3003/api/auth/patientSignup", formData);
+      await axios.post(
+        "http://localhost:3003/api/auth/patientSignup",
+        formData
+      );
       alert("Signup successful");
       redirectToLogin();
-    } catch{
+    } catch {
       alert("Error signing up");
     }
   };
 
-  const click_login =() =>{
-
-     redirectToLogin();
+  const click_login = () => {
+    redirectToLogin();
+  };
+  
+  const cross_clicked = ()=>{
+    if (crossSignup) {
+      crossSignup();
+    } else {
+      console.error("crossSignup function is undefined!");
+    }
   }
 
   return (
+    <>
+    <RxCross2 className="cross" onClick={cross_clicked}/>
     <div className="signup_main">
+      
       <div className="signup_image">
         <img src={photo} alt="Signup Visual" />
       </div>
@@ -69,7 +89,9 @@ const Signup = ({redirectToLogin}) => {
         {step === 1 && (
           <div className="signup_first">
             <h1>Signup to CareAssist</h1>
-            <p>Already have an account? <span onClick={click_login}>login</span></p>
+            <p>
+              Already have an account? <span onClick={click_login}>login</span>
+            </p>
             <input
               type="email"
               name="email"
@@ -78,7 +100,13 @@ const Signup = ({redirectToLogin}) => {
               onChange={handleInputChange}
               disabled={isOtpSent}
             />
-            <button onClick={handleSendOtp} disabled={isOtpSent} className="first_signup_submit">Submit</button>
+            <button
+              onClick={handleSendOtp}
+              disabled={isOtpSent}
+              className="first_signup_submit"
+            >
+              Submit
+            </button>
           </div>
         )}
         {step === 2 && (
@@ -90,33 +118,50 @@ const Signup = ({redirectToLogin}) => {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
             />
-            <button onClick={handleVerifyOtp} className="second_signup_submit">Submit</button>
+            <button onClick={handleVerifyOtp} className="second_signup_submit">
+              Submit
+            </button>
           </div>
         )}
         {step === 3 && (
           <div className="signup_third">
             <h1>Signup to CareAssist</h1>
-            <input
-              type="text"
-              name="firstname"
-              placeholder="First Name"
-              value={formData.firstname}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="lastname"
-              placeholder="Last Name"
-              value={formData.lastname}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="mobile"
-              placeholder="Mobile Number"
-              value={formData.mobile}
-              onChange={handleInputChange}
-            />
+
+            <section className="first_row">
+              <input
+                type="text"
+                name="firstname"
+                placeholder="First Name"
+                value={formData.firstname}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="lastname"
+                placeholder="Last Name"
+                value={formData.lastname}
+                onChange={handleInputChange}
+              />
+            </section>
+
+            <section className="second_row">
+              <input
+                type="text"
+                name="mobile"
+                placeholder="Mobile Number"
+                value={formData.mobile}
+                onChange={handleInputChange}
+              />
+
+              <select name="gender" id="gender" onChange={handleInputChange} value={formData.gender}>
+                <option value="0">Male</option>
+                <option value="1">Female</option>
+                <option value="2">Others</option>
+              </select>
+            </section>
+
+            <input type="date" name="birthdate" id="birthdate" onChange={handleInputChange} value={formData.birthdate}/>
+ 
             <input
               type="password"
               name="password"
@@ -131,12 +176,21 @@ const Signup = ({redirectToLogin}) => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
             />
-            <button onClick={handleSignup} className="third_signup_submit">Submit</button>
+            <button onClick={handleSignup} className="third_signup_submit">
+              Submit
+            </button>
           </div>
         )}
       </div>
     </div>
+    </>
   );
 };
+
+Signup.prototypes = {
+  redirectToLogin: PropTypes.func.isRequired,
+  crossSignup: PropTypes.func.isRequired,
+}
+
 
 export default Signup;
