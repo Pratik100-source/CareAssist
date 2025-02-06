@@ -11,7 +11,7 @@ import Queries from "../../queries/queries"
 
 
 
-const Home = () => {
+const PatientHome = () => {
   const navigate = useNavigate(); // Initialize the navigate function
   const [isLoginClicked, setIsLoginClicked] = useState(false);
   const [isSignupClicked, setIsSignupClicked] = useState(false);
@@ -32,7 +32,7 @@ const Home = () => {
 
 
   const handleLoginClick = () => {  
-    navigate("/home", {state:{reload:true}});
+    navigate("/patienthome", {state:{reload:true}});
     setIsLoginClicked(true);
     setIsSignupClicked(false);
     
@@ -40,7 +40,7 @@ const Home = () => {
   };
 
   const handleSignupClick = () => {
-    navigate("/home",{state:{reload:true}});
+    navigate("/patienthome",{state:{reload:true}});
     setIsSignupClicked(true);
     setIsLoginClicked(false);
   };
@@ -80,7 +80,7 @@ const Home = () => {
           onSignupClick={handleSignupClick}
         />
       </div>
-      {isLoginClicked && <div className={isLoginClicked?"login_show":"login_hide"}><Login redirectToSignup = {handleSignupClick} /></div>}
+      {isLoginClicked && <div className={isLoginClicked?"login_show":"login_hide"}><Login redirectToSignup = {handleSignupClick} crossLogin = {handlecross} /></div>}
         {isSignupClicked && <div className={isSignupClicked?"signup_show":"signup_hide"}><Signup redirectToLogin = {handleLoginClick} crossSignup = {handlecross} /></div>}
         <div className="home_body" id="first_body">
           <div className="home_body_content">
@@ -108,4 +108,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default PatientHome;

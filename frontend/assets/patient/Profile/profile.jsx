@@ -1,10 +1,15 @@
-const Profile = ()=>{
 
+import { useParams } from "react-router-dom";
+
+const patientProfile = ()=>{
+const {userType} = useParams();
+console.log(userType);
     return(
  
 
     
-        <p>Welcome to your profile</p>
+        <p>Welcome to the {userType} dashboard</p>
+        
 
 
 
@@ -13,4 +18,4 @@ const Profile = ()=>{
 }
 
 
-export default Profile;
+export default patientProfile;

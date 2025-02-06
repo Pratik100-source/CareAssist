@@ -3,8 +3,10 @@ import axios from "axios";
 import photo from "../images/side_image.jpg"; 
 import "./login.css";
 import { useNavigate } from "react-router-dom";
+import { RxCross2 } from "react-icons/rx";
+import PropTypes from "prop-types";
 
-const Login = ({redirectToSignup}) => {
+const Login = ({redirectToSignup, crossLogin}) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,10 +24,19 @@ const Login = ({redirectToSignup}) => {
 
     try {
       const response = await axios.post("http://localhost:3003/api/auth/login", formData);
-
+    
 
       if (response.status === 200) {
-        navigate("/profile"); 
+
+        const {userType} = response.data;
+        console.log(userType)
+        if(userType === 'Patient'){
+          localStorage.setItem("reload", "true");
+          navigate("/patientHome", {state:{reload:true}});
+        }
+        else if(userType === 'Professional'){
+          navigate("/professionalHome");
+        }
       }
     } catch (error) {
       
@@ -42,7 +53,18 @@ const Login = ({redirectToSignup}) => {
     redirectToSignup();
    }
 
+   const cross_clicked = ()=>{
+    if (crossLogin) {
+      crossLogin();
+    } else {
+      console.error("crossLogin function is undefined!");
+    }
+  }
+
   return (
+
+    <>
+    <RxCross2 className="login_cross"  onClick={cross_clicked}/>
     <div className="login_main">
       <div className="login_form">
         <h1>Login to CareAssist</h1>
@@ -68,7 +90,13 @@ const Login = ({redirectToSignup}) => {
         <img src={photo} alt="Login Visual" />
       </div>
     </div>
+    </>
+    
   );
 };
 
+Login.propTypes = {
+  redirectToSignup: PropTypes.func.isRequired,
+  crossLogin: PropTypes.func.isRequired
+}
 export default Login;

@@ -10,7 +10,7 @@ const Topbar = ({ onLoginClick, onSignupClick }) => {
 
   const handleHomeReload = ()=>{
     localStorage.setItem("reload", "true");
-    navigate("/home", {state:{reload:true}});
+    navigate("/patientHome", {state:{reload:true}});
   }
   
 

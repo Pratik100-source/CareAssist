@@ -1,4 +1,5 @@
 const Patient = require("../models/patient");
+const Professional = require("../models/professional");
 
 const patientSignup = async (req, res) => {
   const { email, firstname, lastname, mobile, gender, birthdate, password } =
@@ -38,6 +39,45 @@ const patientSignup = async (req, res) => {
   }
 };
 
+const professionalSignup = async (req, res) => {
+  const { email, firstname, lastname, mobile, gender, birthdate, password } =
+    req.body;
+
+  let gender_string = null;
+
+  if (gender === "0") {
+    gender_string = "male";
+  } else if (gender === "1") {
+    gender_string = "female";
+  } else if (gender === "2") {
+    gender_string = "others";
+  } else {
+    return res.status(400).json({ message: "Invalid gender value" });
+  }
+
+  const date_parse = Date.parse(birthdate);
+  const date_object = new Date(date_parse);
+
+  const newProfessional = new Professional({
+    email,
+    firstname,
+    lastname,
+    mobile,
+    gender: gender_string,
+    birthdate: date_object,
+    password,
+  });
+
+  console.log(newProfessional);
+  try {
+    await newProfessional.save();
+    return res.status(201).send("User registered successfully");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Error registering user");
+  }
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -48,9 +88,11 @@ const login = async (req, res) => {
   }
 
   try {
-    const user = await Patient.findOne({
-      email: email,
-    });
+    let user = await Patient.findOne({ email });
+
+    if (!user) {
+      user = await Professional.findOne({ email });
+    }
 
     if (!user) {
       return res.status(401).json({
@@ -58,7 +100,7 @@ const login = async (req, res) => {
       });
     }
 
-    if (password != user.password) {
+    if (password !== user.password) {
       return res.status(401).json({
         message: "Invalid email or password",
       });
@@ -66,6 +108,7 @@ const login = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
+      userType: user instanceof Patient ? "Patient" : "Professional",
     });
   } catch (error) {
     console.log(error);
@@ -74,4 +117,5 @@ const login = async (req, res) => {
     });
   }
 };
-module.exports = { patientSignup, login };
+
+module.exports = { patientSignup, login, professionalSignup };
