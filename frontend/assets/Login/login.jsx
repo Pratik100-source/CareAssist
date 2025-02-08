@@ -28,7 +28,9 @@ const Login = ({redirectToSignup, crossLogin}) => {
 
       if (response.status === 200) {
 
-        const {userType} = response.data;
+        const {userType, token} = response.data;
+        console.log(token)
+        localStorage.setItem("token", token)
         console.log(userType)
         if(userType === 'Patient'){
           localStorage.setItem("reload", "true");

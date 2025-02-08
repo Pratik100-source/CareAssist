@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+
 const Patient = require("../models/patient");
 const Professional = require("../models/professional");
 
@@ -106,9 +108,17 @@ const login = async (req, res) => {
       });
     }
 
+    const userType = user instanceof Patient ? "Patient" : "Professional";
+    const token = jwt.sign(
+      { id: user._id, email: user.email, userType },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
     res.status(200).json({
       message: "Login successful",
-      userType: user instanceof Patient ? "Patient" : "Professional",
+      userType,
+      token,
     });
   } catch (error) {
     console.log(error);

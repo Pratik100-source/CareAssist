@@ -1,10 +1,11 @@
-import Logo from "../../images/logo.png";
+import Logo from "../images/logo.png";
 import "./topbar.css";
 import { useNavigate } from "react-router-dom";
+import { IoPersonOutline } from "react-icons/io5"
 import propType from "prop-types";
 
 
-const Topbar = ({onProfileClick }) => {
+const Topbar = ({ onLoginClick, onSignupClick, onProfileClick }) => {
   const navigate = useNavigate();
 
   const handleHomeReload = ()=>{
@@ -26,6 +27,8 @@ const Topbar = ({onProfileClick }) => {
             <li>How it Works?</li>
           </ul>
           <div className="outside_navigator">
+            <section onClick={onLoginClick} className="login_interface"><icon><IoPersonOutline/></icon><p>Login</p></section>
+            <section onClick={onSignupClick} className="signup_interface">Signup</section>
             <section onClick={onProfileClick}><p>Profile</p></section> 
           </div>
         </nav>
@@ -35,6 +38,8 @@ const Topbar = ({onProfileClick }) => {
 };
 
 Topbar.propTypes = {
+  onLoginClick: propType.func.isRequired,
+  onSignupClick: propType.func.isRequired,
   onProfileClick: propType.func.isRequired
 }
 

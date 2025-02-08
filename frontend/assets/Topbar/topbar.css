@@ -1,0 +1,76 @@
+.top_main {
+  width: 100%;
+  align-items: center;
+  height: 100%;
+}
+
+.top_submain {
+  display: flex;
+  width: auto;
+  align-items: center;
+  height: 100%;
+}
+
+.top_main .top_submain img {
+  /* flex: 0.34; */
+  flex-direction: row;
+  height: 50px;
+  max-width: 100%;
+  width: 6rem;
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+
+.top_main .top_submain .top_nav {
+  flex: 6 0 auto;
+  display: flex;
+
+  text-decoration: none;
+}
+
+.top_main .top_submain .top_nav .inside_navigator {
+  flex: 3 0 auto;
+
+  text-align: left;
+}
+.top_main .top_submain .top_nav li {
+  display: inline-block;
+  padding-left: 2.3rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.top_main .top_submain .top_nav li:hover {
+  color: #ff3131;
+}
+
+.top_main .top_submain .top_nav .outside_navigator {
+  flex: 3.5 0 auto;
+  text-align: left;
+  display: flex;
+  border-left: 1px solid black;
+  flex-direction: row;
+  column-gap: 2rem;
+  padding-left: 1rem;
+  align-items: center;
+}
+
+.top_main .top_submain .top_nav .outside_navigator .login_interface {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  column-gap: 0.3rem;
+}
+
+.top_main .top_submain .top_nav .outside_navigator section {
+  cursor: pointer;
+  transition: 0.3s all;
+}
+.top_main .top_submain .top_nav .outside_navigator section:hover {
+  color: #ff3131;
+}
+
+.top_main .top_submain .top_nav .outside_navigator .login_interface icon {
+  font-size: 0.8rem;
+  padding-top: 0.25rem;
+}
