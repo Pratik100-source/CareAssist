@@ -110,11 +110,18 @@ const login = async (req, res) => {
 
     const userType = user instanceof Patient ? "Patient" : "Professional";
     const token = jwt.sign(
-      { id: user._id, email: user.email, userType },
+      {
+        id: user._id,
+        email: user.email,
+        gender: user.gender,
+        name: user.firstname,
+        userType,
+      },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
+    console.log(user.gender);
     res.status(200).json({
       message: "Login successful",
       userType,
