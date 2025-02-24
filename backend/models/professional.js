@@ -14,6 +14,7 @@ const professionalSchema = new mongoose.Schema({
     required: true,
   },
   password: String,
+  verification: { type: Boolean, required: false, default: false },
 });
 
 const Professional = mongoose.model("Professional", professionalSchema);

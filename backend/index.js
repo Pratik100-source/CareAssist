@@ -163,6 +163,8 @@ const connectdb = require("../backend/config/dbConnection");
 
 const emailRoutes = require("../backend/routes/emailRouter");
 const authRoutes = require("../backend/routes/authRouter");
+const displayinfoRoutes = require("../backend/routes/displayinfoRouter");
+const verifyprofessionalRoutes = require("../backend/routes/verifyProfessionalRouter");
 
 const app = express();
 app.use(cors());
@@ -175,6 +177,8 @@ connectdb();
 
 app.use("/api/otp", emailRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/display", displayinfoRoutes);
+app.use("/api/verification", verifyprofessionalRoutes);
 
 app.listen(3003, () => {
   console.log("Server running on port 3003");

@@ -1,0 +1,31 @@
+.patients {
+  padding: 20px;
+}
+
+.patients h2 {
+  margin-bottom: 20px;
+}
+
+.patients input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.patients table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patients table th,
+.patients table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.patients table th {
+  background-color: #f4f4f4;
+}

@@ -100,7 +100,7 @@ const PatientHome = () => {
       ):<Topbar
       onLoginClick={handleLoginClick}
       onSignupClick={handleSignupClick}
-      onProfileClick = {handleProfileClick
+      onProfileClick = {handleLoginClick
       }
     />}: 
       </div>

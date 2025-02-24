@@ -1,0 +1,31 @@
+.professionals {
+  padding: 20px;
+}
+
+.professionals h2 {
+  margin-bottom: 20px;
+}
+
+.professionals input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.professionals table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.professionals table th,
+.professionals table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.professionals table th {
+  background-color: #f4f4f4;
+}

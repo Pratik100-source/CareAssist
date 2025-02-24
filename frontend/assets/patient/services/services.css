@@ -48,7 +48,7 @@
 
 .services_main .services_second .first .visuals .icon {
   font-size: 3rem;
-  color: red;
+  color: #FF3131;
   transform: scaleX(-1);
   width: 40px;
 }
@@ -64,6 +64,7 @@
 /*second box*/
 
 .services_main .services_second .second {
+  
   padding-left: 2rem;
   float: left;
   display: flex;
@@ -81,7 +82,7 @@
 
 .services_main .services_second .second .visuals .icon {
   font-size: 3rem;
-  color: red;
+  color: #FF3131;
   transform: scaleX(-1);
   width: 40px;
 }
@@ -114,7 +115,7 @@
 
 .services_main .services_second .third .visuals .icon {
   font-size: 3rem;
-  color: red;
+  color: #FF3131;
   transform: scaleX(-1);
   width: 40px;
 }
@@ -146,7 +147,7 @@
 
 .services_main .services_second .fourth .visuals .icon {
   font-size: 3rem;
-  color: red;
+  color: #FF3131;
   transform: scaleX(-1);
   width: 40px;
 }

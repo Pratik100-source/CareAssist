@@ -126,6 +126,14 @@ const login = async (req, res) => {
       message: "Login successful",
       userType,
       token,
+      user: {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        number: user.mobile,
+        gender: user.gender,
+        birthdate: user.birthdate,
+        status: user.verification,
+      },
     });
   } catch (error) {
     console.log(error);

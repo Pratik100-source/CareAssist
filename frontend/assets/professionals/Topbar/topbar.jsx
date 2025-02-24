@@ -102,8 +102,7 @@ const handlelogout = async() =>{
         <img className="logo" src={Logo} alt="Logo" onClick={handleHomeReload} />
         <nav className="top_nav">
           <ul className="inside_navigator">
-            <li>Find Professionals</li>
-            <li>Video Counselling</li>
+            <li>Manage Bookings</li>
             <li>How it Works?</li>
           </ul>
           <div className="outside_navigator">

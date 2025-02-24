@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #34495e;
+  color: white;
+}
+
+.header-left span {
+  font-size: 18px;
+}
+
+.header-right button {
+  background-color: #1abc9c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.header-right button:hover {
+  background-color: #16a085;
+}

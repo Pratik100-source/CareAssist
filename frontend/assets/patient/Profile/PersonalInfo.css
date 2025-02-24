@@ -1,0 +1,20 @@
+.user_status {
+  display: flex;
+  flex-direction: row;
+  column-gap: 10px;
+}
+
+.user_status .do_verify {
+  background-color: #ff3131;
+  width: 10%;
+  align-items: center;
+  display: center;
+  text-align: center;
+  border-radius: 0.1rem;
+  color: white;
+  cursor: pointer;
+}
+
+.user_status .do_verify:hover {
+  background-color: #b8100ad7;
+}

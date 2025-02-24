@@ -5,7 +5,7 @@ import { IoPersonOutline } from "react-icons/io5"
 import propType from "prop-types";
 
 
-const Topbar = ({ onLoginClick, onSignupClick, onProfileClick }) => {
+const Topbar = ({ onLoginClick, onSignupClick}) => {
   const navigate = useNavigate();
 
   const handleHomeReload = ()=>{
@@ -13,9 +13,6 @@ const Topbar = ({ onLoginClick, onSignupClick, onProfileClick }) => {
     navigate("/patientHome", {state:{reload:true}});
   }
   
-
-
-
   return (
     <div className="top_main">
       <div className="top_submain">
@@ -29,7 +26,7 @@ const Topbar = ({ onLoginClick, onSignupClick, onProfileClick }) => {
           <div className="outside_navigator">
             <section onClick={onLoginClick} className="login_interface"><icon><IoPersonOutline/></icon><p>Login</p></section>
             <section onClick={onSignupClick} className="signup_interface">Signup</section>
-            <section onClick={onProfileClick}><p>Profile</p></section> 
+            <section onClick={onLoginClick}><p>Profile</p></section> 
           </div>
         </nav>
       </div>
@@ -40,7 +37,6 @@ const Topbar = ({ onLoginClick, onSignupClick, onProfileClick }) => {
 Topbar.propTypes = {
   onLoginClick: propType.func.isRequired,
   onSignupClick: propType.func.isRequired,
-  onProfileClick: propType.func.isRequired
 }
 
 export default Topbar;
