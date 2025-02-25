@@ -1,27 +1,8 @@
 import "./footer.css"
 
 import bottom_logo from "../images/logo.png";
-import { useLocation, useNavigate } from "react-router-dom";
-
-
-
 const Footer = () => {
-
-  const navigate = useNavigate();
-
   const year = new Date().getFullYear();
-
-  const handleHomeReload = () =>{
-
-    localStorage.setItem("reload", "true");
-    navigate("/patientHome", { state: { reload: true } });
-  }
-
-  const location = useLocation();
-
-  
-
-
 return(
     <>
     
@@ -30,7 +11,7 @@ return(
       <div className="footer_submain">
 
       <section className="section_about">
-      <img className="logo" src={bottom_logo} alt="Logo" onClick={handleHomeReload} />
+      <img className="logo" src={bottom_logo} alt="Logo"/>
       <p>CareAssist connects you with trusted medical professionals, 
         bringing personalized healthcare to your doorstep.</p>
       </section>

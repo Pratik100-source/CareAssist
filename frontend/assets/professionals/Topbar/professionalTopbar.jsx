@@ -1,5 +1,5 @@
 import Logo from "../../images/logo.png";
-import "./topbar.css";
+import "./professionalTopbar.css";
 import { useNavigate } from "react-router-dom";
 import propType from "prop-types";
 import { IoIosNotifications } from "react-icons/io";
@@ -7,21 +7,25 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { useState, useEffect, useRef } from "react";
 
 import { useDispatch } from "react-redux";
-import {logout} from "../../../features/userSlice"
+import {logout} from "../../../features/userSlice";
+
+import { showLoader, hideLoader} from "../../../features/loaderSlice"
 
 
-
-
-const Topbar = ({onProfileClick }) => {
+const ProfessionalTopbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [ProfileClick, setProfileClick]= useState(false);
-  const [loading, setloading] = useState(false);
   const dropdownRef = useRef(null); // Reference for the dropdown
 
   const handleHomeReload = ()=>{
+           
+    dispatch(showLoader());
+   setTimeout(()=>{
     localStorage.setItem("reload", "true");
-    navigate("/patientHome", {state:{reload:true}});
+    navigate("/professionalHome", {state:{reload:true}});
+   }, 700)
+    
   }
   
 const token = localStorage.getItem('token');
@@ -44,10 +48,6 @@ catch(error){
 }
 
 const handle_profile_click = () => {
-
-  // setProfileClick((prev) => !prev); //here prev represents the previous state.. we are using the opposite value of the previous state in seProfileClick.. 
-   
-  //  ProfileClick === true? setProfileClick(false) : setProfileClick(true)
 
   if(ProfileClick===true){
     setProfileClick(false)
@@ -79,24 +79,21 @@ useEffect(() => {
 
 
 const handlelogout = async() =>{
-
-  setloading(true);
-
+ 
+  dispatch(showLoader());
   localStorage.removeItem('token');
   await new Promise(resolve => setTimeout(resolve, 1000));
   dispatch(logout());
 
-  localStorage.setItem("reload", "true");
-    navigate("/patientHome", {state:{reload:true}});
-  setloading(false);
+    localStorage.setItem("reload", "true");
+    navigate("/professionalHome", {state:{reload:true}});
 
+  dispatch(hideLoader())
+  
 }
 
   return (
     <>
-    {loading && (<div className="loading_overlay">
-         <div className="loader"></div>
-      </div>)}
     <div className="top_main">
       <div className="top_submain">
         <img className="logo" src={Logo} alt="Logo" onClick={handleHomeReload} />
@@ -111,7 +108,7 @@ const handlelogout = async() =>{
             <div onClick={handle_profile_click} className="after_login_profile"><div className={gender ==='male'?"profile_picture_male":"profile_picture_female"}></div><div className="display_username"><p>{name}</p><IoMdArrowDropdown className="dropdown_icon"/></div>
             { ProfileClick && <div className="dropdown_profile" ref={dropdownRef}>
               <ul className="drop_ul">
-                <li onClick={onProfileClick}>My Profile</li>
+                <li>My Profile</li>
                 <li>Appointments</li>
                 <li>Change Password</li>
                 <li onClick={handlelogout}>Logout</li>
@@ -130,8 +127,8 @@ const handlelogout = async() =>{
   );
 };
 
-Topbar.propTypes = {
+ProfessionalTopbar.propTypes = {
   onProfileClick: propType.func.isRequired
 }
 
-export default Topbar;
+export default ProfessionalTopbar;

@@ -9,6 +9,8 @@ import Services from "../services/services"
 import Queries from "../../queries/queries"
 import Profile from "../Profile/profile"
 import PatientTopbar from "../Topbar/topbar";
+import { useDispatch } from "react-redux";
+import { showLoader} from "../../../features/loaderSlice"
 
 
 
@@ -32,17 +34,25 @@ const PatientHome = () => {
 
 
   const location= useLocation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    const reload_window = () => {
+      const shouldReload = localStorage.getItem("reload");
+      if (shouldReload === "true") {
+       
+        dispatch(showLoader());
+        window.scrollTo({ top: 0, behavior: "auto" });
   
-    const shouldReload = localStorage.getItem("reload");
-    if (shouldReload === "true") {
-      localStorage.removeItem("reload"); 
-      window.location.reload();
-    } else {
-      
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+       
+        setTimeout(() => {
+          localStorage.removeItem("reload"); 
+          window.location.reload();
+        }, 500);
+      } 
+    };
+  
+    reload_window();
   }, [location.state]);
 
 

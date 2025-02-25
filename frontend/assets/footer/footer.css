@@ -33,7 +33,6 @@
 .footer_main .footer_submain .section_about img {
   height: 100%;
   width: 100px;
-  cursor: pointer;
   flex: 1.1;
   float: left;
 }
@@ -93,5 +92,5 @@
 .footer_main .footer_submain .section_quick_links li a:hover {
   font-size: 14px;
   text-decoration: none;
-  color: #FF3131;
+  color: #ff3131;
 }

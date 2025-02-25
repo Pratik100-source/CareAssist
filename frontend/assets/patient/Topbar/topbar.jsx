@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { useDispatch } from "react-redux";
 import {logout} from "../../../features/userSlice"
+import { showLoader} from "../../../features/loaderSlice"
 
 
 
@@ -20,9 +21,12 @@ const Topbar = ({onProfileClick }) => {
   const dropdownRef = useRef(null); // Reference for the dropdown
 
   const handleHomeReload = ()=>{
-    localStorage.setItem("reload", "true");
-    navigate("/patientHome", {state:{reload:true}});
-  }
+             
+      localStorage.setItem("reload", "true");
+      navigate("/patientHome", {state:{reload:true}});
+
+      
+    }
   
 const token = localStorage.getItem('token');
 let gender = '';

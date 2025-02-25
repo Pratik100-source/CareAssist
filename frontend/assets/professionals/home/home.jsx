@@ -6,7 +6,7 @@ import Footer from "../../footer/footer"
 import Login from "../../Login/login"
 import Signup from "../../Signup/signup"
 import Queries from "../../queries/queries"
-import ProfessionalTopbar from "../Topbar/topbar";
+import ProfessionalTopbar from "../Topbar/professionalTopbar";
 
 
 
@@ -32,20 +32,24 @@ const PatientHome = () => {
   const location= useLocation();
 
   useEffect(() => {
+    const reload_window = async () => {
+      const shouldReload = localStorage.getItem("reload");
+      if (shouldReload === "true") {
+        // Scroll to top first
+        window.scrollTo({ top: 0, behavior:"auto" });
+        setTimeout(() => {
+          localStorage.removeItem("reload"); 
+          window.location.reload();
+        }, 200);
+      } 
+    };
   
-    const shouldReload = localStorage.getItem("reload");
-    if (shouldReload === "true") {
-      localStorage.removeItem("reload"); 
-      window.location.reload();
-    } else {
-      
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    reload_window();
   }, [location.state]);
 
 
   const handleLoginClick = () => {  
-    navigate("/patienthome", {state:{reload:true}});
+    navigate("/professionalHome", {state:{reload:true}});
     setIsLoginClicked(true);
     setIsSignupClicked(false);
     
@@ -53,7 +57,7 @@ const PatientHome = () => {
   };
 
   const handleSignupClick = () => {
-    navigate("/patienthome",{state:{reload:true}});
+    navigate("/professionalHome",{state:{reload:true}});
     setIsSignupClicked(true);
     setIsLoginClicked(false);
   };
@@ -66,7 +70,7 @@ const PatientHome = () => {
   };
 
   const handleProfileClick = () =>{
-    navigate("/patientProfile");
+    navigate("/professionalProfile");
   }
 
   const handlecross = () =>{
