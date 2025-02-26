@@ -12,7 +12,7 @@ import {logout} from "../../../features/userSlice";
 import { showLoader, hideLoader} from "../../../features/loaderSlice"
 
 
-const ProfessionalTopbar = () => {
+const ProfessionalTopbar = ({onProfileClick}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [ProfileClick, setProfileClick]= useState(false);
@@ -108,7 +108,7 @@ const handlelogout = async() =>{
             <div onClick={handle_profile_click} className="after_login_profile"><div className={gender ==='male'?"profile_picture_male":"profile_picture_female"}></div><div className="display_username"><p>{name}</p><IoMdArrowDropdown className="dropdown_icon"/></div>
             { ProfileClick && <div className="dropdown_profile" ref={dropdownRef}>
               <ul className="drop_ul">
-                <li>My Profile</li>
+              <li onClick={onProfileClick}>My Profile</li>
                 <li>Appointments</li>
                 <li>Change Password</li>
                 <li onClick={handlelogout}>Logout</li>

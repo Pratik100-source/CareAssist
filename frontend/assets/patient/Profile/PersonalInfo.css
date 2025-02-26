@@ -38,26 +38,6 @@
   column-gap: 10px;
 }
 
-.user_status .do_verify {
-  background-color: #ff3131;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.user_status .do_verify:hover {
-  background-color: #e62e2e;
-  transform: scale(1.05);
-}
-
 .user_status .do_verify p {
   margin: 0;
 }

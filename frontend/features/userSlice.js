@@ -6,6 +6,7 @@ const initialState = {
   firstname: null,
   lastname: null,
   number: null,
+  email: null,
   gender: null,
   birthdate: null,
   status: false,
@@ -20,11 +21,19 @@ const userSlice = createSlice({
       state.token = action.payload.token;
 
       if (action.payload.basic_info) {
-        const { firstname, lastname, number, gender, birthdate, status } =
-          action.payload.basic_info;
+        const {
+          firstname,
+          lastname,
+          number,
+          email,
+          gender,
+          birthdate,
+          status,
+        } = action.payload.basic_info;
         state.firstname = firstname;
         state.lastname = lastname;
         state.number = number;
+        state.email = email;
         state.gender = gender;
         state.birthdate = birthdate;
         state.status = status;
@@ -37,6 +46,7 @@ const userSlice = createSlice({
       state.firstname = null;
       state.lastname = null;
       state.number = null;
+      state.email = null;
       state.gender = null;
       state.birthdate = null;
       state.status = false;

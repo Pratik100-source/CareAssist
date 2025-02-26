@@ -10,11 +10,15 @@ const professionalSchema = new mongoose.Schema({
     required: true,
   },
   birthdate: {
-    type: Object,
+    type: Date, // Changed to Date type for better handling
     required: true,
   },
   password: String,
-  verification: { type: Boolean, required: false, default: false },
+  verification: { type: Boolean, default: false },
+  document: {
+    photoUrl: { type: String, default: "" }, // Ensure default values
+    documentUrl: { type: String, default: "" },
+  },
 });
 
 const Professional = mongoose.model("Professional", professionalSchema);

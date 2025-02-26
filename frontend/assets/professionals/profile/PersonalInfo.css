@@ -1,0 +1,219 @@
+.personal_info_container {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  font-family: "Arial", sans-serif;
+}
+
+.section_header {
+  font-size: 1.75rem;
+  color: #333333;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #ff3131;
+  padding-bottom: 0.5rem;
+}
+
+.personal_info_container div {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.personal_info_container .label {
+  font-weight: 600;
+  color: #555555;
+  min-width: 100px;
+  margin-right: 1rem;
+}
+
+.professional_status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.professional_status .do_verify {
+  background-color: #ff3131;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+}
+.professional_status .do_verify p {
+  color: white;
+}
+.professional_status .do_verify:hover {
+  background-color: #b8100ad7;
+  transform: scale(1.05);
+}
+
+.professional_status .do_verify p {
+  margin: 0;
+}
+
+.verification_modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 300px;
+  text-align: center;
+}
+
+.verification_modal h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #333333;
+}
+
+.upload_section {
+  margin-bottom: 1rem;
+}
+
+.upload_section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555555;
+}
+
+.upload_section input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.verification_modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.verification_modal h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #333333;
+  font-weight: 600;
+}
+
+.upload_section {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.upload_section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555555;
+  font-size: 0.9rem;
+}
+
+.upload_section input {
+  width: 100%;
+  padding: 0.35rem;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+.upload_section input:focus {
+  border-color: #ff3131;
+  outline: none;
+}
+
+.verification_modal button {
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #ff3131;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.verification_modal button:hover {
+  background-color: #e62e2e;
+  transform: scale(1.05);
+}
+
+.verification_modal button.cancel {
+  background-color: #ccc;
+  color: #333333;
+}
+
+.verification_modal button.cancel:hover {
+  background-color: #bbb;
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .personal_info_container {
+    padding: 1rem;
+  }
+
+  .personal_info_container div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .personal_info_container .label {
+    margin-bottom: 0.5rem;
+  }
+
+  .professional_status {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 10px;
+  }
+}

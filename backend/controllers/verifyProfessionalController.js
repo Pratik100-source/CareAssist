@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const Professional = require("../models/professional");
 
 const findUnverifiedProfessional = async (req, res) => {
@@ -29,4 +31,23 @@ const findUnverifiedProfessional = async (req, res) => {
   }
 };
 
-module.exports = { findUnverifiedProfessional };
+const uploadDocument = async (req, res) => {
+  const { email, photoUrl, documentUrl } = req.body;
+
+  try {
+    // Save to MongoDB
+    const result = await Professional.updateOne(
+      { email: email },
+      { $set: { document: { photoUrl, documentUrl } } }
+    );
+
+    if (result !== 0) {
+      res.status(200).json({ message: "Verification data saved successfully" });
+    }
+  } catch (error) {
+    console.error("Error saving verification data:", error);
+    res.status(500).json({ message: "Failed to save verification data" });
+  }
+};
+
+module.exports = { findUnverifiedProfessional, uploadDocument };

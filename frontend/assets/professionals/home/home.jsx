@@ -11,7 +11,7 @@ import ProfessionalTopbar from "../Topbar/professionalTopbar";
 
 
 
-const PatientHome = () => {
+const ProfessionalHome = () => {
   const navigate = useNavigate(); // Initialize the navigate function
   const [isLoginClicked, setIsLoginClicked] = useState(false);
   const [isSignupClicked, setIsSignupClicked] = useState(false);
@@ -133,4 +133,4 @@ const PatientHome = () => {
   );
 };
 
-export default PatientHome;
+export default ProfessionalHome;
