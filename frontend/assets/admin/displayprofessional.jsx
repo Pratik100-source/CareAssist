@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './displayprofessional.css';
 
-const Displayprofessional = () => {
+const DisplayProfessional = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [professionalData, setprofessionalsData] = useState([]);
+  const [professionalData, setProfessionalsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewClicked, setViewClicked] = useState(false);
+  const [selectedProfessional, setSelectedProfessional] = useState(null);
 
-  // Fetch professional data from the backend
   useEffect(() => {
     const fetchProfessional = async () => {
       try {
@@ -16,31 +17,51 @@ const Displayprofessional = () => {
           throw new Error('Failed to fetch professional data');
         }
         const data = await response.json();
-        setprofessionalsData(data); // Set the fetched data to state
+        setProfessionalsData(data);
       } catch (error) {
-        setError(error.message); // Handle errors
+        setError(error.message);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
-
     fetchProfessional();
   }, []);
 
-  // Filter professionals based on search term
+  const handleViewClick = (professional) => {
+    setSelectedProfessional(professional);
+    setViewClicked(true);
+  };
+
+  const handleModalClose = () => {
+    setViewClicked(false);
+    setSelectedProfessional(null);
+  };
+
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
+  };
+
   const filteredProfessional = professionalData.filter(professional =>
     professional.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Display loading or error messages
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
- 
   return (
     <div className="professionals">
       <h2>Verified Professionals</h2>
@@ -57,6 +78,7 @@ const Displayprofessional = () => {
             <th>Email</th>
             <th>Number</th>
             <th>Status</th>
+            <th>Documents</th>
           </tr>
         </thead>
         <tbody>
@@ -65,13 +87,48 @@ const Displayprofessional = () => {
               <td>{professional.name}</td>
               <td>{professional.email}</td>
               <td>{professional.number}</td>
-              <td>{professional.status?"verified":"non-verified"}</td>
+              <td>{professional.status ? "Verified" : "Non-verified"}</td>
+              <td>
+                <div className='document_view' onClick={() => handleViewClick(professional)}>View</div>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {selectedProfessional && viewClicked && (
+        <div className="modal-overlay-view">
+          <div className="selected-professional">
+            <button className="close-button" onClick={handleModalClose}>&times;</button>
+            <div className="professional-photo">
+              {selectedProfessional.document?.photoUrl ? (
+                <>
+                  <img src={selectedProfessional.document.photoUrl} alt="Professional Photo" />
+                  <button className="download-button" onClick={() => handleDownload(selectedProfessional.document.photoUrl, `${selectedProfessional.name}_photo.jpg`)}>
+                    Download Photo
+                  </button>
+                </>
+              ) : (
+                <p>No photo available</p>
+              )}
+            </div>
+            <div className="professional-document">
+              {selectedProfessional.document?.documentUrl ? (
+                <>
+                  <img src={selectedProfessional.document.documentUrl} alt="Professional Document" />
+                  <button className="download-button" onClick={() => handleDownload(selectedProfessional.document.documentUrl, `${selectedProfessional.name}_document.jpg`)}>
+                    Download Document
+                  </button>
+                </>
+              ) : (
+                <p>No document available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Displayprofessional;
+export default DisplayProfessional;

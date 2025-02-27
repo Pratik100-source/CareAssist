@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import "./verifyprofessional.css";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { showLoader, hideLoader } from "../../features/loaderSlice";
 
 const Verifyprofessional = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [professionalData, setprofessionalsData] = useState([]);
+  const [viewClicked, setviewClicked] = useState(false);
+  const [editClicked, seteditClicked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProfessional, setSelectedProfessional] = useState(null);
 
+  const dispatch = useDispatch();
+  const location = useLocation();
   // Fetch professional data from the backend
   useEffect(() => {
     const fetchProfessional = async () => {
@@ -18,16 +27,86 @@ const Verifyprofessional = () => {
           throw new Error("Failed to fetch professional data");
         }
         const data = await response.json();
-        setprofessionalsData(data); // Set the fetched data to state
+        setprofessionalsData(data);
       } catch (error) {
-        setError(error.message); // Handle errors
+        setError(error.message);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
     fetchProfessional();
   }, []);
+
+  // Handle View Click
+  const handleViewClick = (professional) => {
+    setSelectedProfessional(professional);
+    setviewClicked(true);
+  };
+
+  const handleEditClick = (professional) => {
+    setSelectedProfessional(professional);
+    seteditClicked(true);
+  };
+
+  const handle_modal_close = () => {
+    if (editClicked) {
+      seteditClicked(false);
+    } else if (viewClicked) {
+      setviewClicked(false);
+    }
+
+    setSelectedProfessional(null);
+  };
+  // Handle Download Click
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob(); // Convert the response to a blob
+      const blobUrl = window.URL.createObjectURL(blob); // Create a temporary URL for the blob
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename; // Set the filename for the downloaded file
+      document.body.appendChild(link);
+      link.click(); // Trigger the download
+      document.body.removeChild(link); // Clean up the DOM
+
+      window.URL.revokeObjectURL(blobUrl); // Release the blob URL
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
+  const handleUpdate = async (email) => {
+    dispatch(showLoader());
+
+    try {
+      const response = await fetch(
+        "http://localhost:3003/api/verification/updateStatus",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update professional status");
+      }
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
+    }
+  };
 
   // Filter professionals based on search term
   const filteredProfessional = professionalData.filter((professional) =>
@@ -35,17 +114,12 @@ const Verifyprofessional = () => {
   );
 
   // Display loading or error messages
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="professionals">
-      <h2>Unverfied Professionals</h2>
+      <h2>Unverified Professionals</h2>
       <input
         type="text"
         placeholder="Search..."
@@ -72,16 +146,107 @@ const Verifyprofessional = () => {
                   <div className="display_status">
                     {professional.status ? "verified" : "unverified"}{" "}
                   </div>
-                  <div className="document_view">
-                    <p>view</p>
-                  </div>{" "}
-                  <div className="edit_professional">edit</div>
+                  <div
+                    className="document_view"
+                    onClick={() => handleViewClick(professional)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <p>View</p>
+                  </div>
+                  <div
+                    className="edit_professional"
+                    onClick={() => handleEditClick(professional)}
+                  >
+                    Edit
+                  </div>
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Selected Professional Details */}
+      {selectedProfessional && viewClicked && (
+        <div className="modal-overlay-view">
+          <div className="selected-professional">
+            <button className="close-button" onClick={handle_modal_close}>
+              &times;
+            </button>
+            <div className="professional_photo">
+              {selectedProfessional.document?.photoUrl ? (
+                <>
+                  <img
+                    src={selectedProfessional.document.photoUrl}
+                    alt="Professional Photo"
+                  />
+                  <button
+                    className="download-button"
+                    onClick={() =>
+                      handleDownload(
+                        selectedProfessional.document.photoUrl,
+                        `${selectedProfessional.name}_photo.jpg`
+                      )
+                    }
+                  >
+                    Download Photo
+                  </button>
+                </>
+              ) : (
+                <p>No photo available</p>
+              )}
+            </div>
+            <div className="professional_document">
+              {selectedProfessional.document?.documentUrl ? (
+                <>
+                  <img
+                    src={selectedProfessional.document.documentUrl}
+                    alt="Professional Document"
+                  />
+                  <button
+                    className="download-button"
+                    onClick={() =>
+                      handleDownload(
+                        selectedProfessional.document.documentUrl,
+                        `${selectedProfessional.name}_document.jpg`
+                      )
+                    }
+                  >
+                    Download Document
+                  </button>
+                </>
+              ) : (
+                <p>No document available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedProfessional && editClicked && (
+        <div className="modal-overlay-edit">
+          <div className="selected-professional-edit">
+            <button className="close-button" onClick={handle_modal_close}>
+              &times;
+            </button>
+
+            <div>
+              <label htmlFor="update_verification">
+                {selectedProfessional.name}:{" "}
+              </label>
+              <select name="update_verification" id="update_verification">
+                <option value={selectedProfessional.status}>unverified</option>
+                <option value={true}>verified</option>
+              </select>{" "}
+              <button
+                className="update_button"
+                onClick={() => handleUpdate(selectedProfessional.email)}
+              >
+                update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -43,6 +43,13 @@
   padding: 0 0.4rem 0 0.4rem;
   border-radius: 0.1rem;
 }
+.edit_view_status .document_download {
+  background-color: #ff3131;
+  color: white;
+  cursor: pointer;
+  padding: 0 0.4rem 0 0.4rem;
+  border-radius: 0.1rem;
+}
 .edit_view_status .edit_professional {
   background-color: #ff3131;
   color: white;
@@ -51,9 +58,94 @@
   border-radius: 0.1rem;
 }
 
-.edit_view_status .document_view:hover {
+.edit_view_status .document_view:hover,
+.edit_professional:hover,
+.document_download:hover {
   background-color: #b8100ad7;
 }
-.edit_view_status .edit_professional:hover {
-  background-color: #b8100ad7;
+
+.modal-overlay-view,
+.modal-overlay-edit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.selected-professional {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.selected-professional-edit {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  /* width: 29%; */
+  min-width: 29%;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  text-align: center;
+  align-items: center;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.professional_photo,
+.professional_document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.professional_photo img,
+.professional_document img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.download-button,
+.update_button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.selected-professional-edit #update_verification {
+  border: 1px solid black;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.download-button:hover {
+  background-color: #0056b3;
 }

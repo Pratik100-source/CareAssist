@@ -48,6 +48,7 @@ const findProfessional = async (req, res) => {
       email: professional.email,
       number: professional.mobile,
       status: professional.verification,
+      document: professional.document,
     }));
 
     res.status(200).json(formattedProfessionals);

@@ -8,7 +8,6 @@ import Loader from "./assets/loader/loader"
 import Admindashboard from "./assets/admin/admindashboard";
 
 
-
 function App() {
   return (
     <Router>
@@ -21,7 +20,8 @@ function App() {
         <Route path = "/professionalProfile" element={<ProfessionalProfile/>}/>
         {/* <Route path="/admindashboard" element={<AdminDashboard></AdminDashboard>}></Route> */}
 
-        <Route path = "/admindashboard" element={<Admindashboard/>}/>
+        <Route path = "/admindashboard/*" element={<Admindashboard/>}/>
+        
         
       </Routes>
     </Router>

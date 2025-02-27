@@ -20,6 +20,7 @@ const findUnverifiedProfessional = async (req, res) => {
       email: professional.email,
       number: professional.mobile,
       status: professional.verification,
+      document: professional.document,
     }));
 
     res.status(200).json(formattedProfessionals);
@@ -50,4 +51,32 @@ const uploadDocument = async (req, res) => {
   }
 };
 
-module.exports = { findUnverifiedProfessional, uploadDocument };
+const updateStatus = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await Professional.updateOne(
+      { email: email },
+      { $set: { verification: true } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "No professional found with the provided email" });
+    }
+
+    if (result.modifiedCount === 0) {
+      return res
+        .status(200)
+        .json({ message: "Verification status was already true" });
+    }
+
+    res.status(200).json({ message: "Status changed successfully" });
+  } catch (error) {
+    console.error("Error while updating the status:", error);
+    res.status(500).json({ message: "Failed to update the status" });
+  }
+};
+
+module.exports = { findUnverifiedProfessional, uploadDocument, updateStatus };
