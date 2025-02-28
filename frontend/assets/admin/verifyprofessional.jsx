@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./verifyprofessional.css";
-import axios from "axios";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
 import { showLoader, hideLoader } from "../../features/loaderSlice";
 
 const Verifyprofessional = () => {
@@ -13,9 +11,11 @@ const Verifyprofessional = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProfessional, setSelectedProfessional] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(false); // State for selected status
+  const [selectedSubmission, setSelectedSubmission] = useState("accepted"); // State for selected submission status
 
   const dispatch = useDispatch();
-  const location = useLocation();
+
   // Fetch professional data from the backend
   useEffect(() => {
     const fetchProfessional = async () => {
@@ -57,7 +57,10 @@ const Verifyprofessional = () => {
     }
 
     setSelectedProfessional(null);
+    setSelectedStatus(false); // Reset the selected status
+    setSelectedSubmission("accepted"); // Reset the selected submission status
   };
+
   // Handle Download Click
   const handleDownload = async (url, filename) => {
     try {
@@ -78,7 +81,8 @@ const Verifyprofessional = () => {
     }
   };
 
-  const handleUpdate = async (email) => {
+  // Handle Update
+  const handleUpdate = async (email, status, submission) => {
     dispatch(showLoader());
 
     try {
@@ -91,6 +95,8 @@ const Verifyprofessional = () => {
           },
           body: JSON.stringify({
             email: email,
+            status: status, // Include the selected status
+            submission: submission, // Include the selected submission status
           }),
         }
       );
@@ -99,12 +105,18 @@ const Verifyprofessional = () => {
       }
       const data = await response.json();
       console.log(data);
+
+      // Update the local state to reflect the change
+      const updatedProfessionals = professionalData.map((professional) =>
+        professional.email === email
+          ? { ...professional, status: status, submission: submission } // Update both fields locally
+          : professional
+      );
+      setprofessionalsData(updatedProfessionals); // Update the state
     } catch (error) {
       setError(error.message);
     } finally {
-      setTimeout(() => {
-        window.location.reload();
-      }, 600);
+      dispatch(hideLoader());
     }
   };
 
@@ -222,27 +234,54 @@ const Verifyprofessional = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Modal */}
       {selectedProfessional && editClicked && (
         <div className="modal-overlay-edit">
           <div className="selected-professional-edit">
             <button className="close-button" onClick={handle_modal_close}>
               &times;
             </button>
-
-            <div>
+            <div className="edit_insider">
+              <div>
+              <h3>{selectedProfessional.name}</h3>
               <label htmlFor="update_verification">
-                {selectedProfessional.name}:{" "}
+                Status: 
               </label>
-              <select name="update_verification" id="update_verification">
-                <option value={selectedProfessional.status}>unverified</option>
+              <select
+                name="update_verification"
+                id="update_verification"
+                value={selectedStatus} // Bind to the state
+                onChange={(e) => setSelectedStatus(e.target.value)} // Update state on change
+              >
+                <option value={false}>unverified</option>
                 <option value={true}>verified</option>
-              </select>{" "}
+              </select>
+              <label htmlFor="update_submission">
+                Submission Status: 
+              </label>
+              <select
+                name="update_submission"
+                id="update_submission"
+                value={selectedSubmission} // Bind to the state
+                onChange={(e) => setSelectedSubmission(e.target.value)} // Update state on change
+              >
+                <option value="accepted">accepted</option>
+                <option value="rejected">rejected</option>
+              </select>{" "} <br />
               <button
                 className="update_button"
-                onClick={() => handleUpdate(selectedProfessional.email)}
+                onClick={() =>
+                  handleUpdate(
+                    selectedProfessional.email,
+                    selectedStatus,
+                    selectedSubmission
+                  )
+                }
               >
                 update
               </button>
+            </div>
             </div>
           </div>
         </div>

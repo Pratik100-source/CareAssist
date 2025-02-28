@@ -1,4 +1,4 @@
-.patient_profile_main {
+.professional_profile_main {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -20,14 +20,14 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.patient_profile_submain {
+.professional_profile_submain {
   display: flex;
   flex-direction: row;
   padding: 3rem 10vw 0 15vw;
   gap: 2rem;
 }
 
-.patient_dashboard {
+.professional_dashboard {
   flex: 0 0 250px;
   background-color: #ffffff;
   border-radius: 8px;
@@ -35,12 +35,12 @@
   padding: 1rem;
 }
 
-.patient_dashboard ul {
+.professional_dashboard ul {
   padding: 0;
   margin: 0;
 }
 
-.patient_dashboard ul li {
+.professional_dashboard ul li {
   text-decoration: none;
   list-style: none;
   padding: 1rem;
@@ -49,17 +49,17 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.patient_dashboard ul li:last-child {
+.professional_dashboard ul li:last-child {
   border-bottom: none;
 }
 
-.patient_dashboard ul li:hover {
+.professional_dashboard ul li:hover {
   background-color: #ff3131;
   color: #ffffff;
   border-radius: 4px;
 }
 
-.patient_dashboard ul li .profile_picture_male {
+.professional_dashboard ul li .profile_picture_male {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -72,7 +72,7 @@
   font-size: 1.5rem;
   margin: 0 auto 1rem;
 }
-.patient_dashboard ul li .profile_picture_female {
+.professional_dashboard ul li .profile_picture_female {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -86,7 +86,7 @@
   margin: 0 auto 1rem;
 }
 
-.patient_dashboard_content {
+.professional_dashboard_content {
   background-color: #ffffff;
   flex: 1;
   /* padding: 2rem; */
@@ -94,32 +94,32 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.patient_dashboard_content h2 {
+.professional_dashboard_content h2 {
   margin-bottom: 1.5rem;
   color: #333333;
   font-size: 1.75rem;
 }
 
-.patient_dashboard_content p {
+.professional_dashboard_content p {
   color: #555555;
   line-height: 1.6;
 }
 
-.patient_dashboard_content .info_section {
+.professional_dashboard_content .info_section {
   margin-bottom: 2rem;
 }
 
-.patient_dashboard_content .info_section h3 {
+.professional_dashboard_content .info_section h3 {
   margin-bottom: 1rem;
   color: #333333;
   font-size: 1.5rem;
 }
 
-.patient_dashboard_content .info_section p {
+.professional_dashboard_content .info_section p {
   margin-bottom: 0.5rem;
 }
 
-.patient_dashboard_content .info_section .verify_button {
+.professional_dashboard_content .info_section .verify_button {
   background-color: #ff3131;
   color: #ffffff;
   border: none;
@@ -129,23 +129,23 @@
   transition: background-color 0.3s ease;
 }
 
-.patient_dashboard_content .info_section .verify_button:hover {
+.professional_dashboard_content .info_section .verify_button:hover {
   background-color: #b8100ad7;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .patient_profile_submain {
+  .professional_profile_submain {
     flex-direction: column;
     padding: 2rem 5vw;
   }
 
-  .patient_dashboard {
+  .professional_dashboard {
     width: 100%;
     margin-bottom: 2rem;
   }
 
-  .patient_dashboard_content {
+  .professional_dashboard_content {
     width: 100%;
   }
 }

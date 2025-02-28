@@ -1,15 +1,22 @@
 import { useSelector } from "react-redux";
 import "./PersonalInfo.css";
-import { useState } from "react";
+import { useState, useEffect} from "react";
+import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {showLoader, hideLoader} from "../../../features/loaderSlice";
 
 const PersonalInfo = () => {
-  const professional = useSelector((state) => state.user); // Access the 'professional' state slice
-  console.log("Redux professional State:", professional); // Debugging purpose
-
+  const professional = useSelector((state) => state.user);
+  console.log("Redux professional State:", professional); 
+  
+  const [SubmissionStatus,setSubmissionStatus] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState(null);
   const [verifyClicked, setVerifyClicked] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [documentFile, setDocumentFile] = useState(null);
-
+ 
+  const location = useLocation();
+  const dispatch = useDispatch();
   const birthdate = professional.birthdate;
   let modified_birthdate;
   if (birthdate) {
@@ -27,8 +34,30 @@ const PersonalInfo = () => {
   const handleDocumentUpload = (event) => {
     setDocumentFile(event.target.files[0]);
   };
+ 
+
+  useEffect(() => {
+    const fetch_status = async () => {
+      const response = await fetch("http://localhost:3003/api/display/getprofessionalInfo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: professional.email }),
+      });
+  
+      const data = await response.json();
+      console.log("response from backend", data);
+      setSubmissionStatus(data.result.submission);
+      setVerificationStatus(data.result.verification);
+    };
+  
+    // Fetch data when component mounts
+    fetch_status();
+  }, [professional.email]);
+  
 
   const handleSubmit = async () => {
+    
+    dispatch(showLoader());
     if (!photoFile || !documentFile) {
       alert("Please upload both a photo and a document.");
       return;
@@ -41,8 +70,10 @@ const PersonalInfo = () => {
 
       // Save URLs to MongoDB
       await saveToMongoDB(photoUrl, documentUrl);
+      
+      await window.location.reload();
+      // alert("Verification files uploaded successfully!");
 
-      alert("Verification files uploaded successfully!");
       setVerifyClicked(false);
     } catch (error) {
       console.error("Error uploading files:", error);
@@ -111,10 +142,16 @@ const PersonalInfo = () => {
       </div>
       <div className="professional_status">
         <span className="label">Status:</span>{" "}
-        {professional.status !== null && professional.status !== undefined
-          ? professional.status.toString()
+        {verificationStatus!== null && verificationStatus!== undefined
+          ? verificationStatus.toString()
           : "Not Available"}
-        {!professional.status && (
+        {(!professional.status && SubmissionStatus==="submitted") &&
+        <div className="submission_status">
+        <p>Verification in Progress</p>
+      </div>}
+          
+        
+        {(!professional.status && (SubmissionStatus==="notsubmitted"||SubmissionStatus==="rejected")) && (
           <div className="do_verify" onClick={handleVerifyClick}>
             <p>Verify</p>
           </div>

@@ -39,7 +39,7 @@ const uploadDocument = async (req, res) => {
     // Save to MongoDB
     const result = await Professional.updateOne(
       { email: email },
-      { $set: { document: { photoUrl, documentUrl } } }
+      { $set: { document: { photoUrl, documentUrl }, submission: "submitted" } }
     );
 
     if (result !== 0) {
@@ -52,12 +52,12 @@ const uploadDocument = async (req, res) => {
 };
 
 const updateStatus = async (req, res) => {
-  const { email } = req.body;
+  const { email, status, submission } = req.body;
 
   try {
     const result = await Professional.updateOne(
       { email: email },
-      { $set: { verification: true } }
+      { $set: { verification: true, status: status, submission: submission } }
     );
 
     if (result.matchedCount === 0) {

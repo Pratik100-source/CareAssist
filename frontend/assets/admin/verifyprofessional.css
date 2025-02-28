@@ -140,12 +140,27 @@
   cursor: pointer;
 }
 
-.selected-professional-edit #update_verification {
+.selected-professional-edit #update_verification,
+#update_submission {
   border: 1px solid black;
   padding: 10px 20px;
+  margin-left: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 .download-button:hover {
   background-color: #0056b3;
+}
+
+.edit_insider {
+  display: flex;
+}
+
+.edit_insider select {
+  margin-top: 20px;
+  margin-right: 10px;
+}
+.edit_insider button {
+  width: 100%;
+  margin-top: 20px;
 }

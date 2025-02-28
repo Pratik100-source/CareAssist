@@ -19,6 +19,7 @@ const professionalSchema = new mongoose.Schema({
     photoUrl: { type: String, default: "" }, // Ensure default values
     documentUrl: { type: String, default: "" },
   },
+  submission: { type: String, default: "notsubmitted" },
 });
 
 const Professional = mongoose.model("Professional", professionalSchema);

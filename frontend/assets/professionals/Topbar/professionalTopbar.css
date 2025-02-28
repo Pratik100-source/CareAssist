@@ -167,3 +167,18 @@
   color: white;
   transition: 0.3s all;
 }
+
+.dropdown_notification {
+  position: absolute;
+  top: 100%; /* Positions it right below the profile */
+  right: -9vw;
+  width: 20rem;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15); /* Soft shadow for better visibility */
+  border-radius: 8px;
+  z-index: 100;
+  transform: translateY(10px);
+  padding: 0.2rem;
+  cursor: pointer;
+}

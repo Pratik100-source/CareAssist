@@ -1,7 +1,7 @@
 import "./profile.css";
-import PatientTopbar from "../Topbar/professionalTopbar";
-import PatientPersonalInfo from "../Profile/PersonalInfo";
-import PatientBookingHistory from "../Profile/BHistory";
+import ProfessionalTopbar from "../Topbar/professionalTopbar";
+import ProfessionalPersonalInfo from "./PersonalInfo";
+import ProfessionalBookingHistory from "./BHistory";
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -18,7 +18,7 @@ const ProfessionalProfile = () => {
   const gender = user.gender;
 
   const handleProfileClick = () => {
-    navigate("/patientProfile");
+    navigate("/professionalProfile");
   };
 
   const handlePclick = () => {
@@ -34,31 +34,31 @@ const ProfessionalProfile = () => {
   };
 
   return (
-    <div className="patient_profile_main">
+    <div className="professional_profile_main">
       <div className="profile_top_head">
-        <PatientTopbar onProfileClick={handleProfileClick}></PatientTopbar>
+        <ProfessionalTopbar onProfileClick={handleProfileClick}></ProfessionalTopbar>
       </div>
 
-      <div className="patient_profile_submain">
-        <div className="patient_dashboard">
+      <div className="professional_profile_submain">
+        <div className="professional_dashboard">
           <ul>
             <li><div className={gender==="male"?"profile_picture_male":"profile_picture_female"}></div></li>
             <li onClick={handlePclick}>Personal Information</li>
             <li onClick={handleBclick}>Booking History</li>
           </ul>
         </div>
-        <div className="patient_dashboard_content">
+        <div className="professional_dashboard_content">
           {pClicked}
 
           {pClicked && (
-            <div className="patient_info_content">
-              <PatientPersonalInfo />
+            <div className="professional_info_content">
+              <ProfessionalPersonalInfo />
             </div>
           )}
 
           {bClicked && (
             <div className="booking_history_content">
-              <PatientBookingHistory />
+              <ProfessionalBookingHistory />
             </div>
           )}
         </div>
