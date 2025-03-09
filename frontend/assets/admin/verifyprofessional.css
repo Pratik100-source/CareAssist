@@ -36,13 +36,6 @@
   column-gap: 10px;
 }
 
-.edit_view_status .document_view {
-  background-color: #ff3131;
-  color: white;
-  cursor: pointer;
-  padding: 0 0.4rem 0 0.4rem;
-  border-radius: 0.1rem;
-}
 .edit_view_status .document_download {
   background-color: #ff3131;
   color: white;
@@ -50,17 +43,17 @@
   padding: 0 0.4rem 0 0.4rem;
   border-radius: 0.1rem;
 }
-.edit_view_status .edit_professional {
-  background-color: #ff3131;
-  color: white;
+.edit_view_status .edit_professional .edit_button:hover {
+  color: #ff3131;
   cursor: pointer;
-  padding: 0 0.4rem 0 0.4rem;
-  border-radius: 0.1rem;
 }
 
-.edit_view_status .document_view:hover,
-.edit_professional:hover,
-.document_download:hover {
+.document_view .view_button:hover {
+  color: #ff3131;
+  cursor: pointer;
+}
+
+.edit_view_status .document_download:hover {
   background-color: #b8100ad7;
 }
 

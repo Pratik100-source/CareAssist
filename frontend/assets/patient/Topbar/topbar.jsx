@@ -17,6 +17,7 @@ const Topbar = ({onProfileClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [ProfileClick, setProfileClick]= useState(false);
+  const [FPClick, setFPClick]= useState(false);
   const [loading, setloading] = useState(false);
   const dropdownRef = useRef(null); // Reference for the dropdown
 
@@ -61,6 +62,12 @@ const handle_profile_click = () => {
   }
 };
 
+const handle_find_professional_click = ()=>{
+   
+  (FPClick)?setFPClick(false):setFPClick(true);
+}
+
+
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (
@@ -91,7 +98,7 @@ const handlelogout = async() =>{
   dispatch(logout());
 
   localStorage.setItem("reload", "true");
-    navigate("/patientHome", {state:{reload:true}});
+    navigate("/", {state:{reload:true}});
   setloading(false);
 
 }
@@ -106,8 +113,8 @@ const handlelogout = async() =>{
         <img className="logo" src={Logo} alt="Logo" onClick={handleHomeReload} />
         <nav className="top_nav">
           <ul className="inside_navigator">
-            <li>Find Professionals</li>
-            <li>Video Counselling</li>
+            <li onClick={handle_find_professional_click}>Home Appointment</li>
+            <li onClick={()=>{navigate("/showdoctors")}}>Video Counselling</li>
             <li>How it Works?</li>
           </ul>
           <div className="outside_navigator">

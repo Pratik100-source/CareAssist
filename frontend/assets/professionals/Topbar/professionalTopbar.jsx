@@ -98,7 +98,7 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
     dispatch(logout());
 
     localStorage.setItem("reload", "true");
-    navigate("/professionalHome", { state: { reload: true } });
+    navigate("/", { state: { reload: true } });
 
     dispatch(hideLoader());
   };

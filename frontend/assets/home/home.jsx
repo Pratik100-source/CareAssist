@@ -1,16 +1,14 @@
 import { useState, useEffect} from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
-import Topbar from "../../Topbar/topbar";
+import Topbar from "../Topbar/topbar";
 import "./home.css";
-import Footer from "../../footer/footer"
-import Login from "../../Login/login"
-import Signup from "../../Signup/signup"
-import Services from "../services/services"
-import Queries from "../../queries/queries"
-import Profile from "../Profile/profile"
-import PatientTopbar from "../Topbar/topbar";
+import Footer from "../footer/footer"
+import Login from "../Login/login"
+import Signup from "../Signup/signup"
+import Services from "../patient/services/services"
+import Queries from "../queries/queries"
 import { useDispatch } from "react-redux";
-import { showLoader} from "../../../features/loaderSlice"
+import { showLoader} from "../../features/loaderSlice"
 
 
 
@@ -19,21 +17,8 @@ const PatientHome = () => {
   const navigate = useNavigate(); // Initialize the navigate function
   const [isLoginClicked, setIsLoginClicked] = useState(false);
   const [isSignupClicked, setIsSignupClicked] = useState(false);
-  const [profileClicked, setIsprofileClicked] = useState(false)
-  const [token, setToken] = useState(localStorage.getItem('token'))
 
-  useEffect(() => {
-     
-    const handleTokenStorageChange = ()=>{
-      setToken(localStorage.getItem('token'))
-    }
-
-    window.addEventListener("storage", handleTokenStorageChange)
-
-    return(()=>{window.removeEventListener("storage", handleTokenStorageChange)});
-  }, []);
-
-
+ 
   const location= useLocation();
   const dispatch = useDispatch();
 
@@ -58,7 +43,7 @@ const PatientHome = () => {
 
 
   const handleLoginClick = () => {  
-    navigate("/patienthome", {state:{reload:true}});
+    navigate("/", {state:{reload:true}});
     setIsLoginClicked(true);
     setIsSignupClicked(false);
     
@@ -66,7 +51,7 @@ const PatientHome = () => {
   };
 
   const handleSignupClick = () => {
-    navigate("/patienthome",{state:{reload:true}});
+    navigate("/",{state:{reload:true}});
     setIsSignupClicked(true);
     setIsLoginClicked(false);
   };
@@ -78,9 +63,6 @@ const PatientHome = () => {
     
   };
 
-  const handleProfileClick = () =>{
-    navigate("/patientProfile");
-  }
 
   const handlecross = () =>{
         
@@ -99,9 +81,19 @@ const PatientHome = () => {
   return (
     <>
 
+    {(isLoginClicked || isSignupClicked) && (
+        <div className="overlay" onClick={closeModal}></div>
+      )}
     <div className="home_main">
-    
-
+      <div className="top_head">
+      <Topbar
+      onLoginClick={handleLoginClick}
+      onSignupClick={handleSignupClick}
+      onProfileClick = {handleLoginClick}
+    /> 
+      </div>
+      {isLoginClicked && <div className={isLoginClicked?"login_show":"login_hide"}><Login redirectToSignup = {handleSignupClick} crossLogin = {handlecross} /></div>}
+        {isSignupClicked && <div className={isSignupClicked?"signup_show":"signup_hide"}><Signup redirectToLogin = {handleLoginClick} crossSignup = {handlecross} /></div>}
         <div className="home_body" id="first_body">
           <div className="home_body_content">
             <h1>Bringing Quality Healthcare <br />
@@ -116,7 +108,14 @@ const PatientHome = () => {
       <div className="second_body"><Services/></div>
       <div className="third_body"><Queries/></div>
       <div className="footer"><Footer/></div>
-      </div>
+             
+     
+
+    </div>
+    
+    
+    
+    
     </>
   );
 };

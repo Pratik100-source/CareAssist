@@ -57,25 +57,25 @@
   align-items: center;
 }
 
-.top_main .top_submain .top_nav .outside_navigator .login_interface {
+/* .top_main .top_submain .top_nav .outside_navigator .login_interface {
   display: flex;
   flex-direction: row;
   text-align: center;
   column-gap: 0.3rem;
-}
+} */
 
-.top_main .top_submain .top_nav .outside_navigator section {
+/* .top_main .top_submain .top_nav .outside_navigator section {
   cursor: pointer;
   transition: 0.3s all;
-}
-.top_main .top_submain .top_nav .outside_navigator section:hover {
+} */
+/* .top_main .top_submain .top_nav .outside_navigator section:hover {
   color: #ff3131;
-}
+} */
 
-.top_main .top_submain .top_nav .outside_navigator .login_interface icon {
+/* .top_main .top_submain .top_nav .outside_navigator .login_interface icon {
   font-size: 0.8rem;
   padding-top: 0.25rem;
-}
+} */
 
 .notification {
   font-size: 1.2rem;

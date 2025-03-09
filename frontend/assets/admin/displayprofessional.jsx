@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './displayprofessional.css';
-
+import { CgFileDocument } from "react-icons/cg";
 const DisplayProfessional = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [professionalData, setProfessionalsData] = useState([]);
@@ -77,7 +77,9 @@ const DisplayProfessional = () => {
             <th>Name</th>
             <th>Email</th>
             <th>Number</th>
-            <th>Status</th>
+            <th>Profession</th>
+            <th>Specialization</th>
+            <th>Consult Method</th>
             <th>Documents</th>
           </tr>
         </thead>
@@ -87,9 +89,11 @@ const DisplayProfessional = () => {
               <td>{professional.name}</td>
               <td>{professional.email}</td>
               <td>{professional.number}</td>
-              <td>{professional.status ? "Verified" : "Non-verified"}</td>
+              <td>{professional.profession}</td>
+              <td>{(professional.specialization)?professional.specialization:"None"}</td>
+              <td>{professional.consultationMethod}</td>
               <td>
-                <div className='document_view' onClick={() => handleViewClick(professional)}>View</div>
+                <div className='document_view' onClick={() => handleViewClick(professional)}><CgFileDocument className='view_button'></CgFileDocument></div>
               </td>
             </tr>
           ))}

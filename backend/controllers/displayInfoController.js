@@ -49,6 +49,13 @@ const findProfessional = async (req, res) => {
       number: professional.mobile,
       status: professional.verification,
       document: professional.document,
+      profession: professional.profession,
+      specialization: professional.specialization,
+      consultationMethod: professional.consultationMethod,
+      experience: professional.experience,
+      photoUrl: professional.document.photoUrl,
+      availability: professional.availability,
+      availableDays: professional.availableDays,
     }));
 
     res.status(200).json(formattedProfessionals);

@@ -1,5 +1,4 @@
 import "../Profile/profile.css";
-import PatientTopbar from "../Topbar/topbar";
 import PatientPersonalInfo from "../Profile/PersonalInfo";
 import PatientBookingHistory from "../Profile/BHistory";
 
@@ -12,14 +11,10 @@ import { useSelector } from "react-redux";
 const PatientProfile = () => {
   const [pClicked, setpClicked] = useState(false);
   const [bClicked, setbClicked] = useState(false);
-  const navigate = useNavigate();
 
   const user = useSelector((state) => state.user); // Access the 'user' state slice
   const gender = user.gender;
 
-  const handleProfileClick = () => {
-    navigate("/patientProfile");
-  };
 
   const handlePclick = () => {
     setbClicked(false);
@@ -35,10 +30,6 @@ const PatientProfile = () => {
 
   return (
     <div className="patient_profile_main">
-      <div className="profile_top_head">
-        <PatientTopbar onProfileClick={handleProfileClick}></PatientTopbar>
-      </div>
-
       <div className="patient_profile_submain">
         <div className="patient_dashboard">
           <ul>
@@ -63,7 +54,6 @@ const PatientProfile = () => {
           )}
         </div>
       </div>
-      {/* <div className="third_section"></div> */}
     </div>
   );
 };

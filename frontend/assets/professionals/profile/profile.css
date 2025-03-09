@@ -25,6 +25,7 @@
   flex-direction: row;
   padding: 3rem 10vw 0 15vw;
   gap: 2rem;
+  height: 100vh;
 }
 
 .professional_dashboard {

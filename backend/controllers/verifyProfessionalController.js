@@ -21,6 +21,9 @@ const findUnverifiedProfessional = async (req, res) => {
       number: professional.mobile,
       status: professional.verification,
       document: professional.document,
+      profession: professional.profession,
+      specialization: professional.specialization,
+      consultationMethod: professional.consultationMethod,
     }));
 
     res.status(200).json(formattedProfessionals);
@@ -33,21 +36,73 @@ const findUnverifiedProfessional = async (req, res) => {
 };
 
 const uploadDocument = async (req, res) => {
-  const { email, photoUrl, documentUrl } = req.body;
+  const {
+    email,
+    photoUrl,
+    documentUrl,
+    profession,
+    specialization,
+    experience,
+    consultationMethod,
+    startTime,
+    endTime,
+    availableDays,
+  } = req.body;
+
+  console.log(email);
+  console.log(photoUrl);
+  console.log(documentUrl);
+  console.log(profession);
+  console.log(availableDays);
+  console.log(startTime);
+  console.log(endTime);
+
+  if (
+    !email ||
+    !photoUrl ||
+    !documentUrl ||
+    !profession ||
+    !experience ||
+    !consultationMethod ||
+    !startTime ||
+    !endTime ||
+    !availableDays.length
+  ) {
+    return res
+      .status(400)
+      .json({ message: "All required fields must be filled" });
+  }
 
   try {
-    // Save to MongoDB
+    const specializationValue = specialization || "";
+
     const result = await Professional.updateOne(
       { email: email },
-      { $set: { document: { photoUrl, documentUrl }, submission: "submitted" } }
+      {
+        $set: {
+          document: { photoUrl, documentUrl },
+          submission: "submitted",
+          profession: profession,
+          specialization: specializationValue,
+          experience: experience,
+          consultationMethod: consultationMethod,
+          availability: { startTime, endTime },
+          availableDays: availableDays,
+        },
+      }
     );
 
-    if (result !== 0) {
-      res.status(200).json({ message: "Verification data saved successfully" });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Professional not found" });
     }
+
+    res.status(200).json({ message: "Verification data saved successfully" });
   } catch (error) {
     console.error("Error saving verification data:", error);
-    res.status(500).json({ message: "Failed to save verification data" });
+    res.status(500).json({
+      message: "Failed to save verification data",
+      error: error.message,
+    });
   }
 };
 

@@ -1,0 +1,65 @@
+/* DocumentUpload.css */
+.upload_document {
+  padding-left: 2rem;
+}
+
+.upload_section {
+  padding-bottom: 1.5rem;
+  text-align: left;
+}
+
+.upload_section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555555;
+  font-size: 0.9rem;
+}
+
+.upload_section input {
+  width: 100%;
+  padding: 0.35rem;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+.upload_section input:focus {
+  border-color: #ff3131;
+  outline: none;
+}
+
+.modal_buttons {
+  padding-top: 2rem;
+}
+
+.modal_buttons button {
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #ff3131;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal_buttons button:hover {
+  background-color: #e62e2e;
+  transform: scale(1.05);
+}
+
+.modal_buttons button.cancel {
+  background-color: #ccc;
+  color: #333333;
+}
+
+.modal_buttons button.cancel:hover {
+  background-color: #bbb;
+}

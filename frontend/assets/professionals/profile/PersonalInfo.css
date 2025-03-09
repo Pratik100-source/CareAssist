@@ -76,118 +76,24 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -45%);
   background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  width: 300px;
-  text-align: center;
-}
-
-.verification_modal h3 {
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-  color: #333333;
-}
-
-.upload_section {
-  margin-bottom: 1rem;
-}
-
-.upload_section label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555555;
-}
-
-.upload_section input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.verification_modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  width: 400px;
-  max-width: 90%;
-  text-align: center;
+  z-index: 1009;
   animation: fadeIn 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1px;
 }
-
-.verification_modal h3 {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  color: #333333;
-  font-weight: 600;
+.verification_modal .cross_section {
+  text-align: right;
+  align-items: right;
 }
-
-.upload_section {
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-.upload_section label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555555;
-  font-size: 0.9rem;
-}
-
-.upload_section input {
-  width: 100%;
-  padding: 0.35rem;
-  height: auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  transition: border-color 0.3s ease;
-}
-
-.upload_section input:focus {
-  border-color: #ff3131;
-  outline: none;
-}
-
-.verification_modal button {
-  margin: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #ff3131;
-  color: white;
+.verification_modal .cross_section .cross:hover {
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05rem;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.verification_modal button:hover {
-  background-color: #e62e2e;
-  transform: scale(1.05);
-}
-
-.verification_modal button.cancel {
-  background-color: #ccc;
-  color: #333333;
-}
-
-.verification_modal button.cancel:hover {
-  background-color: #bbb;
+  color: #ff3131;
 }
 
 /* Animation for modal */

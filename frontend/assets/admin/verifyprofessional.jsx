@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./verifyprofessional.css";
 import { useDispatch } from "react-redux";
 import { showLoader, hideLoader } from "../../features/loaderSlice";
+import { FaRegEdit } from "react-icons/fa";
+import { CgFileDocument } from "react-icons/cg";
 
 const Verifyprofessional = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +22,7 @@ const Verifyprofessional = () => {
   useEffect(() => {
     const fetchProfessional = async () => {
       try {
+        
         const response = await fetch(
           "http://localhost:3003/api/verification/displayUnverifiedProfessional"
         );
@@ -141,9 +144,12 @@ const Verifyprofessional = () => {
       <table>
         <thead>
           <tr>
-            <th>Name</th>
+          <th>Name</th>
             <th>Email</th>
             <th>Number</th>
+            <th>Profession</th>
+            <th>Specialization</th>
+            <th>Consult Method</th>
             <th>Status</th>
           </tr>
         </thead>
@@ -153,6 +159,9 @@ const Verifyprofessional = () => {
               <td>{professional.name}</td>
               <td>{professional.email}</td>
               <td>{professional.number}</td>
+              <td>{professional.profession}</td>
+              <td>{(professional.specialization)?professional.specialization:"None"}</td>
+              <td>{professional.consultationMethod}</td>
               <td>
                 <div className="edit_view_status">
                   <div className="display_status">
@@ -161,15 +170,15 @@ const Verifyprofessional = () => {
                   <div
                     className="document_view"
                     onClick={() => handleViewClick(professional)}
-                    style={{ cursor: "pointer" }}
                   >
-                    <p>View</p>
+                    <CgFileDocument className="view_button"></CgFileDocument>
                   </div>
                   <div
                     className="edit_professional"
                     onClick={() => handleEditClick(professional)}
                   >
-                    Edit
+                 
+                    <FaRegEdit className="edit_button"></FaRegEdit>
                   </div>
                 </div>
               </td>
