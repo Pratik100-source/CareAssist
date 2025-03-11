@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import './App.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Home from "./assets/home/home";
 import PatientHome from "./assets/patient/home/home";
 import PatientProfile from "./assets/patient/Profile/profile";
@@ -27,6 +29,7 @@ function App() {
   return (
     <Router>
       <Loader></Loader>
+      <ToastContainer />
       <Routes>
       <Route path="/" element={userType ? userDashboard[userType] : <Home />} />
 
@@ -41,7 +44,7 @@ function App() {
 
         <Route element={<ProtectedRoute allowedRole="professional" />}>
         <Route path="/professionalHome" element={<ProfessionalHome/>} />
-        <Route path = "/professionalProfile" element={<ProfessionalProfile/>}/>
+        <Route path = "/professionalProfile/*" element={<ProfessionalProfile/>}/>
         </Route>
 
         <Route path = "/admindashboard/*" element={<Admindashboard/>}/>

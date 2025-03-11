@@ -15,7 +15,7 @@ const PersonalInfo = () => {
   const [submissionStatus, setSubmissionStatus] = useState('');
   const [verificationStatus, setVerificationStatus] = useState(null);
   const [verifyClicked, setVerifyClicked] = useState(false);
-
+  const [verificationTrigger, setVerificationTrigger] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const birthdate = professional.birthdate;
@@ -27,6 +27,10 @@ const PersonalInfo = () => {
   const handleVerifyClick = () => {
     setVerifyClicked(!verifyClicked);
   };
+
+  const handleVerificationTrigger = ()=>{
+    setVerificationTrigger(true);
+  }
 
   const handleDocumentSubmit = async () => {
     dispatch(showLoader());
@@ -54,7 +58,7 @@ const PersonalInfo = () => {
     };
 
     fetch_status();
-  }, [professional.email]);
+  }, [professional.email, verificationTrigger]);
 
   return (
     <>
@@ -98,7 +102,7 @@ const PersonalInfo = () => {
       {verifyClicked && (
         <div className="verification_modal">
           <div className="cross_section"><RxCross1 className="cross" onClick={()=>{setVerifyClicked(false)}}></RxCross1></div>
-              <ProfessionalVerification/>
+              <ProfessionalVerification handleVerifyClick = {handleVerifyClick} handleVerificationTrigger = {handleVerificationTrigger}/>
         </div>
       )}
     </>

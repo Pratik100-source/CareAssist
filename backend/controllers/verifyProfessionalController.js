@@ -44,6 +44,7 @@ const uploadDocument = async (req, res) => {
     specialization,
     experience,
     consultationMethod,
+    charge,
     startTime,
     endTime,
     availableDays,
@@ -64,6 +65,7 @@ const uploadDocument = async (req, res) => {
     !profession ||
     !experience ||
     !consultationMethod ||
+    !charge ||
     !startTime ||
     !endTime ||
     !availableDays.length
@@ -86,6 +88,7 @@ const uploadDocument = async (req, res) => {
           specialization: specializationValue,
           experience: experience,
           consultationMethod: consultationMethod,
+          charge: charge,
           availability: { startTime, endTime },
           availableDays: availableDays,
         },

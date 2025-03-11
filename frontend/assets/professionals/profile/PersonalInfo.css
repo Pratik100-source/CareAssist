@@ -73,15 +73,15 @@
 }
 
 .verification_modal {
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 55%;
   left: 50%;
   transform: translate(-50%, -45%);
   background-color: white;
   padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 1009;
+  z-index: 1006;
   animation: fadeIn 0.3s ease-in-out;
   display: flex;
   flex-direction: column;

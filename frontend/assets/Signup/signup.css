@@ -35,14 +35,16 @@
   background-color: #ff3131;
   color: white;
 }
-.signup_cross {
+.signup_cross,
+.user_prompt_cross {
   font-size: 1.6rem;
   float: right;
   cursor: pointer;
   transition: 0.3s all;
 }
 
-.signup_cross:hover {
+.signup_cross:hover,
+.user_prompt_cross:hover {
   color: #ff3131;
 }
 
@@ -72,7 +74,7 @@
 .signup_second h1,
 .signup_third h1 {
   font-family: "Poppins", sans-serif;
-  font-size: 1.3vw;
+  font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 7px;
   letter-spacing: 0.07vw;
@@ -140,22 +142,120 @@ input {
 }
 
 .signup_third .first_row input {
-  height: 30px;
+  align-items: center;
   width: 9.5rem;
+  height: 35px;
   margin-top: 15px;
   border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  background-color: #fff;
+  position: relative;
+  transition: border-color 0.3s ease;
 }
 
 .signup_third .second_row input {
-  height: 30px;
+  align-items: center;
   width: 9.5rem;
+  height: 35px;
   margin-top: 15px;
   border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  background-color: #fff;
+  position: relative;
+  transition: border-color 0.3s ease;
 }
 
 .signup_third .second_row select {
-  height: 30px;
+  align-items: center;
   width: 9.5rem;
+  height: 35px;
   margin-top: 15px;
   border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  background-color: #fff;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.signup_third .third_row input {
+  align-items: center;
+  width: 19rem;
+  height: 35px;
+  margin-top: 15px;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  background-color: #fff;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 19rem;
+  height: 35px;
+  margin: 15px auto 0 auto;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  background-color: #fff;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.password-field:focus-within {
+  border-color: #ff3131;
+  box-shadow: 0 0 5px rgba(255, 49, 49, 0.3);
+}
+
+.password-field input {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  border: none;
+  padding: 0 0 10px 5px;
+  font-size: 14px;
+  background: transparent;
+  outline: none;
+}
+
+.password-feedback {
+  color: #ff3131;
+  text-align: center;
+  font-size: 12px;
+  width: auto;
+}
+
+.password-field .eye-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 100%;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  position: absolute;
+  right: 5px;
+}
+
+.password-field .eye-icon:hover {
+  color: #ff3131;
+}
+
+.third_signup_submit {
+  height: 35px;
+  width: 19rem;
+  margin-top: 15px;
+  color: white;
+  background-color: #ff3131;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.third_signup_submit:hover {
+  background-color: #b8100ad7;
+  transform: translateY(-2px);
 }

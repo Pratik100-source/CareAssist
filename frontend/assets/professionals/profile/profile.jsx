@@ -2,6 +2,7 @@ import "./profile.css";
 import ProfessionalTopbar from "../Topbar/professionalTopbar";
 import ProfessionalPersonalInfo from "./PersonalInfo";
 import ProfessionalBookingHistory from "./BHistory";
+import ProfessionalProfileRoutes from "../../../routes/professionalProfileRoutes";
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -22,15 +23,11 @@ const ProfessionalProfile = () => {
   };
 
   const handlePclick = () => {
-    setbClicked(false);
-    setpClicked(true);
-    console.log(pClicked);
+       navigate("/professionalProfile/personalInformation")
   };
 
   const handleBclick = () => {
-    setpClicked(false);
-    setbClicked(true);
-    console.log(bClicked);
+    navigate("/professionalProfile/bookingHistory")
   };
 
   return (
@@ -48,22 +45,10 @@ const ProfessionalProfile = () => {
           </ul>
         </div>
         <div className="professional_dashboard_content">
-          {pClicked}
+          <ProfessionalProfileRoutes></ProfessionalProfileRoutes>
 
-          {pClicked && (
-            <div className="professional_info_content">
-              <ProfessionalPersonalInfo />
-            </div>
-          )}
-
-          {bClicked && (
-            <div className="booking_history_content">
-              <ProfessionalBookingHistory />
-            </div>
-          )}
         </div>
       </div>
-      {/* <div className="third_section"></div> */}
     </div>
   );
 };

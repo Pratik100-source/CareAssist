@@ -1,39 +1,41 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from "react-toastify";
+
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     const verifyPayment = async () => {
-      // Extract pidx from the URL
       const queryParams = new URLSearchParams(location.search);
       const pidx = queryParams.get("pidx");
 
       if (pidx) {
         try {
-          // Call backend to verify payment
           const response = await axios.post("http://localhost:3003/api/payment/verify-payment", {
             pidx,
           });
 
           if (response.data.status === "Completed") {
-            toast("Payment Successful!")
-            // Redirect to a success page or update the UI
+            toast.success("Payment Successful!", {
+              position: "top-right",
+              autoClose: 3000,
+            });
             navigate("/");
+          } else if (response.data.status === "User canceled") {
+            toast.info("Payment Canceled!", { position: "top-right" });
           } else {
-            alert("Payment failed. Please try again.");
-            // navigate("/");
+            toast.error("Payment failed. Try again.", { position: "top-right" });
           }
         } catch (error) {
           console.error("Error verifying payment:", error);
-          alert("An error occurred. Please try again.");
+          toast.error("Payment verification failed!", { position: "top-right" });
           navigate("/bookAppointment");
         }
       } else {
-        alert("Invalid payment ID. Please try again.");
+        toast.warning("Invalid Payment ID!", { position: "top-right" });
         navigate("/bookAppointment");
       }
     };
@@ -41,9 +43,7 @@ const PaymentSuccess = () => {
     verifyPayment();
   }, [location, navigate]);
 
-  return (
-    <></>
-  );
+  return <></>;
 };
 
 export default PaymentSuccess;

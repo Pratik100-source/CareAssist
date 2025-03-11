@@ -5,11 +5,17 @@ import { useNavigate } from "react-router-dom";
 import "./signup.css";
 import { RxCross2 } from "react-icons/rx";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
+import { FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 
 const Signup = ({ redirectToLogin, crossSignup }) => {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [finalsubmit, setfinalsubmit] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordFeedback, setPasswordFeedback] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     firstname: "",
@@ -23,48 +29,224 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
 
   const [isOtpSent, setIsOtpSent] = useState(false);
 
+  // Strong password regex
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+  // Calculate max date (today - 18 years)
+  const today = new Date();
+  const maxDate = new Date(today.setFullYear(today.getFullYear() - 18)).toISOString().split("T")[0];
+  const minDate = new Date(today.setFullYear(today.getFullYear() - 60)).toISOString().split("T")[0];
+
+  const check_email_format = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "password") {
+      if (!strongPasswordRegex.test(value) && value !== "") {
+        setPasswordFeedback(
+          "Strength: Weak"
+        );
+      } else if (value === "") {
+        setPasswordFeedback("");
+      } else {
+        setPasswordFeedback("Strength: Strong");
+      }
+    }
   };
 
   const handleSendOtp = async () => {
     try {
-      await axios.post("http://localhost:3003/api/otp/sendOtp", {
-        email: formData.email,
-      });
-      setIsOtpSent(true);
-      setStep(2);
+      const email = formData.email;
+
+      if (!email) {
+        toast.error("Email is required", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      if (check_email_format(email)) {
+        const response = await axios.post(
+          "http://localhost:3003/api/otp/sendOtp",
+          {
+            email: email,
+          }
+        );
+        if (response.data.message === "Email already registered") {
+          toast.error("Email is already registered", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else if (response.data.message === "Check your email for the OTP") {
+          setIsOtpSent(true);
+          setStep(2);
+          toast.success("OTP sent successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          toast.error("Error while sending the OTP", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      } else {
+        toast.error("Please enter the correct email format", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
     } catch (error) {
-      alert("Error sending OTP");
+      console.error("Error sending OTP:", error);
+      if (error.response) {
+        toast.error(
+          `Error: ${error.response.data.message || "Failed to send OTP"}`,
+          {
+            position: "top-right",
+            autoClose: 3000,
+          }
+        );
+      }
     }
   };
 
   const handleVerifyOtp = async () => {
-    try {
-      await axios.post("http://localhost:3003/api/otp/verifyOtp", { otp });
-      setStep(3); // Proceed to registration form
-    } catch (error) {
-      alert("Invalid OTP");
-    }
-  };
-
-  const handleSignup = async (role) => {
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
+    if (!otp) {
+      toast.error("OTP is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       return;
     }
 
     try {
-      const url =
-        role === "patient"
-          ? "http://localhost:3003/api/auth/patientSignup"
-          : "http://localhost:3003/api/auth/professionalSignup";
+      const response = await axios.post(
+        "http://localhost:3003/api/otp/verifyOtp",
+        { otp }
+      );
 
-      await axios.post(url, formData);
-      alert("Signup successful");
-      redirectToLogin();
-    } catch {
-      alert("Error signing up");
+      if (response.data.message === "OTP verified successfully") {
+        setStep(3);
+        toast.success("OTP verified", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      if (error.response) {
+        toast.error(
+          `Error: ${error.response.data.message || "Failed to verify OTP"}`,
+          {
+            position: "top-right",
+            autoClose: 3000,
+          }
+        );
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const { firstname, lastname, mobile, birthdate, password, confirmPassword } = formData;
+
+    if (!firstname) {
+      toast.error("First Name is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (!lastname) {
+      toast.error("Last Name is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (!mobile) {
+      toast.error("Mobile Number is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (!birthdate) {
+      toast.error("Birthdate is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (!password) {
+      toast.error("Password is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (!strongPasswordRegex.test(password)) {
+      toast.error(
+        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)."
+        ,
+        {
+          position: "top-right",
+          autoClose: 5000,
+        }
+      );
+      return false;
+    }
+
+    if (!confirmPassword) {
+      toast.error("Confirm Password is required", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSignup = async (role) => {
+    if (validateForm()) {
+      try {
+        const url =
+          role === "patient"
+            ? "http://localhost:3003/api/auth/patientSignup"
+            : "http://localhost:3003/api/auth/professionalSignup";
+
+        await axios.post(url, formData);
+        toast.success("Signup successful", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        redirectToLogin();
+      } catch (error) {
+        toast.error("Error signing up", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        console.error("Signup error:", error);
+      }
     }
   };
 
@@ -81,13 +263,20 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
   };
 
   const open_prompt = () => {
-    setfinalsubmit(true);
+    if (validateForm()) {
+      setfinalsubmit(true);
+    }
   };
+
+  const handle_user_prompt_cross = () =>{
+    setfinalsubmit(false);
+  }
 
   return (
     <>
       {finalsubmit && (
         <div className="user_prompt">
+          <span className="user_prompt_cross" onClick={handle_user_prompt_cross}><RxCross2></RxCross2></span>
           <h1>Signup as?</h1>
           <button onClick={() => handleSignup("patient")}>Patient</button>
           <button onClick={() => handleSignup("professional")}>
@@ -116,6 +305,8 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 disabled={isOtpSent}
+                pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                required
               />
               <button
                 onClick={handleSendOtp}
@@ -134,6 +325,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
+                required
               />
               <button
                 onClick={handleVerifyOtp}
@@ -144,9 +336,14 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
             </div>
           )}
           {step === 3 && (
-            <div className="signup_third">
+            <form
+              className="signup_third"
+              onSubmit={(e) => {
+                e.preventDefault();
+                open_prompt();
+              }}
+            >
               <h1>Signup to CareAssist</h1>
-
               <section className="first_row">
                 <input
                   type="text"
@@ -154,6 +351,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                   placeholder="First Name"
                   value={formData.firstname}
                   onChange={handleInputChange}
+                  required
                 />
                 <input
                   type="text"
@@ -161,6 +359,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                   placeholder="Last Name"
                   value={formData.lastname}
                   onChange={handleInputChange}
+                  required
                 />
               </section>
 
@@ -171,46 +370,78 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                   placeholder="Mobile Number"
                   value={formData.mobile}
                   onChange={handleInputChange}
+                  required
                 />
-
                 <select
                   name="gender"
                   id="gender"
                   onChange={handleInputChange}
                   value={formData.gender}
+                  required
                 >
                   <option value="0">Male</option>
                   <option value="1">Female</option>
-                  <option value="2">Others</option>
                 </select>
               </section>
-
-              <input
-                type="date"
-                name="birthdate"
-                id="birthdate"
-                onChange={handleInputChange}
-                value={formData.birthdate}
-              />
-
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-              />
-              <button onClick={open_prompt} className="third_signup_submit">
+              <section className="third_row">
+                <input
+                  type="date"
+                  name="birthdate"
+                  id="birthdate"
+                  onChange={handleInputChange}
+                  value={formData.birthdate}
+                  max={maxDate}
+                  min={minDate}
+                  required
+                />
+              </section>
+              <div className="password-field">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              {passwordFeedback && (
+                <p
+                  className={`password-feedback ${
+                    strongPasswordRegex.test(formData.password) ? "valid" : "invalid"
+                  }` }
+                >
+                  {passwordFeedback}
+                </p>
+              )}
+              <div className="password-field">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                  required
+                />
+                <span
+                  className="eye-icon"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              <button type="submit" className="third_signup_submit">
                 Submit
               </button>
-            </div>
+            </form>
           )}
         </div>
       </div>

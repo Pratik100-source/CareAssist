@@ -50,6 +50,10 @@ const professionalSchema = new mongoose.Schema({
     startTime: { type: String, default: "" },
     endTime: { type: String, default: "" },
   },
+  charge: {
+    type: Number,
+    default: 0,
+  },
 
   availableDays: [
     {

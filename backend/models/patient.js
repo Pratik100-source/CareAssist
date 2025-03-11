@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const patientSchema = new mongoose.Schema({
-  email: String,
-  firstname: String,
-  lastname: String,
-  mobile: Number,
+  email: { type: String, required: true },
+  firstname: { type: String, required: true },
+  lastname: { type: String, required: true },
+  mobile: { type: Number, required: true },
   gender: {
     type: String,
     required: true,
@@ -13,7 +13,7 @@ const patientSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
-  password: String,
+  password: { type: String, required: true },
 });
 
 const Patient = mongoose.model("Patient", patientSchema);
