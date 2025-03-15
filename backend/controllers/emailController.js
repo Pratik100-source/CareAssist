@@ -71,4 +71,18 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-module.exports = { sendOtp, verifyOtp };
+const sendMeetLink = async (to, subject, text) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.Company_Email,
+      to,
+      subject,
+      text,
+    });
+    console.log(`Email sent to ${to}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${to}:`, error);
+  }
+};
+
+module.exports = { sendOtp, verifyOtp, sendMeetLink };

@@ -56,6 +56,7 @@ const findProfessional = async (req, res) => {
       photoUrl: professional.document.photoUrl,
       availability: professional.availability,
       availableDays: professional.availableDays,
+      charge: professional.charge,
     }));
 
     res.status(200).json(formattedProfessionals);

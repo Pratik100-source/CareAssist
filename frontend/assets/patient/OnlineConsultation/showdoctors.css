@@ -144,3 +144,13 @@
 .time-slot .available_slots:hover {
   background-color: #e62b2b;
 }
+
+.available_slots {
+  cursor: pointer;
+  color: black; /* Default for available slots */
+}
+
+.booked_slot {
+  color: blue; /* Matches inline style */
+  pointer-events: none; /* Matches inline style */
+}

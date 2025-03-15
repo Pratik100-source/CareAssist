@@ -1,34 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 import "./showdoctors.css";
 import PatientTopbar from "../Topbar/topbar";
 import { useNavigate } from "react-router-dom";
+import { setProfessionalInfo, NotAvailable } from "../../../features/professionalSlice";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 function ShowDoctors() {
   const [professionalData, setProfessionalsData] = useState([]);
+  const [bookingData, setBookingData] = useState([]); // New state for bookings
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchProfessional = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
+        // Fetch professionals
+        const professionalResponse = await fetch(
           "http://localhost:3003/api/display/getprofessional"
         );
-        if (!response.ok) {
+        if (!professionalResponse.ok) {
           throw new Error("Failed to fetch professional data");
         }
-        const data = await response.json();
-        setProfessionalsData(data);
+        const professionalData = await professionalResponse.json();
+        setProfessionalsData(professionalData);
+
+        // Fetch bookings
+        const bookingResponse = await fetch(
+          "http://localhost:3003/api/booking/get-online-booking" 
+        );
+        if (!bookingResponse.ok) {
+          throw new Error("Failed to fetch booking data");
+        }
+        const bookingData = await bookingResponse.json();
+        setBookingData(bookingData);
+
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfessional();
+    fetchData();
   }, []);
 
+  const token = Date.now().toString().slice(-8);
   // Function to find next available dates
   const getNextAvailableDates = (availableDays = []) => {
     if (!availableDays.length) return [];
@@ -65,14 +83,12 @@ function ShowDoctors() {
     return nextDates.filter(Boolean).slice(0, 3); // Ensure valid dates & limit to 3
   };
 
-  // Function to generate time slots
-  const generateTimeSlots = (startTime, endTime, selectedDate) => {
-    if (!startTime || !endTime) return []; // Ensure valid times
+  const generateTimeSlots = (startTime, endTime, selectedDate, professionalEmail) => {
+    if (!startTime || !endTime) return [];
 
     const slots = [];
     const now = new Date();
-    const isToday =
-      new Date(selectedDate).toDateString() === now.toDateString();
+    const isToday = new Date(selectedDate).toDateString() === now.toDateString();
 
     let currentTime = new Date(`${selectedDate}T${startTime}`);
     const end = new Date(`${selectedDate}T${endTime}`);
@@ -84,13 +100,46 @@ function ShowDoctors() {
       const slotEnd = currentTime.toTimeString().substring(0, 5);
 
       if (!isToday || currentTime > now) {
-        slots.push(`${slotStart} - ${slotEnd}`);
+        const slot = `${slotStart} - ${slotEnd}`;
+        // Check if this slot is booked
+        const isBooked = bookingData.some(booking => 
+          booking.professionalEmail === professionalEmail &&
+          booking.date === selectedDate &&
+          booking.startTime.trim() === slotStart.trim() &&
+          booking.endTime.trim() === slotEnd.trim()
+        );
+        
+        slots.push({
+          time: slot,
+          isBooked: isBooked
+        });
       }
-
-      currentTime.setMinutes(currentTime.getMinutes() + 15); // 15 min break
+      currentTime.setMinutes(currentTime.getMinutes() + 15);
     }
 
-    return slots.slice(0, 3); // Only return first 4 slots
+    return slots.slice(0, 3);
+  };
+  const time_slot_clicked = async (slot, dateInfo, professional) => {
+    // Only proceed if slot is not booked
+    if (!slot.isBooked) {
+      const professionalName = professional.name;
+      const professionalEmail = professional.email;
+      const [startTime, endTime] = slot.time.split("-");
+      const date = dateInfo.date;
+      const profession = professional.profession;
+      const experience = professional.experience;
+      const specialization = professional.specialization || "";
+      const photoUrl = professional.photoUrl;
+      const charge = professional.charge;
+      const token = Date.now().toString().slice(-8);
+
+      await dispatch(setProfessionalInfo({
+        professionalName, professionalEmail, token, date, startTime, endTime,
+        profession, experience, specialization, photoUrl, charge,
+      }));
+
+      navigate("/bookAppointment");
+    }
   };
 
   return (
@@ -102,12 +151,9 @@ function ShowDoctors() {
           <p>Error: {error}</p>
         ) : (
           professionalData.map((professional, index) => {
-            if (!professional.availableDays || !professional.availability)
-              return null;
+            if (!professional.availableDays || !professional.availability) return null;
 
-            const availableDates = getNextAvailableDates(
-              professional.availableDays
-            );
+            const availableDates = getNextAvailableDates(professional.availableDays);
 
             return (
               <div className="display_professional_card" key={index}>
@@ -138,14 +184,13 @@ function ShowDoctors() {
                         const timeSlots = generateTimeSlots(
                           professional.availability.startTime,
                           professional.availability.endTime,
-                          dateInfo.date
+                          dateInfo.date,
+                          professional.email // Pass email to identify bookings
                         );
 
                         return (
                           <tr key={idx}>
-                            <td>
-                              {dateInfo.date} ({dateInfo.day})
-                            </td>
+                            <td>{dateInfo.date} ({dateInfo.day})</td>
                             <td>
                               {professional.availability.startTime} -{" "}
                               {professional.availability.endTime}
@@ -155,26 +200,14 @@ function ShowDoctors() {
                                 timeSlots.map((slot, sIdx) => (
                                   <p
                                     key={sIdx}
-                                    className="available_slots"
-                                    onClick={() =>
-                                      navigate("/bookAppointment", {
-                                        state: {
-                                          slot,
-                                          date: dateInfo.date,
-                                          day: dateInfo.day,
-                                          professional: professional.name,
-                                          experience: professional.experience,
-                                          profession: professional.profession,
-                                          specialization:
-                                            professional.specialization
-                                              ? professional.specialization
-                                              : "",
-                                          photoUrl: professional.photoUrl,
-                                        },
-                                      })
-                                    }
+                                    className={`available_slots ${slot.isBooked ? 'booked' : ''}`}
+                                    onClick={() => !slot.isBooked && time_slot_clicked(slot, dateInfo, professional)}
+                                    style={{
+                                      cursor: slot.isBooked ? 'not-allowed' : 'pointer',
+                                      opacity: slot.isBooked ? 0.5 : 1
+                                    }}
                                   >
-                                    {slot}
+                                    {slot.time}
                                   </p>
                                 ))
                               ) : (

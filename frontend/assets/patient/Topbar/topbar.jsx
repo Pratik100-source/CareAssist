@@ -124,7 +124,7 @@ const handlelogout = async() =>{
             { ProfileClick && <div className="dropdown_profile" ref={dropdownRef}>
               <ul className="drop_ul">
                 <li onClick={onProfileClick}>My Profile</li>
-                <li>Appointments</li>
+                <li onClick={()=>navigate("/bookedAppointment")}>My Appointments</li>
                 <li>Change Password</li>
                 <li onClick={handlelogout}>Logout</li>
               </ul>

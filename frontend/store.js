@@ -3,20 +3,32 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage
 import userReducer from "./features/userSlice"; // Import your reducer
 import loaderReducer from "./features/loaderSlice";
-// Persist configuration
-const persistConfig = {
-  key: "root", // Key for the persisted state
-  storage, // Use localStorage
+import professionalInfoReducer from "./features/professionalSlice";
+// Persist configuration for user
+const persistConfigUser = {
+  key: "user",
+  storage,
+};
+
+// Persist configuration for professional
+const persistConfigProfessional = {
+  key: "professional",
+  storage,
 };
 
 // Create a persisted reducer
-const persistedReducer = persistReducer(persistConfig, userReducer);
+const persisted_user_Reducer = persistReducer(persistConfigUser, userReducer);
+const persisted_professional_info_Reducer = persistReducer(
+  persistConfigProfessional,
+  professionalInfoReducer
+);
 
 // Create the Redux store
 const store = configureStore({
   reducer: {
     loader: loaderReducer,
-    user: persistedReducer, // Use the persisted reducer
+    user: persisted_user_Reducer, // Use the persisted reducer
+    professional: persisted_professional_info_Reducer,
   },
 });
 
