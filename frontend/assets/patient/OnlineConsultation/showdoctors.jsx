@@ -24,7 +24,8 @@ function ShowDoctors() {
         if (!professionalResponse.ok) {
           throw new Error("Failed to fetch professional data");
         }
-        const professionalData = await professionalResponse.json();
+        const data = await professionalResponse.json();
+        const professionalData = data.filter(professional=>(professional.consultationMethod==="online" || professional.consultationMethod==="both")&&(professional.status===true));
         setProfessionalsData(professionalData);
 
         // Fetch bookings

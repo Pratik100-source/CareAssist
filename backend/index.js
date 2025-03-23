@@ -1,28 +1,32 @@
-// MCV form
-
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
-const connectdb = require("../backend/config/dbConnection");
+const connectdb = require("./config/dbConnection");
+const { handleSocketEvents } = require("./controllers/socketController");
 
-const emailRoutes = require("../backend/routes/emailRouter");
-const authRoutes = require("../backend/routes/authRouter");
-const displayinfoRoutes = require("../backend/routes/displayinfoRouter");
-const verifyprofessionalRoutes = require("../backend/routes/verifyProfessionalRouter");
-const paymentRoutes = require("../backend/routes/paymentRouter");
-
+// Routes
+const emailRoutes = require("./routes/emailRouter");
+const authRoutes = require("./routes/authRouter");
+const displayinfoRoutes = require("./routes/displayinfoRouter");
+const verifyprofessionalRoutes = require("./routes/verifyProfessionalRouter");
+const paymentRoutes = require("./routes/paymentRouter");
 const bookingRoutes = require("./routes/bookingRouter");
-require("./cronJobs"); // Start cron jobs
+
+require("./cronJobs");
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
+// Database
 connectdb();
 
-//define routes
-
+// Routes
 app.use("/api/otp", emailRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/display", displayinfoRoutes);
@@ -30,6 +34,19 @@ app.use("/api/verification", verifyprofessionalRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/booking", bookingRoutes);
 
-app.listen(3003, () => {
+// HTTP Server with Socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3003", "http://localhost:5173"],
+    methods: ["GET", "POST"],
+  },
+});
+
+app.set("io", io);
+handleSocketEvents(io);
+
+// Start server
+server.listen(3003, () => {
   console.log("Server running on port 3003");
 });

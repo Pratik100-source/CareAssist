@@ -182,3 +182,13 @@
   padding: 0.2rem;
   cursor: pointer;
 }
+
+.show_more_notification {
+  background-color: yellow;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.show_more_notification:hover {
+  color: red;
+}

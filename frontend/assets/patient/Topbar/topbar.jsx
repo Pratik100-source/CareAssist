@@ -65,6 +65,7 @@ const handle_profile_click = () => {
 const handle_find_professional_click = ()=>{
    
   (FPClick)?setFPClick(false):setFPClick(true);
+  navigate("/showhomedoctors")
 }
 
 

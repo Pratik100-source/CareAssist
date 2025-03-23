@@ -11,6 +11,7 @@ const onlinebookingSchema = new mongoose.Schema({
   endTime: { type: String, required: true },
   meetLink: { type: String, default: null },
   status: { type: String, default: "Pending" },
+  charge: { type: Number, required: true },
 });
 
 const OBooking = mongoose.model("OBooking", onlinebookingSchema);

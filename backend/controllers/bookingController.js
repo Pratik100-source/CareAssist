@@ -10,6 +10,7 @@ const saveOnlineBooking = async (req, res) => {
     date,
     startTime,
     endTime,
+    charge,
   } = req.body;
 
   try {
@@ -23,6 +24,7 @@ const saveOnlineBooking = async (req, res) => {
       startTime,
       endTime,
       status: "Pending",
+      charge,
     });
 
     await newBooking.save();
@@ -77,38 +79,38 @@ const getAllBooking = async (req, res) => {
   }
 };
 
-const saveHomeBooking = async (req, res) => {
-  const {
-    professionalName,
-    patientName,
-    patientEmail,
-    professionalEmail,
-    token,
-    date,
-    startTime,
-    endTime,
-  } = req.body;
+// const saveHomeBooking = async (req, res) => {
+//   const {
+//     professionalName,
+//     patientName,
+//     patientEmail,
+//     professionalEmail,
+//     token,
+//     date,
+//     startTime,
+//     endTime,
+//   } = req.body;
 
-  try {
-    const newHomeBooking = new HBooking({
-      patient: patientName,
-      professional: professionalName,
-      patientEmail,
-      professionalEmail,
-      token,
-      date,
-      startTime,
-      endTime,
-      status: "Pending",
-    });
+//   try {
+//     const newHomeBooking = new HBooking({
+//       patient: patientName,
+//       professional: professionalName,
+//       patientEmail,
+//       professionalEmail,
+//       token,
+//       date,
+//       startTime,
+//       endTime,
+//       status: "Pending",
+//     });
 
-    await newHomeBooking.save();
-    return res.status(201).send("Home Booking has been made");
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send("Error while booking");
-  }
-};
+//     await newHomeBooking.save();
+//     return res.status(201).send("Home Booking has been made");
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).send("Error while booking");
+//   }
+// };
 
 // Mark an appointment as completed after a video call session
 const completeBooking = async (req, res) => {
@@ -122,10 +124,24 @@ const completeBooking = async (req, res) => {
   }
 };
 
+const getPendingBookings = async (req, res) => {
+  try {
+    const { professionalEmail } = req.params;
+    const bookings = await HBooking.find({
+      professionalEmail,
+      status: "pending",
+    });
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching bookings", error });
+  }
+};
+
 module.exports = {
   saveOnlineBooking,
   getOnlineBooking,
   completeBooking,
-  saveHomeBooking,
+  // saveHomeBooking,
   getAllBooking,
+  getPendingBookings,
 };

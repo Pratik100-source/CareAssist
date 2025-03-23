@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { logout } from "../../../features/userSlice";
 
-import Notification from "./notification";
+import Notification from "../notification/notification";
 
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
 
@@ -148,7 +148,7 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
                     </ul>
                   </div>
                 )}
-                {notificationClick && <div className="dropdown_notification" ref={notificationDropdownRef}><Notification/></div>}
+                {notificationClick && <div className="dropdown_notification" ref={notificationDropdownRef}><Notification/><p className="show_more_notification" onClick={()=>navigate("/professionalnotification")}>Show more</p></div>}
               </div>
               <p></p>
             </div>

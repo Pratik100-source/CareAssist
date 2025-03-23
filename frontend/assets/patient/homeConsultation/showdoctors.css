@@ -1,5 +1,5 @@
 /* General Styles */
-.doctor-container {
+.hoome-doctor-container {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -9,7 +9,7 @@
 }
 
 /* Container for Professional Cards */
-.doctor-container-submain {
+.home-doctor-container-submain {
   display: flex;
   flex-direction: column;
   padding: 3rem 10vw 0 15vw;
@@ -17,7 +17,7 @@
 }
 
 /* Professional Card */
-.display_professional_card {
+.home-doctor-container-submain .display_professional_card {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -30,17 +30,17 @@
 }
 
 /* Left Section */
-.professional_left {
+.home-doctor-container-submain .professional_left {
   display: flex;
   background-color: #f8f9fb;
-  width: 40%;
+  width: 70%;
   flex-direction: row;
   align-items: center;
   padding: 1.5rem;
   border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.professional_left .professional_image img {
+.home-doctor-container-submain .professional_left .professional_image img {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -48,26 +48,26 @@
   border: 3px solid #ff3131;
 }
 
-.professional_left .professional_basic_info {
+.home-doctor-container-submain .professional_left .professional_basic_info {
   padding-left: 1rem;
 }
 
-.professional_left .professional_basic_info h3 {
+.home-doctor-container-submain .professional_left .professional_basic_info h3 {
   /* font-size: 1.2rem; */
   font-weight: 600;
   color: #333;
   margin-bottom: 5px;
 }
 
-.professional_left .professional_basic_info p {
+.home-doctor-container-submain .professional_left .professional_basic_info p {
   font-size: 0.9rem;
   color: #555;
   margin: 2px 0;
 }
 
 /* Right Section */
-.professional_right {
-  width: 80%;
+.home-doctor-container-submain .professional_right {
+  width: 30%;
   display: flex;
   flex-direction: column;
   padding: 1rem;
@@ -75,40 +75,40 @@
 }
 
 /* Table Styling */
-.professional_right table {
+.home-doctor-container-submain .professional_right table {
   width: 100%;
   border-collapse: collapse;
   text-align: center;
   /* font-size: 0.95rem; */
 }
 
-.professional_right table thead {
+.home-doctor-container-submain .professional_right table thead {
   /* background-color: #ff3131; */
   color: black;
   font-weight: 600;
   border-bottom: 1px solid #777;
 }
 
-.professional_right table thead tr th {
+.home-doctor-container-submain .professional_right table thead tr th {
   padding: 0.8rem;
 }
 
-.professional_right table tbody tr {
+.home-doctor-container-submain .professional_right table tbody tr {
   background-color: #fff;
   transition: background-color 0.3s ease-in-out;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.professional_right table tbody tr:hover {
+.home-doctor-container-submain .professional_right table tbody tr:hover {
   background-color: #f2f2f2;
 }
 
-.professional_right table tbody tr td {
+.home-doctor-container-submain .professional_right table tbody tr td {
   padding: 0.7rem;
 }
 
 /* See Schedule Button */
-.professional_right .see_schedule_button {
+.home-doctor-container-submain .professional_right .see_schedule_button {
   background-color: #ff3131;
   text-align: center;
   color: white;
@@ -120,44 +120,34 @@
   transition: background-color 0.3s ease-in-out;
 }
 
-.professional_right .see_schedule_button:hover {
+.home-doctor-container-submain .professional_right .see_schedule_button:hover {
   background-color: #e62b2b;
   box-shadow: 0 4px 8px rgba(255, 49, 49, 0.3);
 }
 
-.time-slot {
-  display: grid;
-  width: auto;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 0.3rem;
-}
-.time-slot .available_slots {
-  background-color: #777;
-  border-color: white;
-  border: 1px;
-  width: auto;
+.home-doctor-container-submain .professional_right .charge {
+  background-color: #ff3131;
+  text-align: center;
   color: white;
-  font-size: 0.8rem;
-  border-radius: 0.3rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: 10px;
   cursor: pointer;
 }
-.time-slot .available_slots:hover {
-  background-color: #e62b2b;
+
+.not-available {
+  display: flex;
+  margin: 4rem auto 0 auto;
+  flex-direction: column;
+  row-gap: 3rem;
 }
 
-.available_slots.booked {
-  background-color: #cccccc;
-  color: #666666;
-  pointer-events: none;
+.not-available .show_not-available {
+  max-height: 300px;
+  max-width: 500px;
 }
 
-.available_slots {
-  cursor: pointer;
-  padding: 5px;
-  margin: 2px;
-  background-color: #f0f0f0;
-}
-
-.available_slots:hover:not(.booked) {
-  background-color: #e0e0e0;
+.not-available p {
+  text-align: center;
 }
