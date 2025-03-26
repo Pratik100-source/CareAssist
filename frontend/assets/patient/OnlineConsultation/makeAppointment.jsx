@@ -56,19 +56,7 @@ const MakeAppointment = () => {
         <div className="appointment_box">
         <div className="left_section">
           <div className="left_section_top">
-          {/* <div className="professional_left">
-                  <div className="professional_image">
-                    <img src={professional.photoUrl} alt={professional.name} />
-                  </div>
-                  <div className="professional_basic_info">
-                    <h3>{professional.name}</h3>
-                    <p>Experience: {professional.experience} years</p>
-                    <p>Profession: {professional.profession}</p>
-                    {professional.specialization && (
-                      <p>Specialization: {professional.specialization}</p>
-                    )}
-                  </div>
-                </div> */}
+          
             <div className="professional_image">
               <img src={photoUrl} alt="profile" className="" />
             </div>

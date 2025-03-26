@@ -32,10 +32,6 @@ const ProfessionalProfile = () => {
 
   return (
     <div className="professional_profile_main">
-      <div className="profile_top_head">
-        <ProfessionalTopbar onProfileClick={handleProfileClick}></ProfessionalTopbar>
-      </div>
-
       <div className="professional_profile_submain">
         <div className="professional_dashboard">
           <ul>

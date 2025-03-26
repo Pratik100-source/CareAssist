@@ -3,7 +3,7 @@ import React from 'react'
 import "./notification.css"
 import { useSelector } from 'react-redux'
 
-const Notification = ()=> {
+const PatientNotification = ()=> {
     const professional = useSelector((state) => state.user);
 
   return (
@@ -17,4 +17,4 @@ const Notification = ()=> {
   )
 }
 
-export default Notification;
+export default PatientNotification;

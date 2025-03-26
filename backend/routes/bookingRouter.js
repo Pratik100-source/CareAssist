@@ -6,6 +6,8 @@ const {
   // saveHomeBooking,
   getAllBooking,
   getPendingBookings,
+  getBookingById,
+  updateProfessionalLocation,
 } = require("../controllers/bookingController");
 
 const router = express.Router();
@@ -16,5 +18,7 @@ router.get("/get-online-booking", getOnlineBooking);
 router.get("/get-every-booking", getAllBooking);
 router.post("/complete-booking/:bookingId", completeBooking);
 router.get("/pending/:professionalEmail", getPendingBookings);
+router.get("/:bookingId", getBookingById);
+router.put("/update-location/:bookingId", updateProfessionalLocation);
 
 module.exports = router;

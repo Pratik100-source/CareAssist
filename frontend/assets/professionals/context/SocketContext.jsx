@@ -5,13 +5,20 @@ const SocketContext = createContext();
 
 export const useSocket = () => useContext(SocketContext);
 
-export const ProfessionalSocketProvider = ({ children }) => {
+// Professional Socket Provider
+export const ProfessionalSocketProvider = ({ children, professionalEmail }) => {
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3003");
+    const newSocket = io("http://localhost:3003", { reconnection: true });
     setSocket(newSocket);
+    console.log("Professional socket initialized:", newSocket.connected);
+
+    newSocket.on("connect", () => {
+      console.log("Professional reconnected:", newSocket.id);
+      joinAsProfessional(professionalEmail);
+    });
 
     newSocket.on("receiveBooking", (data) => {
       setNotifications((prev) => [
@@ -27,18 +34,15 @@ export const ProfessionalSocketProvider = ({ children }) => {
       setNotifications((prev) => prev.filter((b) => b.id !== data.bookingId));
     });
 
-    newSocket.on("navigateToProfile", ({ path }) => {
-      // Handle navigation if needed
-    });
-
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [professionalEmail]);
 
-  const joinAsProfessional = (professionalEmail) => {
-    if (socket) {
-      socket.emit("professionalJoin", professionalEmail);
+  const joinAsProfessional = (email) => {
+    if (socket && !socket.connected) {
+      socket.emit("professionalJoin", email);
+      console.log("Joined as professional:", email);
     }
   };
 
@@ -58,13 +62,37 @@ export const ProfessionalSocketProvider = ({ children }) => {
 
   return (
     <SocketContext.Provider
-      value={{
-        socket,
-        notifications,
-        joinAsProfessional,
-        acceptBooking,
-        declineBooking,
-      }}
+      value={{ socket, notifications, joinAsProfessional, acceptBooking, declineBooking }}
+    >
+      {children}
+    </SocketContext.Provider>
+  );
+};
+
+// Patient Socket Provider
+export const PatientSocketProvider = ({ children }) => {
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:3003");
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  const joinAsPatient = (patientEmail) => {
+    if (socket) socket.emit("patientJoin", patientEmail);
+  };
+
+  const sendBookingRequest = (data) => {
+    if (socket) socket.emit("bookingMessage", data);
+  };
+
+  return (
+    <SocketContext.Provider
+      value={{ socket, joinAsPatient, sendBookingRequest }}
     >
       {children}
     </SocketContext.Provider>

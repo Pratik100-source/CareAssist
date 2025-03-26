@@ -1,5 +1,6 @@
 const OBooking = require("../models/onlinebooking");
 const HBooking = require("../models/homebooking");
+
 const saveOnlineBooking = async (req, res) => {
   const {
     professionalName,
@@ -47,29 +48,22 @@ const getOnlineBooking = async (req, res) => {
 
 const getAllBooking = async (req, res) => {
   try {
-    // Fetch all online bookings for the given patientEmail
     const onlineBookings = await OBooking.find().lean();
-    // Fetch all home bookings for the given patientEmail
     const homeBookings = await HBooking.find().lean();
 
-    // Add bookingType to each booking
     const onlineBookingsWithType = onlineBookings.map((booking) => ({
       ...booking,
-      bookingType: "Online", // Add bookingType field
+      bookingType: "Online",
     }));
 
     const homeBookingsWithType = homeBookings.map((booking) => ({
       ...booking,
-      bookingType: "Home", // Add bookingType field
+      bookingType: "Home",
     }));
 
-    // Combine both arrays
     const allBookings = [...onlineBookingsWithType, ...homeBookingsWithType];
-
     if (allBookings.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No bookings found for this patient" });
+      return res.status(404).json({ message: "No bookings found" });
     }
 
     res.status(200).json(allBookings);
@@ -79,40 +73,6 @@ const getAllBooking = async (req, res) => {
   }
 };
 
-// const saveHomeBooking = async (req, res) => {
-//   const {
-//     professionalName,
-//     patientName,
-//     patientEmail,
-//     professionalEmail,
-//     token,
-//     date,
-//     startTime,
-//     endTime,
-//   } = req.body;
-
-//   try {
-//     const newHomeBooking = new HBooking({
-//       patient: patientName,
-//       professional: professionalName,
-//       patientEmail,
-//       professionalEmail,
-//       token,
-//       date,
-//       startTime,
-//       endTime,
-//       status: "Pending",
-//     });
-
-//     await newHomeBooking.save();
-//     return res.status(201).send("Home Booking has been made");
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).send("Error while booking");
-//   }
-// };
-
-// Mark an appointment as completed after a video call session
 const completeBooking = async (req, res) => {
   try {
     const { bookingId } = req.params;
@@ -137,11 +97,43 @@ const getPendingBookings = async (req, res) => {
   }
 };
 
+const getBookingById = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await HBooking.findById(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    res.json(booking);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching booking", error });
+  }
+};
+
+const updateProfessionalLocation = async (req, res) => {
+  const { bookingId } = req.params;
+  const { professionalLocation } = req.body;
+
+  try {
+    const booking = await HBooking.findByIdAndUpdate(
+      bookingId,
+      { "location.professionalLocation": professionalLocation },
+      { new: true }
+    );
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    res.status(200).json(booking);
+  } catch (error) {
+    console.error("Error updating professional location:", error);
+    res.status(500).json({ message: "Failed to update professional location" });
+  }
+};
+
 module.exports = {
   saveOnlineBooking,
   getOnlineBooking,
   completeBooking,
-  // saveHomeBooking,
   getAllBooking,
   getPendingBookings,
+  getBookingById,
+  updateProfessionalLocation,
 };

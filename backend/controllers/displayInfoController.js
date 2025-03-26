@@ -89,5 +89,30 @@ const displayPersonalInfo = async (req, res) => {
     });
   }
 };
+const displayPatientInfo = async (req, res) => {
+  const { email } = req.body;
+  try {
+    let result = await Patient.findOne({ email: email });
 
-module.exports = { findPatient, findProfessional, displayPersonalInfo };
+    if (!result) {
+      return res.status(404).json({
+        message: "No such patient found",
+      });
+    }
+
+    res.status(200).json({
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Failed to retrieve the patient information",
+    });
+  }
+};
+module.exports = {
+  findPatient,
+  findProfessional,
+  displayPersonalInfo,
+  displayPatientInfo,
+};

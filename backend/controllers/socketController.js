@@ -1,4 +1,5 @@
 const BookingRequest = require("../models/homebooking");
+const ChatMessage = require("../models/chatMessage");
 
 const handleSocketEvents = (io) => {
   const connectedPatients = new Map();
@@ -19,14 +20,39 @@ const handleSocketEvents = (io) => {
       console.log(
         `Professional ${professionalEmail} connected with socket ID: ${socket.id}`
       );
-      // Broadcast updated list to all clients
       io.emit("activeProfessionals", Array.from(connectedProfessionals.keys()));
     });
 
-    // Handle request for active professionals
     socket.on("getActiveProfessionals", () => {
-      const activePros = Array.from(connectedProfessionals.keys());
-      socket.emit("activeProfessionals", activePros); // Send to requesting client
+      socket.emit(
+        "activeProfessionals",
+        Array.from(connectedProfessionals.keys())
+      );
+    });
+
+    socket.on("joinChat", ({ bookingId, userEmail }) => {
+      socket.join(bookingId);
+      console.log(`${userEmail} joined chat for booking ${bookingId}`);
+    });
+
+    socket.on("chatMessage", async (data) => {
+      const { bookingId, senderEmail, receiverEmail, message, timestamp } =
+        data;
+      io.to(bookingId).emit("chatMessage", {
+        bookingId,
+        senderEmail,
+        receiverEmail,
+        message,
+        timestamp,
+      });
+      const chatMessage = new ChatMessage({
+        bookingId,
+        senderEmail,
+        receiverEmail,
+        message,
+        timestamp,
+      });
+      await chatMessage.save();
     });
 
     socket.on("bookingMessage", async (data) => {
@@ -34,49 +60,68 @@ const handleSocketEvents = (io) => {
       const professionalSocketId =
         connectedProfessionals.get(professionalEmail);
 
-      // Save booking request to database
-      const bookingRequest = new BookingRequest({
-        patientEmail,
-        professionalEmail,
-        message,
-        location,
-      });
-      await bookingRequest.save();
+      console.log("Received booking data:", data); // Debug log
 
-      if (professionalSocketId) {
-        io.to(professionalSocketId).emit("receiveBooking", {
-          bookingId: bookingRequest._id,
-          patientEmail,
-          location,
-          message,
-        });
-
-        // Set a 40-second timeout for the booking
-        setTimeout(async () => {
-          const booking = await BookingRequest.findById(bookingRequest._id);
-          if (booking && booking.status === "pending") {
-            await BookingRequest.findByIdAndDelete(bookingRequest._id);
-            const patientSocketId = connectedPatients.get(patientEmail);
-            if (patientSocketId) {
-              io.to(patientSocketId).emit("bookingTimeout", {
-                message: "Sorry, the professional is not available",
-              });
-            }
-            if (professionalSocketId) {
-              io.to(professionalSocketId).emit("bookingRemoved", {
-                bookingId: bookingRequest._id,
-              });
-            }
-          }
-        }, 40000); // 40 seconds
-      } else {
+      if (!location || !location.patientLocation) {
         const patientSocketId = connectedPatients.get(patientEmail);
         if (patientSocketId) {
           io.to(patientSocketId).emit("bookingError", {
-            message: `Professional ${professionalEmail} is not currently available`,
+            message: "Patient location is required",
           });
         }
-        console.log(`Professional ${professionalEmail} not connected`);
+        return;
+      }
+
+      try {
+        const bookingRequest = new BookingRequest({
+          patientEmail,
+          professionalEmail,
+          message,
+          location: {
+            patientLocation: location.patientLocation,
+            professionalLocation: location.professionalLocation || "", // Fallback to empty string
+          },
+        });
+        await bookingRequest.save();
+
+        if (professionalSocketId) {
+          io.to(professionalSocketId).emit("receiveBooking", {
+            bookingId: bookingRequest._id,
+            patientEmail,
+            location: bookingRequest.location.patientLocation,
+            message,
+          });
+
+          setTimeout(async () => {
+            const booking = await BookingRequest.findById(bookingRequest._id);
+            if (booking && booking.status === "pending") {
+              await BookingRequest.findByIdAndDelete(bookingRequest._id);
+              const patientSocketId = connectedPatients.get(patientEmail);
+              if (patientSocketId)
+                io.to(patientSocketId).emit("bookingTimeout", {
+                  message: "Sorry, the professional is not available",
+                });
+              if (professionalSocketId)
+                io.to(professionalSocketId).emit("bookingRemoved", {
+                  bookingId: bookingRequest._id,
+                });
+            }
+          }, 40000);
+        } else {
+          const patientSocketId = connectedPatients.get(patientEmail);
+          if (patientSocketId)
+            io.to(patientSocketId).emit("bookingError", {
+              message: `Professional ${professionalEmail} is not currently available`,
+            });
+        }
+      } catch (error) {
+        console.error("Error saving booking:", error);
+        const patientSocketId = connectedPatients.get(patientEmail);
+        if (patientSocketId) {
+          io.to(patientSocketId).emit("bookingError", {
+            message: "Failed to save booking",
+          });
+        }
       }
     });
 
@@ -88,36 +133,67 @@ const handleSocketEvents = (io) => {
         { new: true }
       );
 
+      if (!booking) return;
+
       const patientSocketId = connectedPatients.get(booking.patientEmail);
       if (patientSocketId) {
-        io.to(patientSocketId).emit("bookingAccepted", { professionalEmail });
+        io.to(patientSocketId).emit("bookingAccepted", {
+          bookingId,
+          professionalEmail,
+        });
+        console.log("Emitted to patient:", booking.patientEmail);
       }
 
       const professionalSocketId =
         connectedProfessionals.get(professionalEmail);
       if (professionalSocketId) {
-        io.to(professionalSocketId).emit("navigateToProfile", {
-          path: "/professionalProfile",
+        io.to(professionalSocketId).emit("bookingAccepted", {
+          bookingId,
+          professionalEmail,
         });
+        console.log(
+          "Emitted to professional:",
+          professionalEmail,
+          "with bookingId:",
+          bookingId
+        );
       }
     });
 
     socket.on("declineBooking", async (data) => {
-      const { bookingId, professionalEmail } = data;
-
+      const { bookingId } = data;
       const booking = await BookingRequest.findById(bookingId);
-      if (!booking) {
-        console.log(`Booking ${bookingId} not found`);
-        return;
-      }
+      if (!booking) return;
 
       await BookingRequest.findByIdAndDelete(bookingId);
       const patientSocketId = connectedPatients.get(booking.patientEmail);
-      if (patientSocketId) {
+      if (patientSocketId)
         io.to(patientSocketId).emit("bookingDeclined", {
           message: "Booking request declined by professional",
         });
-      }
+    });
+
+    socket.on("finishBooking", async (data) => {
+      const { bookingId } = data;
+      const booking = await BookingRequest.findByIdAndUpdate(
+        bookingId,
+        { status: "completed", endTime: new Date().toISOString() },
+        { new: true }
+      );
+
+      const patientSocketId = connectedPatients.get(booking.patientEmail);
+      if (patientSocketId)
+        io.to(patientSocketId).emit("showPayment", { bookingId });
+    });
+
+    socket.on("paymentCompleted", async (data) => {
+      const { bookingId, paymentMethod } = data;
+      await BookingRequest.findByIdAndUpdate(
+        bookingId,
+        { paid: true, paymentMethod },
+        { new: true }
+      );
+      io.to(bookingId).emit("bookingCompleted", { bookingId });
     });
 
     socket.on("disconnect", () => {
@@ -132,7 +208,6 @@ const handleSocketEvents = (io) => {
         if (id === socket.id) {
           connectedProfessionals.delete(email);
           console.log(`Professional ${email} disconnected`);
-          // Broadcast updated list to all clients
           io.emit(
             "activeProfessionals",
             Array.from(connectedProfessionals.keys())

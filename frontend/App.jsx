@@ -5,7 +5,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector, useDispatch } from "react-redux";
 import { NotAvailable } from "./features/professionalSlice";
-import { ProfessionalSocketProvider, useSocket } from "./assets/professionals/context/SocketContext.jsx"; // Corrected import
+import { ProfessionalSocketProvider, PatientSocketProvider, useSocket } from "./assets/professionals/context/SocketContext.jsx";
+import { Navigate } from "react-router-dom";
 
 /* Components */
 import Home from "./assets/home/home.jsx";
@@ -23,9 +24,11 @@ import BookedAppointment from "./assets/patient/bookedAppointments/bookedAppoint
 import ProfessionalNotification from "./assets/professionals/notification/notification.jsx";
 import PatientNotification from "./assets/patient/notification/notification.jsx";
 import ShowHomeDoctors from "./assets/patient/homeConsultation/showdoctors.jsx";
+import ActiveBooking from "./assets/activeBooking/activeBooking.jsx";
 
 /* Layouts */
 import PatientLayout from "./assets/patient/patientLayout.jsx";
+import ProfessionalLayout from "./assets/professionals/professionalLayout.jsx";
 
 function App() {
   const location = useLocation();
@@ -34,12 +37,8 @@ function App() {
   const userType = user?.userType?.toLowerCase();
 
   const userDashboard = {
-    professional: <ProfessionalHome />,
-    patient: (
-      <PatientLayout>
-        <PatientHome />
-      </PatientLayout>
-    ),
+    professional: <ProfessionalLayout><ProfessionalHome /></ProfessionalLayout>,
+    patient: <PatientLayout><PatientHome /></PatientLayout>,
   };
 
   useEffect(() => {
@@ -51,49 +50,74 @@ function App() {
   const ProfessionalRoutesWithSocket = () => {
     const { joinAsProfessional } = useSocket();
     useEffect(() => {
-      if (userType === "professional" && user?.email) {
-        joinAsProfessional(user.email);
-      }
+      if (userType === "professional" && user?.email) joinAsProfessional(user.email);
     }, [joinAsProfessional]);
-
-    return (
-      <Routes>
-        <Route element={<ProtectedRoute allowedRole="professional" />}>
-          <Route path="/professionalHome" element={<ProfessionalHome />} />
-          <Route path="/professionalProfile/*" element={<ProfessionalProfile />} />
-          <Route path="/professionalnotification" element={<ProfessionalNotification />} />
-        </Route>
-      </Routes>
-    );
+    return null;
   };
+
+  const PatientRoutesWithSocket = () => {
+    const { joinAsPatient } = useSocket();
+    useEffect(() => {
+      if (userType === "patient" && user?.email) joinAsPatient(user.email);
+    }, [joinAsPatient]);
+    return null;
+  };
+
+  const renderRoutes = () => (
+    <Routes>
+      <Route path="/" element={userType ? userDashboard[userType] : <Home />} />
+      {/* Patient Routes */}
+      <Route element={<ProtectedRoute allowedRole="patient" />}>
+        <Route path="/patientHome" element={<PatientLayout><PatientHome /></PatientLayout>} />
+        <Route path="/patientProfile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
+        <Route path="/showdoctors" element={<PatientLayout><ShowDoctors /></PatientLayout>} />
+        <Route path="/bookAppointment" element={<PatientLayout><MakeAppointment /></PatientLayout>} />
+        <Route path="/paymentSuccess" element={<PatientLayout><PaymentSuccess /></PatientLayout>} />
+        <Route path="/bookedAppointment" element={<PatientLayout><BookedAppointment /></PatientLayout>} />
+        <Route path="/showhomedoctors" element={<PatientLayout><ShowHomeDoctors /></PatientLayout>} />
+        <Route path="/patientnotification" element={<PatientLayout><PatientNotification /></PatientLayout>} />
+      </Route>
+      {/* Professional Routes */}
+      <Route element={<ProtectedRoute allowedRole="professional" />}>
+        <Route path="/professionalHome" element={<ProfessionalLayout><ProfessionalHome /></ProfessionalLayout>} />
+        <Route path="/professionalProfile/*" element={<ProfessionalLayout><ProfessionalProfile /></ProfessionalLayout>} />
+        <Route path="/professionalnotification" element={<ProfessionalLayout><ProfessionalNotification /></ProfessionalLayout>} />
+      </Route>
+      {/* Shared Route */}
+      <Route
+        path="/active-booking/:bookingId"
+        element={
+          userType === "patient" || userType === "professional" ? (
+           (userType === "patient")?<PatientLayout><ActiveBooking /></PatientLayout> : <ProfessionalLayout><ActiveBooking /></ProfessionalLayout>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+      {/* Admin Route */}
+      <Route path="/admindashboard/*" element={<Admindashboard />} />
+      {/* 404 */}
+      <Route path="*" element={<h1>404 Not Found</h1>} />
+    </Routes>
+  );
 
   return (
     <>
       <Loader />
       <ToastContainer />
-      <Routes>
-        <Route path="/" element={userType ? userDashboard[userType] : <Home />} />
-        <Route element={<ProtectedRoute allowedRole="patient" />}>
-          <Route path="/patientHome" element={<PatientLayout><PatientHome /></PatientLayout>} />
-          <Route path="/patientProfile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
-          <Route path="/showdoctors" element={<PatientLayout><ShowDoctors /></PatientLayout>} />
-          <Route path="/bookAppointment" element={<PatientLayout><MakeAppointment /></PatientLayout>} />
-          <Route path="/paymentSuccess" element={<PatientLayout><PaymentSuccess /></PatientLayout>} />
-          <Route path="/bookedAppointment" element={<PatientLayout><BookedAppointment /></PatientLayout>} />
-          <Route path="/showhomedoctors" element={<PatientLayout><ShowHomeDoctors /></PatientLayout>} />
-          <Route path="/patientnotification" element={<PatientLayout><PatientNotification /></PatientLayout>} />
-        </Route>
-        <Route
-          path="/*"
-          element={
-            <ProfessionalSocketProvider>
-              <ProfessionalRoutesWithSocket />
-            </ProfessionalSocketProvider>
-          }
-        />
-        <Route path="/admindashboard/*" element={<Admindashboard />} />
-        <Route path="*" element={<h1>404 Not Found</h1>} />
-      </Routes>
+      {userType === "patient" ? (
+        <PatientSocketProvider>
+          <PatientRoutesWithSocket />
+          {renderRoutes()}
+        </PatientSocketProvider>
+      ) : userType === "professional" ? (
+        <ProfessionalSocketProvider professionalEmail={user?.email}>
+          <ProfessionalRoutesWithSocket />
+          {renderRoutes()}
+        </ProfessionalSocketProvider>
+      ) : (
+        renderRoutes()
+      )}
     </>
   );
 }

@@ -2,24 +2,21 @@ import React, { useEffect, useState } from "react";
 import "./showdoctors.css";
 import PatientTopbar from "../Topbar/topbar";
 import { useNavigate } from "react-router-dom";
-import { setProfessionalInfo, NotAvailable } from "../../../features/professionalSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { io } from "socket.io-client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-import Doctors from "../../images/doctors.svg"
-
+import { useSocket } from "../../professionals/context/SocketContext";
+import Doctors from "../../images/doctors.svg";
 
 function ShowDoctors() {
   const [professionalData, setProfessionalsData] = useState([]);
   const [activeProfessionals, setActiveProfessionals] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { socket, sendBookingRequest } = useSocket();
 
   const user = useSelector((state) => state.user);
   const patientEmail = user?.email || "guest@example.com";
@@ -27,7 +24,9 @@ function ShowDoctors() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const professionalResponse = await fetch("http://localhost:3003/api/display/getprofessional");
+        const professionalResponse = await fetch("http://localhost:3003/api/display/getprofessional", {
+          credentials: "include",
+        });
         if (!professionalResponse.ok) throw new Error("Failed to fetch professional data");
         const data = await professionalResponse.json();
         const filteredData = data.filter(
@@ -46,69 +45,72 @@ function ShowDoctors() {
   }, []);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3003");
-    setSocket(newSocket);
+    if (!socket) return;
 
-    newSocket.emit("patientJoin", patientEmail);
-    newSocket.emit("getActiveProfessionals"); // Initial request for active professionals
+    socket.emit("getActiveProfessionals");
 
-    newSocket.on("activeProfessionals", (activePros) => {
-      setActiveProfessionals(activePros); // Update state whenever active professionals change
+    socket.on("activeProfessionals", (activePros) => {
+      setActiveProfessionals(activePros);
     });
 
-    newSocket.on("bookingError", (data) => {
+    socket.on("bookingError", (data) => {
       setError(data.message);
       toast.error(data.message);
       setShowOverlay(false);
     });
 
-    newSocket.on("bookingAccepted", () => {
+    socket.on("bookingAccepted", (data) => {
       setShowOverlay(false);
-      navigate("/patientProfile");
       toast.success("Booking accepted by professional!");
+      setTimeout(() => {
+        navigate(`/active-booking/${data.bookingId}`);
+      }, 3000);
     });
 
-    newSocket.on("bookingDeclined", (data) => {
+    socket.on("bookingDeclined", (data) => {
       setShowOverlay(false);
       toast.error(data.message);
     });
 
-    newSocket.on("bookingTimeout", (data) => {
+    socket.on("bookingTimeout", (data) => {
       setShowOverlay(false);
       toast.error(data.message);
     });
 
     return () => {
-      if (newSocket) newSocket.disconnect();
+      socket.off("activeProfessionals");
+      socket.off("bookingError");
+      socket.off("bookingAccepted");
+      socket.off("bookingDeclined");
+      socket.off("bookingTimeout");
     };
-  }, [patientEmail, navigate]);
+  }, [socket, navigate]);
 
-  const handle_send_booking_request = (professional) => {
+  const handleSendBookingRequest = (professional) => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       return;
     }
-
+  
+    if (!socket) {
+      toast.error("Socket connection not established yet");
+      return;
+    }
+  
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const location = `Latitude: ${latitude}, Longitude: ${longitude}`;
-
-        let currentSocket = socket;
-        if (!currentSocket) {
-          currentSocket = io("http://localhost:3003");
-          currentSocket.emit("patientJoin", patientEmail);
-          setSocket(currentSocket);
-        }
-
+        const patientLocation = `Latitude: ${latitude}, Longitude: ${longitude}`;
+  
         const messageData = {
           patientEmail,
           professionalEmail: professional.email,
           message: "I Booked you",
-          location,
+          location: { patientLocation, professionalLocation: "" },
         };
-
-        currentSocket.emit("bookingMessage", messageData);
+  
+        console.log("Sending booking request:", messageData); // Debug log
+        sendBookingRequest(messageData);
         setShowOverlay(true);
         toast.success("Booking request sent successfully!");
       },
@@ -118,7 +120,6 @@ function ShowDoctors() {
     );
   };
 
-  // Filter professionals to show only active ones
   const displayedProfessionals = professionalData.filter((professional) =>
     activeProfessionals.includes(professional.email)
   );
@@ -179,7 +180,7 @@ function ShowDoctors() {
                   <div className="charge">Charge: {professional.charge}</div>
                   <div
                     className="see_schedule_button"
-                    onClick={() => handle_send_booking_request(professional)}
+                    onClick={() => handleSendBookingRequest(professional)}
                   >
                     <p>Send Booking Request</p>
                   </div>
@@ -189,9 +190,8 @@ function ShowDoctors() {
           })
         ) : (
           <div className="not-available">
-            <img src={Doctors} alt=""  className="show_not-available"/>
+            <img src={Doctors} alt="" className="show_not-available" />
             <p>Sorry there are no doctors available currently</p>
-
           </div>
         )}
       </div>
