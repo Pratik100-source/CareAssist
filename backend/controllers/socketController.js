@@ -36,23 +36,43 @@ const handleSocketEvents = (io) => {
     });
 
     socket.on("chatMessage", async (data) => {
-      const { bookingId, senderEmail, receiverEmail, message, timestamp } =
-        data;
-      io.to(bookingId).emit("chatMessage", {
-        bookingId,
-        senderEmail,
-        receiverEmail,
-        message,
-        timestamp,
-      });
-      const chatMessage = new ChatMessage({
-        bookingId,
-        senderEmail,
-        receiverEmail,
-        message,
-        timestamp,
-      });
-      await chatMessage.save();
+      const { bookingId, senderEmail, receiverEmail, message } = data;
+
+      try {
+        // Find the conversation for this booking
+        let conversation = await ChatMessage.findOne({ bookingId });
+
+        // If no conversation exists, create a new one
+        if (!conversation) {
+          conversation = new ChatMessage({
+            bookingId,
+            participants: [senderEmail, receiverEmail],
+            messages: [{ senderEmail, message }],
+          });
+        } else {
+          // Append the new message to the existing conversation
+          conversation.messages.push({ senderEmail, message });
+        }
+
+        // Save the conversation to the database
+        await conversation.save();
+
+        // Fetch the newly added message (with timestamp)
+        const updatedConversation = await ChatMessage.findOne({ bookingId });
+        const newMessage =
+          updatedConversation.messages[updatedConversation.messages.length - 1];
+
+        // Emit the message to the booking room
+        io.to(bookingId).emit("chatMessage", {
+          bookingId,
+          senderEmail,
+          receiverEmail,
+          message,
+          timestamp: newMessage.timestamp,
+        });
+      } catch (error) {
+        console.error("Error saving chat message:", error);
+      }
     });
 
     socket.on("bookingMessage", async (data) => {

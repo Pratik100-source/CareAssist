@@ -84,8 +84,9 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  height: auto;
-  min-height: 400px;
+  /* height: auto; */
+  height: 480px;
+  overflow-y: scroll;
 }
 
 .chat-header {
@@ -168,19 +169,18 @@
   outline: none;
 }
 
-.message-input button {
+.message-input .send_button {
   margin-left: 10px;
-  padding: 8px 20px;
-  background-color: #e74c3c;
-  color: white;
+  margin-top: 20px;
+  color: #e74c3c;
   border: none;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-.message-input button:disabled {
-  background-color: #ccc;
+.message-input .send_button:disabled {
+  /* background-color: #ccc; */
   cursor: not-allowed;
 }
 

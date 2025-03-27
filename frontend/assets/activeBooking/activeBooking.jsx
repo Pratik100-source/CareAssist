@@ -7,10 +7,9 @@ import "leaflet/dist/leaflet.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "../professionals/context/SocketContext";
-import NepaliDate from "nepali-datetime"; // Import NepaliDate
 import "./activeBooking.css";
 import { Navigate } from "react-router-dom";
-
+import { IoSend } from "react-icons/io5";
 import MalePhoto from "../images/male.jpg";
 import FemalePhoto from "../images/female.jpg";
 
@@ -61,13 +60,66 @@ const ActiveBooking = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // Function to get the current time in Nepal (HH:mm)
-  const getNepalTime = () => {
-    const nepaliDate = new NepaliDate(); // Current date/time in Nepal
-    const hours = String(nepaliDate.getHours()).padStart(2, "0");
-    const minutes = String(nepaliDate.getMinutes()).padStart(2, "0");
+  // Function to format Unix timestamp to HH:mm
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   };
+
+  // Fetch chat messages when the component mounts
+  useEffect(() => {
+    const fetchChatMessages = async () => {
+      try {
+        const response = await fetch(`http://localhost:3003/api/chat/${bookingId}`, {
+          method: "Post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch chat messages");
+        const data = await response.json();
+
+        if (data && data.messages) {
+          // Sort messages by timestamp
+          const sortedMessages = data.messages
+            .map((msg) => ({
+              senderEmail: msg.senderEmail,
+              receiverEmail: data.participants.find((p) => p !== msg.senderEmail),
+              message: msg.message,
+              timestamp: msg.timestamp,
+            }))
+            .sort((a, b) => a.timestamp - b.timestamp);
+          setMessages(sortedMessages);
+        }
+      } catch (error) {
+        console.error("Error fetching chat messages:", error);
+        toast.error("Failed to load chat messages");
+      }
+    };
+
+    if (bookingId) {
+      fetchChatMessages();
+    }
+  }, [bookingId]);
+
+  // Prevent window reload by showing a confirmation dialog
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (newMessage.trim()) {
+        event.preventDefault();
+        event.returnValue = "You have an unsaved message. Are you sure you want to leave?";
+        return "You have an unsaved message. Are you sure you want to leave?";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [newMessage]);
 
   useEffect(() => {
     if (!userType || !userEmail) {
@@ -90,9 +142,7 @@ const ActiveBooking = () => {
         console.log("Booking data:", data);
         setBooking(data);
         setPatientLocation(parseLocation(data.location.patientLocation));
-        setProfessionalLocation(
-          parseLocation(data.location.professionalLocation)
-        );
+        setProfessionalLocation(parseLocation(data.location.professionalLocation));
       } catch (error) {
         console.error("Error loading booking details:", error.message);
         setFetchError(error.message);
@@ -114,7 +164,11 @@ const ActiveBooking = () => {
     socket.emit("joinChat", { bookingId, userEmail });
 
     socket.on("chatMessage", (data) => {
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => {
+        const updatedMessages = [...prev, data];
+        // Sort messages by timestamp
+        return updatedMessages.sort((a, b) => a.timestamp - b.timestamp);
+      });
     });
 
     socket.on("showPayment", () => {
@@ -197,11 +251,8 @@ const ActiveBooking = () => {
       bookingId,
       senderEmail: userEmail,
       receiverEmail:
-        booking?.[
-          userType === "patient" ? "professionalEmail" : "patientEmail"
-        ],
+        booking?.[userType === "patient" ? "professionalEmail" : "patientEmail"],
       message: newMessage,
-      timestamp: getNepalTime(), // Store the current time in Nepal (HH:mm)
     };
     socket.emit("chatMessage", messageData);
     setNewMessage("");
@@ -351,7 +402,6 @@ const ActiveBooking = () => {
                 alt={userType === "professional" ? "Professional" : "Patient"}
                 className="chat-photo"
               />
-
               <h3>
                 {userType === "patient"
                   ? professionalDetails
@@ -366,13 +416,11 @@ const ActiveBooking = () => {
               {messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={
-                    msg.senderEmail === userEmail ? "sent" : "received"
-                  }
+                  className={msg.senderEmail === userEmail ? "sent" : "received"}
                 >
                   <p>{msg.message}</p>
                   <span className="message-timestamp">
-                    {msg.timestamp || ""}
+                    {formatTimestamp(msg.timestamp)}
                   </span>
                 </div>
               ))}
@@ -383,9 +431,11 @@ const ActiveBooking = () => {
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="type your message"
               />
-              <button onClick={sendMessage} disabled={!socket}>
-                Send
-              </button>
+              <IoSend
+                onClick={sendMessage}
+                disabled={!socket}
+                className="send_button"
+              />
             </div>
           </div>
 
