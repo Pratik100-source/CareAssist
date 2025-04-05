@@ -5,27 +5,24 @@ import PatientBookingHistory from "../Profile/BHistory";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import ProfileRoutes from "./profileRoutes";
 
  
 
 const PatientProfile = () => {
-  const [pClicked, setpClicked] = useState(false);
-  const [bClicked, setbClicked] = useState(false);
+  
 
   const user = useSelector((state) => state.user); // Access the 'user' state slice
   const gender = user.gender;
-
+  
+  const navigate = useNavigate();
 
   const handlePclick = () => {
-    setbClicked(false);
-    setpClicked(true);
-    console.log(pClicked);
+    navigate("/patientProfile/personalInformation")
   };
 
   const handleBclick = () => {
-    setpClicked(false);
-    setbClicked(true);
-    console.log(bClicked);
+     navigate("/patientProfile/bookingHistory")
   };
 
   return (
@@ -39,19 +36,7 @@ const PatientProfile = () => {
           </ul>
         </div>
         <div className="patient_dashboard_content">
-          {pClicked}
-
-          {pClicked && (
-            <div className="patient_info_content">
-              <PatientPersonalInfo />
-            </div>
-          )}
-
-          {bClicked && (
-            <div className="booking_history_content">
-              <PatientBookingHistory />
-            </div>
-          )}
+          <ProfileRoutes/>
         </div>
       </div>
     </div>

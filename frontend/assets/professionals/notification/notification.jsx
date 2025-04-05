@@ -11,7 +11,7 @@ function ProfessionalNotification() {
   const professionalEmail = user?.email || "unknown@example.com";
   const { notifications, joinAsProfessional, acceptBooking, declineBooking, socket } = useSocket();
   const [isNavigating, setIsNavigating] = useState(false);
-
+  
   useEffect(() => {
     joinAsProfessional(professionalEmail);
   }, [joinAsProfessional, professionalEmail]);

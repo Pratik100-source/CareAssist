@@ -9,23 +9,46 @@ const Displaypatient = () => {
 
   // Fetch patient data from the backend
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await fetch('http://localhost:3003/api/display/getpatient');
-        if (!response.ok) {
-          throw new Error('Failed to fetch patient data');
-        }
-        const data = await response.json();
-        setPatientsData(data); // Set the fetched data to state
-      } catch (error) {
-        setError(error.message); // Handle errors
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    };
-
     fetchPatients();
   }, []);
+
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch('http://localhost:3003/api/display/getpatient');
+      if (!response.ok) {
+        throw new Error('Failed to fetch patient data');
+      }
+      const data = await response.json();
+      setPatientsData(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle patient deletion
+  const handleDeletePatient = async (patientEmail) => {
+    if (window.confirm('Are you sure you want to delete this patient?')) {
+      try {
+        const response = await fetch(`http://localhost:3003/api/delete/delete-patient/${patientEmail}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete patient');
+        }
+        
+        // Refresh the patient list after successful deletion
+        fetchPatients();
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
 
   // Filter patients based on search term
   const filteredPatients = patientsData.filter(patient =>
@@ -57,6 +80,7 @@ const Displaypatient = () => {
             <th>Email</th>
             <th>Number</th>
             <th>Birthdate</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -66,6 +90,14 @@ const Displaypatient = () => {
               <td>{patient.email}</td>
               <td>{patient.number}</td>
               <td>{patient.birthdate.split('T')[0]}</td>
+              <td>
+                <button 
+                  onClick={() => handleDeletePatient(patient.email)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

@@ -17,7 +17,7 @@ const findPatient = async (req, res) => {
     const formattedPatients = patients.map((patient) => ({
       name: `${patient.firstname} ${patient.lastname}`,
       email: patient.email,
-      number: patient.mobile,
+      number: patient.number,
       birthdate: patient.birthdate,
     }));
 
@@ -46,7 +46,7 @@ const findProfessional = async (req, res) => {
     const formattedProfessionals = professionals.map((professional) => ({
       name: `${professional.firstname} ${professional.lastname}`,
       email: professional.email,
-      number: professional.mobile,
+      number: professional.number,
       status: professional.verification,
       document: professional.document,
       profession: professional.profession,

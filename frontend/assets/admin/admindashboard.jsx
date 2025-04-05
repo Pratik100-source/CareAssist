@@ -22,6 +22,10 @@ function AdminDashboard() {
     navigate("/admindashboard/managePayment");
     
   }
+  const handleBookingClick = ()=>{
+    navigate("/admindashboard/manageBooking");
+    
+  }
 
   return (
     <div className="main_admin_dashboard">
@@ -34,6 +38,7 @@ function AdminDashboard() {
           <li onClick={handleProfessionalClick}>Professionals</li>
           <li onClick={handleVerificationClick}>Verification</li>
           <li onClick={handlePaymentClick}>Payments</li>
+          <li onClick={handleBookingClick}>Bookings</li>
         </ul>
       </div>
       <div className="content">

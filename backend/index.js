@@ -14,6 +14,8 @@ const verifyprofessionalRoutes = require("./routes/verifyProfessionalRouter");
 const paymentRoutes = require("./routes/paymentRouter");
 const bookingRoutes = require("./routes/bookingRouter");
 const chatRoutes = require("./routes/chatRouter");
+const editRoutes = require("./routes/editRouter");
+const deleteRoutes = require("./routes/deleteRouter");
 
 require("./cronJobs");
 
@@ -41,6 +43,8 @@ app.use("/api/verification", verifyprofessionalRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/booking", bookingRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/edit", editRoutes);
+app.use("/api/delete", deleteRoutes);
 
 // HTTP Server with Socket.io
 const server = http.createServer(app);

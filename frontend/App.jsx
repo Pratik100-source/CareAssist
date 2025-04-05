@@ -8,7 +8,7 @@ import { NotAvailable } from "./features/professionalSlice";
 import { ProfessionalSocketProvider, PatientSocketProvider, useSocket } from "./assets/professionals/context/SocketContext.jsx";
 import { Navigate } from "react-router-dom";
 
-/* Components */
+
 import Home from "./assets/home/home.jsx";
 import PatientHome from "./assets/patient/home/home.jsx";
 import PatientProfile from "./assets/patient/Profile/profile.jsx";
@@ -29,6 +29,11 @@ import ActiveBooking from "./assets/activeBooking/activeBooking.jsx";
 /* Layouts */
 import PatientLayout from "./assets/patient/patientLayout.jsx";
 import ProfessionalLayout from "./assets/professionals/professionalLayout.jsx";
+
+/*error pages*/
+import PageNotAvailable from "./assets/error/404/error.jsx";
+
+
 
 function App() {
   const location = useLocation();
@@ -69,11 +74,10 @@ function App() {
       {/* Patient Routes */}
       <Route element={<ProtectedRoute allowedRole="patient" />}>
         <Route path="/patientHome" element={<PatientLayout><PatientHome /></PatientLayout>} />
-        <Route path="/patientProfile" element={<PatientLayout><PatientProfile /></PatientLayout>} />
+        <Route path="/patientProfile/*" element={<PatientLayout><PatientProfile /></PatientLayout>} />
         <Route path="/showdoctors" element={<PatientLayout><ShowDoctors /></PatientLayout>} />
         <Route path="/bookAppointment" element={<PatientLayout><MakeAppointment /></PatientLayout>} />
         <Route path="/paymentSuccess" element={<PatientLayout><PaymentSuccess /></PatientLayout>} />
-        <Route path="/bookedAppointment" element={<PatientLayout><BookedAppointment /></PatientLayout>} />
         <Route path="/showhomedoctors" element={<PatientLayout><ShowHomeDoctors /></PatientLayout>} />
         <Route path="/patientnotification" element={<PatientLayout><PatientNotification /></PatientLayout>} />
       </Route>
@@ -93,11 +97,23 @@ function App() {
             <Navigate to="/" replace />
           )
         }
+        
+      />
+       <Route
+        path="/bookedAppointment"
+        element={
+          userType === "patient" || userType === "professional" ? (
+           (userType === "patient")?<PatientLayout><BookedAppointment /></PatientLayout> : <ProfessionalLayout><BookedAppointment /></ProfessionalLayout>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+        
       />
       {/* Admin Route */}
       <Route path="/admindashboard/*" element={<Admindashboard />} />
       {/* 404 */}
-      <Route path="*" element={<h1>404 Not Found</h1>} />
+      <Route path="*" element={<PageNotAvailable></PageNotAvailable>} />
     </Routes>
   );
 

@@ -4,7 +4,7 @@ const Patient = require("../models/patient");
 const Professional = require("../models/professional");
 
 const patientSignup = async (req, res) => {
-  const { email, firstname, lastname, mobile, gender, birthdate, password } =
+  const { email, firstname, lastname, number, gender, birthdate, password } =
     req.body;
 
   let gender_string = null;
@@ -26,7 +26,7 @@ const patientSignup = async (req, res) => {
     email,
     firstname,
     lastname,
-    mobile,
+    number,
     gender: gender_string,
     birthdate: date_object,
     password,
@@ -42,7 +42,7 @@ const patientSignup = async (req, res) => {
 };
 
 const professionalSignup = async (req, res) => {
-  const { email, firstname, lastname, mobile, gender, birthdate, password } =
+  const { email, firstname, lastname, number, gender, birthdate, password } =
     req.body;
 
   let gender_string = null;
@@ -64,7 +64,7 @@ const professionalSignup = async (req, res) => {
     email,
     firstname,
     lastname,
-    mobile,
+    number,
     gender: gender_string,
     birthdate: date_object,
     password,
@@ -113,8 +113,6 @@ const login = async (req, res) => {
       {
         id: user._id,
         email: user.email,
-        gender: user.gender,
-        name: user.firstname,
         userType,
       },
       process.env.JWT_SECRET,
@@ -129,7 +127,7 @@ const login = async (req, res) => {
       user: {
         firstname: user.firstname,
         lastname: user.lastname,
-        number: user.mobile,
+        number: user.number,
         email: user.email,
         gender: user.gender,
         birthdate: user.birthdate,

@@ -14,12 +14,15 @@ function ShowDoctors() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showWarning, setShowWarning] = useState(false); // State to show the warning div
+  const [pendingBooking, setPendingBooking] = useState(null); // Track the pending booking request
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { socket, sendBookingRequest } = useSocket();
 
   const user = useSelector((state) => state.user);
   const patientEmail = user?.email || "guest@example.com";
+  const patient = (user?.firstname + " "+ user?.lastname) || "Hero pratik";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,10 +60,12 @@ function ShowDoctors() {
       setError(data.message);
       toast.error(data.message);
       setShowOverlay(false);
+      setPendingBooking(null);
     });
 
     socket.on("bookingAccepted", (data) => {
       setShowOverlay(false);
+      setPendingBooking(null);
       toast.success("Booking accepted by professional!");
       setTimeout(() => {
         navigate(`/active-booking/${data.bookingId}`);
@@ -69,11 +74,13 @@ function ShowDoctors() {
 
     socket.on("bookingDeclined", (data) => {
       setShowOverlay(false);
+      setPendingBooking(null);
       toast.error(data.message);
     });
 
     socket.on("bookingTimeout", (data) => {
       setShowOverlay(false);
+      setPendingBooking(null);
       toast.error(data.message);
     });
 
@@ -86,31 +93,57 @@ function ShowDoctors() {
     };
   }, [socket, navigate]);
 
+  // Handle the beforeunload event to warn the user
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (showOverlay) {
+        // Show the custom warning div
+        setShowWarning(true);
+        // Prevent the default browser dialog (optional, depending on browser support)
+        event.preventDefault();
+        event.returnValue = "Your booking request will be canceled if you refresh the page. Are you sure?";
+        return "Your booking request will be canceled if you refresh the page. Are you sure?";
+      }
+    };
+
+    if (showOverlay) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [showOverlay]);
+
   const handleSendBookingRequest = (professional) => {
     if (!navigator.geolocation) {
       toast.error("Geolocation is not supported by your browser");
       return;
     }
-  
+
     if (!socket) {
       toast.error("Socket connection not established yet");
       return;
     }
-  
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         const patientLocation = `Latitude: ${latitude}, Longitude: ${longitude}`;
-  
+        const professional_name = professional.name;
         const messageData = {
+          patient,
+          professional_name,
           patientEmail,
           professionalEmail: professional.email,
           message: "I Booked you",
           location: { patientLocation, professionalLocation: "" },
+          charge: professional.charge,
         };
-  
+
         console.log("Sending booking request:", messageData); // Debug log
         sendBookingRequest(messageData);
+        setPendingBooking(messageData); // Store the pending booking request
         setShowOverlay(true);
         toast.success("Booking request sent successfully!");
       },
@@ -152,6 +185,84 @@ function ShowDoctors() {
           >
             <h3>Waiting for the response of the professional...</h3>
             <p>Please wait</p>
+          </div>
+        </div>
+      )}
+      {showWarning && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 2000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "10px",
+              textAlign: "center",
+              maxWidth: "400px",
+            }}
+          >
+            <h3>Warning: Booking Will Be Canceled</h3>
+            <p>
+              If you refresh the page or navigate away, your booking request will be canceled. Are you sure you want to proceed?
+            </p>
+            <div style={{ marginTop: "20px" }}>
+              <button
+                style={{
+                  padding: "10px 20px",
+                  marginRight: "10px",
+                  backgroundColor: "#ff4d4f",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  // User confirms they want to cancel the booking
+                  setShowWarning(false);
+                  setShowOverlay(false);
+                  setPendingBooking(null);
+                  // Emit an event to the server to cancel the booking
+                  if (socket && pendingBooking) {
+                    socket.emit("cancelBookingRequest", {
+                      patientEmail: pendingBooking.patientEmail,
+                      professionalEmail: pendingBooking.professionalEmail,
+                      message: "Booking request canceled by patient due to page refresh.",
+                    });
+                  }
+                  // Allow the refresh to proceed (remove the event listener temporarily)
+                  window.location.reload();
+                }}
+              >
+                Yes, Cancel Booking
+              </button>
+              <button
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  // User decides to stay on the page
+                  setShowWarning(false);
+                }}
+              >
+                No, Stay on Page
+              </button>
+            </div>
           </div>
         </div>
       )}

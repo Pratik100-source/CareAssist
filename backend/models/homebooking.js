@@ -19,6 +19,8 @@ const getNepalTime = () => {
 };
 
 const homebookingSchema = new mongoose.Schema({
+  patient: { type: String, required: true },
+  professional: { type: String, required: true },
   patientEmail: { type: String, required: true },
   professionalEmail: { type: String, required: true },
   message: { type: String, required: true },
@@ -40,6 +42,7 @@ const homebookingSchema = new mongoose.Schema({
     default: getNepalTime, // Store the current time in Nepal (HH:mm)
   },
   endTime: { type: String },
+  charge: { type: Number, required: true },
   paid: { type: Boolean, default: false },
   paymentMethod: { type: String },
 });

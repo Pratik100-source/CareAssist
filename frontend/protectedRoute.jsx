@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 const ProtectedRoute = ({ allowedRole }) => {
   const user = useSelector((state) => state.user);
   console.log("ProtectedRoute - user:", user, "allowedRole:", allowedRole);
-  if (!user) {
+  if (!user.userType) {
     console.log("Redirecting to / - no user");
     return <Navigate to="/" replace />;
   }

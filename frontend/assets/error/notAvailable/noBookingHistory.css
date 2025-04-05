@@ -1,0 +1,8 @@
+.booking_image {
+  text-align: center;
+}
+
+.booking_image img {
+  height: 250px;
+  width: 250px;
+}

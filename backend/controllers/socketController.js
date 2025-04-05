@@ -76,7 +76,15 @@ const handleSocketEvents = (io) => {
     });
 
     socket.on("bookingMessage", async (data) => {
-      const { patientEmail, professionalEmail, message, location } = data;
+      const {
+        patient,
+        professional_name,
+        patientEmail,
+        professionalEmail,
+        message,
+        location,
+        charge,
+      } = data;
       const professionalSocketId =
         connectedProfessionals.get(professionalEmail);
 
@@ -94,6 +102,8 @@ const handleSocketEvents = (io) => {
 
       try {
         const bookingRequest = new BookingRequest({
+          patient,
+          professional: professional_name,
           patientEmail,
           professionalEmail,
           message,
@@ -101,6 +111,7 @@ const handleSocketEvents = (io) => {
             patientLocation: location.patientLocation,
             professionalLocation: location.professionalLocation || "", // Fallback to empty string
           },
+          charge,
         });
         await bookingRequest.save();
 

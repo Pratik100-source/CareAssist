@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './displayprofessional.css';
 import { CgFileDocument } from "react-icons/cg";
+import { FaTrash } from "react-icons/fa"; 
 const DisplayProfessional = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [professionalData, setProfessionalsData] = useState([]);
@@ -9,23 +10,26 @@ const DisplayProfessional = () => {
   const [viewClicked, setViewClicked] = useState(false);
   const [selectedProfessional, setSelectedProfessional] = useState(null);
 
+
   useEffect(() => {
-    const fetchProfessional = async () => {
-      try {
-        const response = await fetch('http://localhost:3003/api/display/getprofessional');
-        if (!response.ok) {
-          throw new Error('Failed to fetch professional data');
-        }
-        const data = await response.json();
-        setProfessionalsData(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    
     fetchProfessional();
   }, []);
+
+  const fetchProfessional = async () => {
+    try {
+      const response = await fetch('http://localhost:3003/api/display/getprofessional');
+      if (!response.ok) {
+        throw new Error('Failed to fetch professional data');
+      }
+      const data = await response.json();
+      setProfessionalsData(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewClick = (professional) => {
     setSelectedProfessional(professional);
@@ -55,6 +59,31 @@ const DisplayProfessional = () => {
     }
   };
 
+  const handleDeleteProfessional = async (professionalEmail) => {
+    if (window.confirm('Are you sure you want to delete this professional?')) {
+      try {
+        const response = await fetch(
+          `http://localhost:3003/api/delete/delete-professional/${professionalEmail}`, 
+          {
+            method: 'DELETE',
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete professional');
+        }
+        
+        // Refresh the list after deletion
+        fetchProfessional();
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
+
   const filteredProfessional = professionalData.filter(professional =>
     professional.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -81,6 +110,7 @@ const DisplayProfessional = () => {
             <th>Specialization</th>
             <th>Consult Method</th>
             <th>Documents</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -94,6 +124,14 @@ const DisplayProfessional = () => {
               <td>{professional.consultationMethod}</td>
               <td>
                 <div className='document_view' onClick={() => handleViewClick(professional)}><CgFileDocument className='view_button'></CgFileDocument></div>
+              </td>
+              <td>
+                <button 
+                  onClick={() => handleDeleteProfessional(professional.email)}
+                  className="delete-button"
+                >
+                  <FaTrash />
+                </button>
               </td>
             </tr>
           ))}

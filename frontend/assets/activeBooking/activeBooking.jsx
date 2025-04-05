@@ -136,8 +136,9 @@ const ActiveBooking = () => {
             // credentials: "include",
           }
         );
-        if (!response.ok)
-          throw new Error(`Failed to fetch booking: ${response.status}`);
+        if (response.status===404){throw new Error(`Failed to fetch booking: ${response.status}`);}
+        else if(response.status===403){throw new Error("The booking is already completed")};
+          
         const data = await response.json();
         console.log("Booking data:", data);
         setBooking(data);

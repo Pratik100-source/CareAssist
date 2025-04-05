@@ -9,7 +9,7 @@
   font-size: 1.75rem;
   color: #333333;
   margin-bottom: 1.5rem;
-  text-align: center;
+  text-align: left;
   font-weight: 600;
   border-bottom: 2px solid #ff3131;
   padding-bottom: 0.5rem;
@@ -43,6 +43,9 @@
   background-color: #f8f9fa; /* Light gray background */
 }
 
+.section_header {
+  text-align: left;
+}
 .urgency {
   background-color: #ff3131;
   color: white;

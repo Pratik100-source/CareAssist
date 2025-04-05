@@ -20,7 +20,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
     email: "",
     firstname: "",
     lastname: "",
-    mobile: "",
+    number: "",
     gender: "0",
     birthdate: "",
     password: "",
@@ -153,7 +153,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
   };
 
   const validateForm = () => {
-    const { firstname, lastname, mobile, birthdate, password, confirmPassword } = formData;
+    const { firstname, lastname, number, birthdate, password, confirmPassword } = formData;
 
     if (!firstname) {
       toast.error("First Name is required", {
@@ -171,7 +171,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
       return false;
     }
 
-    if (!mobile) {
+    if (!number) {
       toast.error("Mobile Number is required", {
         position: "top-right",
         autoClose: 3000,
@@ -366,9 +366,9 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
               <section className="second_row">
                 <input
                   type="text"
-                  name="mobile"
+                  name="number"
                   placeholder="Mobile Number"
-                  value={formData.mobile}
+                  value={formData.number}
                   onChange={handleInputChange}
                   required
                 />

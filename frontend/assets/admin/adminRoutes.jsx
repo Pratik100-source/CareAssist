@@ -3,6 +3,7 @@ import Displaypatient from "./displaypatient";
 import Displayprofessional from "./displayprofessional";
 import Verifyprofessional from "./verifyprofessional";
 import ManagePayments from "./managePayment"
+import ManageBooking from "./manageBooking"
 
 function AdminRoutes() {
   return (
@@ -11,6 +12,7 @@ function AdminRoutes() {
       <Route path="displayProfessional" element={<Displayprofessional />} />
       <Route path="verifyProfessional" element={<Verifyprofessional />} />
       <Route path="managePayment" element={<ManagePayments />} />
+      <Route path="manageBooking" element={<ManageBooking />} />
    
       <Route path="*" element={<Displaypatient />} />
     </Routes>

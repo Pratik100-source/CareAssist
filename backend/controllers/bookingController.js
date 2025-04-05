@@ -100,8 +100,17 @@ const getPendingBookings = async (req, res) => {
 const getBookingById = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const booking = await HBooking.findById(bookingId);
+    let booking = await HBooking.findById(bookingId);
+
+    if (!booking) {
+      booking = await OBooking.findById(bookingId);
+    }
+
     if (!booking) return res.status(404).json({ message: "Booking not found" });
+    else if (booking.status === "completed") {
+      return res.status(403).json({ message: "Booking has already completed" });
+    }
+
     res.json(booking);
   } catch (error) {
     res.status(500).json({ message: "Error fetching booking", error });
