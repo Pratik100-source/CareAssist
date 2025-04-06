@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './manageBooking.css';
+import NoData from '../error/noData/noData';
 
 const ManageBooking = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,9 +37,8 @@ const ManageBooking = () => {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+
+    if (error) return <div><NoData></NoData></div>;
 
   return (
     <div className="bookings">

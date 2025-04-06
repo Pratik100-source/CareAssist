@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { showLoader, hideLoader } from "../../features/loaderSlice";
 import { FaRegEdit } from "react-icons/fa";
 import { CgFileDocument } from "react-icons/cg";
+import NoData from "../error/noData/noData";
 
 const Verifyprofessional = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -112,7 +113,7 @@ const Verifyprofessional = () => {
       // Update the local state to reflect the change
       const updatedProfessionals = professionalData.map((professional) =>
         professional.email === email
-          ? { ...professional, status: status, submission: submission } // Update both fields locally
+          ? { ...professional, status: status, submission: submission } 
           : professional
       );
       setprofessionalsData(updatedProfessionals); // Update the state
@@ -130,7 +131,7 @@ const Verifyprofessional = () => {
 
   // Display loading or error messages
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div><NoData></NoData></div>;
 
   return (
     <div className="professionals">

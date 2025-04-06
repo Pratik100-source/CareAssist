@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './managePayment.css';
+import NoData from '../error/noData/noData';
 
 const ManagePayment = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,10 +36,8 @@ const ManagePayment = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+    if (error) return <div><NoData></NoData></div>;
+ 
 
   return (
     <div className="payments">
