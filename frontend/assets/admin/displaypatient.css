@@ -53,21 +53,21 @@
 }
 
 .edit-button {
-  background-color: #4caf50;
+  background-color: #ff3131;
   color: white;
 }
 
 .edit-button:hover {
-  background-color: #3e8e41;
+  background-color: #b8100ad7;
 }
 
 .delete-button {
-  background-color: #f44336;
+  background-color: #ff3131;
   color: white;
 }
 
 .delete-button:hover {
-  background-color: #d32f2f;
+  background-color: #b8100ad7;
 }
 
 /* Modal Styles */

@@ -318,14 +318,13 @@ const ActiveBooking = () => {
   return (
     <div className="active-booking">
       <ToastContainer position="top-right" autoClose={3000} />
+      
       <div className="split-container">
+        {/* Left Section - Booking Info */}
         <div className="info-section">
           <div className="professional-card">
             <img
-              src={
-                professionalDetails?.document?.photoUrl ||
-                "https://via.placeholder.com/50"
-              }
+              src={professionalDetails?.document?.photoUrl || "https://via.placeholder.com/50"}
               alt="Professional"
               className="professional-photo"
             />
@@ -341,15 +340,12 @@ const ActiveBooking = () => {
               </h2>
               <p className="specialization">
                 {userType === "patient" && professionalDetails
-                  ? `${
-                      professionalDetails.specialization || "N/A"
-                    }, Experience: ${
-                      professionalDetails.experience || "N/A"
-                    } years`
+                  ? `${professionalDetails.specialization || "N/A"}, Experience: ${professionalDetails.experience || "N/A"} years`
                   : ""}
               </p>
             </div>
           </div>
+
           <div className="booking-details">
             <div className="detail-item">
               <h3>Date</h3>
@@ -365,9 +361,10 @@ const ActiveBooking = () => {
             </div>
             <div className="detail-item">
               <h3>Token No</h3>
-              <p>{bookingId.slice(-6) || "123456"}</p>
+              <p>{booking.token || "123456"}</p>
             </div>
           </div>
+
           <div className="map-container">
             <MapContainer
               center={mapCenter}
@@ -388,14 +385,15 @@ const ActiveBooking = () => {
             </MapContainer>
           </div>
         </div>
+
+        {/* Right Section - Chat and Actions */}
         <div className="map-chat-section">
           <div className="chat-container">
             <div className="chat-header">
               <img
                 src={
                   userType === "patient"
-                    ? professionalDetails?.document?.photoUrl ||
-                      "https://via.placeholder.com/30"
+                    ? professionalDetails?.document?.photoUrl || "https://via.placeholder.com/30"
                     : patientDetails?.gender === "male"
                     ? MalePhoto
                     : FemalePhoto
@@ -413,6 +411,7 @@ const ActiveBooking = () => {
                   : "Loading..."}
               </h3>
             </div>
+
             <div className="messages">
               {messages.map((msg, i) => (
                 <div
@@ -426,17 +425,17 @@ const ActiveBooking = () => {
                 </div>
               ))}
             </div>
+
             <div className="message-input">
               <input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="type your message"
+                placeholder="Type your message"
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               />
-              <IoSend
-                onClick={sendMessage}
-                disabled={!socket}
-                className="send_button"
-              />
+              <button onClick={sendMessage} disabled={!socket || !newMessage.trim()}>
+                <IoSend className="send-icon" />
+              </button>
             </div>
           </div>
 
@@ -449,18 +448,18 @@ const ActiveBooking = () => {
               Finish Booking
             </button>
           )}
+
           {userType === "patient" && showPayment && (
             <div className="payment-options">
               <h3>Pay for Booking</h3>
-              <button onClick={() => handlePayment("cash")} disabled={!socket}>
-                Pay with Cash
-              </button>
-              <button
-                onClick={() => handlePayment("online")}
-                disabled={!socket}
-              >
-                Pay Online
-              </button>
+              <div className="payment-buttons">
+                <button onClick={() => handlePayment("cash")} disabled={!socket}>
+                  Pay with Cash
+                </button>
+                <button onClick={() => handlePayment("online")} disabled={!socket}>
+                  Pay Online
+                </button>
+              </div>
             </div>
           )}
         </div>

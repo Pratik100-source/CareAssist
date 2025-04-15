@@ -3,148 +3,163 @@ import "./topbar.css";
 import { useNavigate } from "react-router-dom";
 import propType from "prop-types";
 import { IoIosNotifications } from "react-icons/io";
-import { IoMdArrowDropdown } from "react-icons/io";
+import { IoMdArrowDropdown, IoMdMenu, IoMdClose } from "react-icons/io";
 import { useState, useEffect, useRef } from "react";
-
 import { useDispatch } from "react-redux";
-import {logout} from "../../../features/userSlice"
-import { showLoader} from "../../../features/loaderSlice"
-
-
-
-
-const Topbar = ({onProfileClick }) => {
+import { logout } from "../../../features/userSlice";
+import { showLoader, hideLoader } from "../../../features/loaderSlice";
+import { useSelector } from "react-redux";
+const Topbar = ({ onProfileClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [ProfileClick, setProfileClick]= useState(false);
-  const [FPClick, setFPClick]= useState(false);
-  const [loading, setloading] = useState(false);
-  const dropdownRef = useRef(null); // Reference for the dropdown
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const profileToggleRef = useRef(null);
 
-  const handleHomeReload = ()=>{
-             
-      localStorage.setItem("reload", "true");
-      navigate("/patientHome", {state:{reload:true}});
+  // Get user data from token
+  const token = localStorage.getItem('token');
 
+  const user = useSelector((state)=>(state.user));
+  const gender = user.gender;
+  const name = user.firstname;
+
+  const handleHomeReload = () => {
+    navigate("/patientHome", { state: { reload: true } });
+  };
+
+  const toggleProfile = (e) => {
+    e.stopPropagation(); // Prevent event from bubbling up
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    if (isProfileOpen) setIsProfileOpen(false);
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    dispatch(showLoader());
+    try {
+      localStorage.removeItem('token');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      dispatch(logout());
+      navigate("/", { state: { reload: true } });
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close profile dropdown if clicking outside of it and not on the toggle button
+      if (dropdownRef.current && 
+          !dropdownRef.current.contains(event.target) &&
+          !profileToggleRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
       
-    }
-  
-const token = localStorage.getItem('token');
-let gender = '';
-let name = '';
-if(token){
-try{
-  const tokenParts = token.split('.');
+      // Close mobile menu if clicking outside of it and not on the menu toggle
+      if (mobileMenuRef.current && 
+          !mobileMenuRef.current.contains(event.target) &&
+          !event.target.closest(".mobile-menu-toggle")) {
+        setIsMobileMenuOpen(false);
+      }
+    };
 
-  if(tokenParts.length===3){
-    const payload = JSON.parse(atob(tokenParts[1]));
-    gender = payload.gender;
-    name = payload.name;
-  }
-}
-catch(error){
-  console.error('Error decoding token:', error);
-}
-  
-}
-
-const handle_profile_click = () => {
-
-  // setProfileClick((prev) => !prev); //here prev represents the previous state.. we are using the opposite value of the previous state in seProfileClick.. 
-   
-  //  ProfileClick === true? setProfileClick(false) : setProfileClick(true)
-
-  if(ProfileClick===true){
-    setProfileClick(false)
-  }
-  else{
-    setProfileClick(true)
-  }
-};
-
-const handle_find_professional_click = ()=>{
-   
-  (FPClick)?setFPClick(false):setFPClick(true);
-  navigate("/showhomedoctors")
-}
-
-
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target) &&
-      !event.target.closest(".after_login_profile") // Check if click is on profile section //The .closest(selector) method checks if an element or its ancestors match the given selector.
-    ) {
-      setProfileClick(false);
-    }
-  };
-
-  if (ProfileClick) {
     document.addEventListener("mousedown", handleClickOutside);
-  }
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, [ProfileClick]);
-
-
-const handlelogout = async() =>{
-
-  setloading(true);
-
-  localStorage.removeItem('token');
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  dispatch(logout());
-
-  localStorage.setItem("reload", "true");
-    navigate("/", {state:{reload:true}});
-  setloading(false);
-
-}
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
-    {loading && (<div className="loading_overlay">
-         <div className="loader"></div>
-      </div>)}
-    <div className="top_main">
-      <div className="top_submain">
-        <img className="logo" src={Logo} alt="Logo" onClick={handleHomeReload} />
-        <nav className="top_nav">
-          <ul className="inside_navigator">
-            <li onClick={handle_find_professional_click}>Home Appointment</li>
-            <li onClick={()=>{navigate("/showdoctors")}}>Video Counselling</li>
-            <li>How it Works?</li>
-          </ul>
-          <div className="outside_navigator">
-            <div className="notification"><IoIosNotifications/></div>
+        <div className="topbar-container">
+          <img 
+            className="logo" 
+            src={Logo} 
+            alt="CareAssist Logo" 
+            onClick={handleHomeReload} 
+          />
+          
+          <div className="right_topbar">
+            <button 
+              className="mobile-menu-toggle" 
+              onClick={toggleMobileMenu}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <IoMdClose size={24} /> : <IoMdMenu size={24} />}
+            </button>
             
-            <div onClick={handle_profile_click} className="after_login_profile"><div className={gender ==='male'?"profile_picture_male":"profile_picture_female"}></div><div className="display_username"><p>{name}</p><IoMdArrowDropdown className="dropdown_icon"/></div>
-            { ProfileClick && <div className="dropdown_profile" ref={dropdownRef}>
-              <ul className="drop_ul">
-                <li onClick={onProfileClick}>My Profile</li>
-                <li onClick={()=>navigate("/bookedAppointment")}>My Appointments</li>
-                <li>Change Password</li>
-                <li onClick={handlelogout}>Logout</li>
+            <nav 
+              className={`topbar-nav ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`} 
+              ref={mobileMenuRef}
+              aria-hidden={!isMobileMenuOpen}
+            >
+              <ul className="nav-links">
+                <li>
+                  <button onClick={() => handleNavigation("/showhomedoctors")}>
+                    Home Appointment
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleNavigation("/showdoctors")}>
+                    Video Counselling
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleNavigation("/how-it-works")}>
+                    How it Works?
+                  </button>
+                </li>
               </ul>
               
-              
-              </div>}
-
-              </div>             
-            <p></p>
+              <div className="user-controls">
+                <button className="notification-btn" aria-label="Notifications">
+                  <IoIosNotifications />
+                </button>
+                
+                <div className="profile-dropdown">
+                  <button 
+                    ref={profileToggleRef}
+                    className="profile-toggle" 
+                    onClick={toggleProfile}
+                    aria-expanded={isProfileOpen}
+                    aria-label="User profile"
+                  >
+                    <div className={`profile-picture ${gender === 'male' ? 'male' : 'female'}`}></div>
+                    <span className="username">{name}</span>
+                    <IoMdArrowDropdown className={`dropdown-icon ${isProfileOpen ? 'open' : ''}`} />
+                  </button>
+                  
+                  {isProfileOpen && (
+                    <div className="dropdown-menu" ref={dropdownRef}>
+                      <ul>
+                        <li><button onClick={onProfileClick}>My Profile</button></li>
+                        <li><button onClick={() => handleNavigation("/bookedAppointment")}>My Appointments</button></li>
+                        <li><button onClick={() => handleNavigation("/change-password")}>Change Password</button></li>
+                        <li><button onClick={handleLogout}>Logout</button></li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </nav>
           </div>
-        </nav>
-      </div>
-    </div>
+        </div>
+    
     </>
   );
 };
 
 Topbar.propTypes = {
   onProfileClick: propType.func.isRequired
-}
+};
 
 export default Topbar;

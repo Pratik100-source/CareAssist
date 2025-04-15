@@ -20,7 +20,7 @@ const PersonalInfo = () => {
   const [formData, setFormData] = useState({
     firstname: user.firstname || "",
     lastname: user.lastname || "",
-    number: user.number || "", // Keep consistent with backend field name
+    number: user.number || "", 
     gender: user.gender || "",
     birthdate: user.birthdate ? user.birthdate.split("T")[0] : "",
   });

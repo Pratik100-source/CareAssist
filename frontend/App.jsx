@@ -110,9 +110,13 @@ function App() {
         }
         
       />
-      {/* Admin Route */}
+      
+      <Route element={<ProtectedRoute allowedRole="admin" />}>
       <Route path="/admindashboard/*" element={<Admindashboard />} />
-      {/* 404 */}
+      </Route>
+
+     
+    
       <Route path="*" element={<PageNotAvailable></PageNotAvailable>} />
     </Routes>
   );

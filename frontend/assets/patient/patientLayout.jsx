@@ -5,7 +5,6 @@ import Topbar from "../Topbar/topbar";
 import Services from "./services/services"
 import FAQ from "../queries/queries"
 import Footer from "../footer/footer"
-import "./patientLayout.css"
 import Login from "../Login/login"
 import Signup from "../Signup/signup"
 
@@ -60,7 +59,7 @@ const PatientLayout = ({ children }) => {
       {(isLoginClicked || isSignupClicked) && (
   <div className="overlay" onClick={closeModal}></div>
     )}
-      <div className="top_head">
+      <div className="patient_top_head">
                 {token ? (
                   <PatientTopbar onProfileClick={handleProfileClick} />
                 ) : (
@@ -87,7 +86,7 @@ const PatientLayout = ({ children }) => {
                   />
                 </div>
               )}
-      <main className="content">{children}</main>
+      <main className="patient_content">{children}</main>
      
     </div>
   );

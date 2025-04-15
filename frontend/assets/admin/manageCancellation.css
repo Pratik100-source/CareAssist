@@ -1,0 +1,31 @@
+.bookings {
+  padding: 20px;
+}
+
+.bookings h2 {
+  margin-bottom: 20px;
+}
+
+.bookings input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.bookings table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bookings table th,
+.bookings table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.bookings table th {
+  background-color: #f4f4f4;
+}

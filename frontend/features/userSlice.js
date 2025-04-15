@@ -32,11 +32,11 @@ const userSlice = createSlice({
         } = action.payload.basic_info;
         state.firstname = firstname;
         state.lastname = lastname;
-        state.number = number;
+        state.number = number || "NA";
         state.email = email;
-        state.gender = gender;
-        state.birthdate = birthdate;
-        state.status = status;
+        state.gender = gender || "NA";
+        state.birthdate = birthdate || "NA";
+        state.status = status || "NA";
       }
     },
 

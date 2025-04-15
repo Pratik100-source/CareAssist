@@ -66,6 +66,11 @@ const Login = ({ redirectToSignup, crossLogin }) => {
             localStorage.setItem("reload", "true");
             navigate("/professionalHome", { state: { reload: true } });
           }
+          else if (userType === "Admin") {
+            dispatch(hideLoader());
+            localStorage.setItem("reload", "true");
+            navigate("/admindashboard", { state: { reload: true } });
+          }
         }, 3000);
       }
     } catch (error) {

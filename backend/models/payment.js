@@ -7,6 +7,7 @@ const PaymentSchema = new mongoose.Schema({
   PaymentTime: { type: String, required: true },
   token: { type: Number, required: true },
   charge: { type: Number, required: true },
+  transactionId: { type: String },
 });
 
 const Payment = mongoose.model("Payment", PaymentSchema);

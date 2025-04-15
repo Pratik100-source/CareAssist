@@ -15,6 +15,7 @@ const PaymentSuccess = () => {
 
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
   const [paymentId, setPaymentId] = useState(null);
+  const [transactionId, setTransactionId] = useState(null); // Add state for transaction_id
 
   const professionalName = professional?.professionalName;
   const professionalEmail = professional?.professionalEmail;
@@ -46,12 +47,9 @@ const PaymentSuccess = () => {
         );
 
         if (response.data.status === "Completed") {
-          toast.success("Payment Successful!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
           setIsPaymentSuccessful(true);
           setPaymentId(pidx);
+          setTransactionId(response.data.transaction_id);
         } else if (response.data.status === "User canceled") {
           toast.info("Payment Canceled!", { position: "top-right" });
           navigate("/bookAppointment");
@@ -74,7 +72,13 @@ const PaymentSuccess = () => {
   // Save Booking and Payment
   useEffect(() => {
     const saveBooking = async () => {
-      if (!isPaymentSuccessful || !patientEmail || !professionalEmail) return;
+      if (
+        !isPaymentSuccessful ||
+        !patientEmail ||
+        !professionalEmail ||
+        !transactionId
+      )
+        return;
 
       try {
         dispatch(showLoader());
@@ -92,28 +96,27 @@ const PaymentSuccess = () => {
               date,
               startTime,
               endTime,
-              charge
+              charge,
+              transactionId,
             }),
           }
         );
 
         if (!bookingResponse.ok) throw new Error("Booking failed");
-        toast.success("Booking saved successfully!", { position: "top-right" });
         await savePayment(); // Call savePayment after booking succeeds
         navigate("/bookedAppointment");
       } catch (bookingError) {
         console.error("Error saving booking:", bookingError);
-        toast.error("Booking could not be saved!", { position: "top-right" });
       } finally {
         dispatch(hideLoader());
       }
     };
 
     const savePayment = async () => {
-      if (!isPaymentSuccessful || !paymentId) return;
+      if (!isPaymentSuccessful || !paymentId || !transactionId) return;
 
       try {
-        const PaymentTime = new Date().toISOString(); // Convert to ISO string
+        const PaymentTime = new Date().toISOString();
         const response = await fetch(
           "http://localhost:3003/api/payment/save-payment",
           {
@@ -122,24 +125,25 @@ const PaymentSuccess = () => {
             body: JSON.stringify({
               patientEmail,
               professionalEmail,
-              pidx: paymentId, //Match schema field name
+              pidx: paymentId,
               PaymentTime,
               token,
-              charge
+              charge,
+              transactionId, // Include transactionId
             }),
           }
         );
 
         if (!response.ok) throw new Error("Failed to save payment");
-        setPaymentId(null); // Clear paymentId after success
+        setPaymentId(null);
+        setTransactionId(null); // Clear transactionId after success
       } catch (error) {
         console.error("Error saving payment:", error);
-
       }
     };
 
     saveBooking();
-  }, [isPaymentSuccessful, navigate]);
+  }, [isPaymentSuccessful, navigate, dispatch, transactionId]); // Add transactionId to dependencies
 
   return <></>;
 };

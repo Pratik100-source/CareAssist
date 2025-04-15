@@ -1,14 +1,9 @@
 import { useState, useEffect} from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
-import Topbar from "../../Topbar/topbar";
 import "./home.css";
 import Footer from "../../footer/footer"
-import Login from "../../Login/login"
-import Signup from "../../Signup/signup"
 import Services from "../services/services"
 import Queries from "../../queries/queries"
-import Profile from "../Profile/profile"
-import PatientTopbar from "../Topbar/topbar";
 import { useDispatch } from "react-redux";
 import { showLoader} from "../../../features/loaderSlice"
 
@@ -16,10 +11,7 @@ import { showLoader} from "../../../features/loaderSlice"
 
 
 const PatientHome = () => {
-  const navigate = useNavigate(); // Initialize the navigate function
-  const [isLoginClicked, setIsLoginClicked] = useState(false);
-  const [isSignupClicked, setIsSignupClicked] = useState(false);
-  const [profileClicked, setIsprofileClicked] = useState(false)
+
   const [token, setToken] = useState(localStorage.getItem('token'))
 
   useEffect(() => {
@@ -57,53 +49,15 @@ const PatientHome = () => {
   }, [location.state]);
 
 
-  const handleLoginClick = () => {  
-    navigate("/patienthome", {state:{reload:true}});
-    setIsLoginClicked(true);
-    setIsSignupClicked(false);
-    
-
-  };
-
-  const handleSignupClick = () => {
-    navigate("/patienthome",{state:{reload:true}});
-    setIsSignupClicked(true);
-    setIsLoginClicked(false);
-  };
-
-  const closeModal = () => {
-    setIsLoginClicked(false); 
-    setIsSignupClicked(false);
-    console.log("Cross button clicked! Closing Signup Modal...");
-    
-  };
-
-  const handleProfileClick = () =>{
-    navigate("/patientProfile");
-  }
-
-  const handlecross = () =>{
-        
-   
-   
-    setTimeout(() => {
-      setIsSignupClicked(false);
-    }, 400);
-
-    setTimeout(() => {
-      setIsLoginClicked(false);
-    }, 400);
-  }
-
 
   return (
     <>
 
-    <div className="home_main">
+    <div className="patient_home_main">
     
 
-        <div className="home_body" id="first_body">
-          <div className="home_body_content">
+        <div className="patient_home_body" id="first_body">
+          <div className="patient_home_body_content">
             <h1>Bringing Quality Healthcare <br />
               to Your Doorstep</h1>
               <p>Say goodbye to waiting rooms and long queues. With CareAssist, 
@@ -113,9 +67,9 @@ const PatientHome = () => {
                 <button>Consult now</button>
           </div>
         </div>
-      <div className="second_body"><Services/></div>
-      <div className="third_body"><Queries/></div>
-      <div className="footer"><Footer/></div>
+      <div className="patient_second_body"><Services/></div>
+      <div className="patient_third_body"><Queries/></div>
+      <div className="patient_footer"><Footer/></div>
       </div>
     </>
   );

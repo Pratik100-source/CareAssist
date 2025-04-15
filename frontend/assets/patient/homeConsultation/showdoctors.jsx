@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./showdoctors.css";
-import PatientTopbar from "../Topbar/topbar";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -9,21 +8,65 @@ import { useSocket } from "../../professionals/context/SocketContext";
 import Doctors from "../../images/doctors.svg";
 
 function ShowDoctors() {
+  // State declarations
   const [professionalData, setProfessionalsData] = useState([]);
   const [activeProfessionals, setActiveProfessionals] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [showWarning, setShowWarning] = useState(false); // State to show the warning div
-  const [pendingBooking, setPendingBooking] = useState(null); // Track the pending booking request
+  const [pendingBooking, setPendingBooking] = useState(null);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { socket, sendBookingRequest } = useSocket();
 
   const user = useSelector((state) => state.user);
   const patientEmail = user?.email || "guest@example.com";
-  const patient = (user?.firstname + " "+ user?.lastname) || "Hero pratik";
+  const patient = (user?.firstname + " "+ user?.lastname) || "Guest User";
 
+  // Handle beforeunload event
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (showOverlay) {
+        // Cancel the event to show the confirmation dialog
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = 'Your booking request will be canceled if you leave this page. Are you sure?';
+        
+        // Show custom confirmation dialog
+        const confirmLeave = window.confirm(
+          'Your booking request will be canceled if you leave this page. Are you sure you want to leave?'
+        );
+        
+        if (confirmLeave) {
+          // User confirmed - cancel the booking
+          if (socket && pendingBooking) {
+            socket.emit("cancelBookingRequest", {
+              patientEmail: pendingBooking.patientEmail,
+              professionalEmail: pendingBooking.professionalEmail,
+              message: "Booking canceled by patient due to page navigation",
+            });
+          }
+          // Allow the page to unload
+          return;
+        } else {
+          // User canceled - prevent page unload
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          if (e.stopPropagation) e.stopPropagation();
+          e.returnValue = ''; // For Chrome
+          return false;
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [showOverlay, pendingBooking, socket]);
+
+  // Other useEffect hooks and functions remain the same...
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -52,68 +95,52 @@ function ShowDoctors() {
 
     socket.emit("getActiveProfessionals");
 
-    socket.on("activeProfessionals", (activePros) => {
+    const activeProsHandler = (activePros) => {
       setActiveProfessionals(activePros);
-    });
+    };
 
-    socket.on("bookingError", (data) => {
+    const bookingErrorHandler = (data) => {
       setError(data.message);
       toast.error(data.message);
       setShowOverlay(false);
       setPendingBooking(null);
-    });
+    };
 
-    socket.on("bookingAccepted", (data) => {
+    const bookingAcceptedHandler = (data) => {
       setShowOverlay(false);
       setPendingBooking(null);
       toast.success("Booking accepted by professional!");
       setTimeout(() => {
         navigate(`/active-booking/${data.bookingId}`);
       }, 3000);
-    });
+    };
 
-    socket.on("bookingDeclined", (data) => {
+    const bookingDeclinedHandler = (data) => {
       setShowOverlay(false);
       setPendingBooking(null);
       toast.error(data.message);
-    });
+    };
 
-    socket.on("bookingTimeout", (data) => {
+    const bookingTimeoutHandler = (data) => {
       setShowOverlay(false);
       setPendingBooking(null);
       toast.error(data.message);
-    });
+    };
+
+    socket.on("activeProfessionals", activeProsHandler);
+    socket.on("bookingError", bookingErrorHandler);
+    socket.on("bookingAccepted", bookingAcceptedHandler);
+    socket.on("bookingDeclined", bookingDeclinedHandler);
+    socket.on("bookingTimeout", bookingTimeoutHandler);
 
     return () => {
-      socket.off("activeProfessionals");
-      socket.off("bookingError");
-      socket.off("bookingAccepted");
-      socket.off("bookingDeclined");
-      socket.off("bookingTimeout");
+      socket.off("activeProfessionals", activeProsHandler);
+      socket.off("bookingError", bookingErrorHandler);
+      socket.off("bookingAccepted", bookingAcceptedHandler);
+      socket.off("bookingDeclined", bookingDeclinedHandler);
+      socket.off("bookingTimeout", bookingTimeoutHandler);
     };
   }, [socket, navigate]);
-
-  // Handle the beforeunload event to warn the user
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      if (showOverlay) {
-        // Show the custom warning div
-        setShowWarning(true);
-        // Prevent the default browser dialog (optional, depending on browser support)
-        event.preventDefault();
-        event.returnValue = "Your booking request will be canceled if you refresh the page. Are you sure?";
-        return "Your booking request will be canceled if you refresh the page. Are you sure?";
-      }
-    };
-
-    if (showOverlay) {
-      window.addEventListener("beforeunload", handleBeforeUnload);
-    }
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [showOverlay]);
 
   const handleSendBookingRequest = (professional) => {
     if (!navigator.geolocation) {
@@ -130,10 +157,9 @@ function ShowDoctors() {
       (position) => {
         const { latitude, longitude } = position.coords;
         const patientLocation = `Latitude: ${latitude}, Longitude: ${longitude}`;
-        const professional_name = professional.name;
         const messageData = {
           patient,
-          professional_name,
+          professional_name: professional.name,
           patientEmail,
           professionalEmail: professional.email,
           message: "I Booked you",
@@ -141,9 +167,8 @@ function ShowDoctors() {
           charge: professional.charge,
         };
 
-        console.log("Sending booking request:", messageData); // Debug log
         sendBookingRequest(messageData);
-        setPendingBooking(messageData); // Store the pending booking request
+        setPendingBooking(messageData);
         setShowOverlay(true);
         toast.success("Booking request sent successfully!");
       },
@@ -160,149 +185,56 @@ function ShowDoctors() {
   return (
     <div className="home-doctor-container">
       <ToastContainer position="top-right" autoClose={3000} />
+      
       {showOverlay && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              textAlign: "center",
-            }}
-          >
-            <h3>Waiting for the response of the professional...</h3>
-            <p>Please wait</p>
+        <div className="overlay">
+          <div className="overlay-content">
+            <h3>Waiting for professional response...</h3>
+            <p>Please don't refresh or leave this page</p>
           </div>
         </div>
       )}
-      {showWarning && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 2000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "30px",
-              borderRadius: "10px",
-              textAlign: "center",
-              maxWidth: "400px",
-            }}
-          >
-            <h3>Warning: Booking Will Be Canceled</h3>
-            <p>
-              If you refresh the page or navigate away, your booking request will be canceled. Are you sure you want to proceed?
-            </p>
-            <div style={{ marginTop: "20px" }}>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  marginRight: "10px",
-                  backgroundColor: "#ff4d4f",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  // User confirms they want to cancel the booking
-                  setShowWarning(false);
-                  setShowOverlay(false);
-                  setPendingBooking(null);
-                  // Emit an event to the server to cancel the booking
-                  if (socket && pendingBooking) {
-                    socket.emit("cancelBookingRequest", {
-                      patientEmail: pendingBooking.patientEmail,
-                      professionalEmail: pendingBooking.professionalEmail,
-                      message: "Booking request canceled by patient due to page refresh.",
-                    });
-                  }
-                  // Allow the refresh to proceed (remove the event listener temporarily)
-                  window.location.reload();
-                }}
-              >
-                Yes, Cancel Booking
-              </button>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#4CAF50",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  // User decides to stay on the page
-                  setShowWarning(false);
-                }}
-              >
-                No, Stay on Page
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className="home-doctor-container-submain" style={{ pointerEvents: showOverlay ? "none" : "auto" }}>
+      
+      <div className="home-doctor-container-submain">
         {loading ? (
-          <p>Loading...</p>
+          <div className="loading-state">Loading...</div>
         ) : error ? (
-          <p>Error: {error}</p>
+          <div className="error-state">Error: {error}</div>
         ) : displayedProfessionals.length > 0 ? (
-          displayedProfessionals.map((professional, index) => {
-            if (!professional.availableDays || !professional.availability) return null;
-            return (
-              <div className="display_professional_card" key={index}>
-                <div className="professional_left">
-                  <div className="professional_image">
-                    <img src={professional.photoUrl} alt={professional.name} />
-                  </div>
-                  <div className="professional_basic_info">
-                    <h3>{professional.name}</h3>
-                    <p>Experience: {professional.experience} years</p>
-                    <p>Profession: {professional.profession}</p>
-                    {professional.specialization && <p>Specialization: {professional.specialization}</p>}
-                  </div>
+          displayedProfessionals.map((professional, index) => (
+            <div className="display_professional_card" key={index}>
+              <div className="professional_left">
+                <div className="professional_image">
+                  <img src={professional.photoUrl} alt={professional.name} />
                 </div>
-                <div className="professional_right">
-                  <div className="charge">Charge: {professional.charge}</div>
-                  <div
-                    className="see_schedule_button"
-                    onClick={() => handleSendBookingRequest(professional)}
-                  >
-                    <p>Send Booking Request</p>
-                  </div>
+                <div className="professional_basic_info">
+                  <h3>{professional.name}</h3>
+                  <p>Experience: {professional.experience} years</p>
+                  <p>Profession: {professional.profession}</p>
+                  {professional.specialization && (
+                    <p>Specialization: {professional.specialization}</p>
+                  )}
                 </div>
               </div>
-            );
-          })
+              <div className="professional_right">
+                <div className="charge">Rs. {professional.charge}</div>
+                <button 
+                  className="booking-button"
+                  onClick={() => handleSendBookingRequest(professional)}
+                >
+                  Send Booking Request
+                </button>
+              </div>
+            </div>
+          ))
         ) : (
           <div className="not-available">
-            <img src={Doctors} alt="" className="show_not-available" />
-            <p>Sorry there are no doctors available currently</p>
+            <img 
+              src={Doctors} 
+              alt="No doctors available" 
+              className="not-available-image" 
+            />
+            <p className="not-available-text">No doctors available currently</p>
           </div>
         )}
       </div>

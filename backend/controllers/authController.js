@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const Patient = require("../models/patient");
 const Professional = require("../models/professional");
+const Admin = require("../models/admin");
 
 const patientSignup = async (req, res) => {
   const { email, firstname, lastname, number, gender, birthdate, password } =
@@ -84,31 +85,38 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
-      message: "Email and password are required",
-    });
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
   try {
-    let user = await Patient.findOne({ email });
+    let user;
+    let userType;
 
-    if (!user) {
-      user = await Professional.findOne({ email });
+    // Try to find in Admin
+    user = await Admin.findOne({ email });
+    if (user) {
+      userType = "Admin";
+    } else {
+      // Try Patient
+      user = await Patient.findOne({ email });
+      if (user) {
+        userType = "Patient";
+      } else {
+        // Try Professional
+        user = await Professional.findOne({ email });
+        if (user) {
+          userType = "Professional";
+        }
+      }
     }
 
     if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
     if (password !== user.password) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
-
-    const userType = user instanceof Patient ? "Patient" : "Professional";
     const token = jwt.sign(
       {
         id: user._id,
@@ -125,13 +133,13 @@ const login = async (req, res) => {
       userType,
       token,
       user: {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        number: user.number,
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        number: user.number || "",
         email: user.email,
-        gender: user.gender,
-        birthdate: user.birthdate,
-        status: user.verification,
+        gender: user.gender || "",
+        birthdate: user.birthdate || "",
+        status: user.verification || "",
       },
     });
   } catch (error) {

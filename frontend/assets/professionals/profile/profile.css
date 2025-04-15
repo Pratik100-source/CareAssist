@@ -87,6 +87,20 @@
   margin: 0 auto 1rem;
 }
 
+.professional_dashboard ul li .profile-picture-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  background-image: url("../../images/female.jpg");
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+}
+
 .professional_dashboard_content {
   background-color: #ffffff;
   flex: 1;

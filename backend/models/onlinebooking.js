@@ -12,6 +12,8 @@ const onlinebookingSchema = new mongoose.Schema({
   meetLink: { type: String, default: null },
   status: { type: String, default: "Pending" },
   charge: { type: Number, required: true },
+  refund: { type: String, enum: ["no", "yes"], default: null },
+  transactionId: { type: String, required: true },
 });
 
 const OBooking = mongoose.model("OBooking", onlinebookingSchema);

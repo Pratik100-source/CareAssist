@@ -27,6 +27,11 @@ function AdminDashboard() {
     
   }
 
+  const handleCancellationClick = ()=>{
+    navigate("/admindashboard/manageCancellation");
+    
+  }
+
   return (
     <div className="main_admin_dashboard">
       <div className="sidebar">
@@ -39,6 +44,7 @@ function AdminDashboard() {
           <li onClick={handleVerificationClick}>Verification</li>
           <li onClick={handlePaymentClick}>Payments</li>
           <li onClick={handleBookingClick}>Bookings</li>
+          <li onClick={handleCancellationClick}>Cancellation</li>
         </ul>
       </div>
       <div className="content">

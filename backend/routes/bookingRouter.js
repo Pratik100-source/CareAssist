@@ -8,6 +8,7 @@ const {
   getPendingBookings,
   getBookingById,
   updateProfessionalLocation,
+  handle_cancellation,
 } = require("../controllers/bookingController");
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get("/get-every-booking", getAllBooking);
 router.post("/complete-booking/:bookingId", completeBooking);
 router.get("/pending/:professionalEmail", getPendingBookings);
 router.get("/:bookingId", getBookingById);
+router.post("/cancel/:bookingId", handle_cancellation);
 router.put("/update-location/:bookingId", updateProfessionalLocation);
 
 module.exports = router;

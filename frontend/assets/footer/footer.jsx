@@ -20,8 +20,8 @@ return(
         <p className="heading">Services</p>
           <ul>
             
-            <li>Online Consultation</li>
-            <li> Home Appointment Booking</li>
+          <li><a href="">Online Consultation</a></li>
+          <li><a href="">Home Booking</a></li>
 
           </ul>
       </section>
@@ -32,15 +32,18 @@ return(
        <li><a href="">Find Professionals</a></li>
        <li><a href="">Video Counselling</a></li>
        <li><a href="">How it works</a></li>
-       <li><a href="#first_body">Login</a></li>
-       <li><a href="./signup">Signup</a></li>
-       
        
        </ul>
       </section>
       
       <section className="contact_us">
-        <p className="heading">Hello i am contact us</p>
+        <p className="heading">Get in touch</p>
+        <ul>
+       <li>Sorakhutte, kathmandu</li>
+       <li>9866969746</li>
+       <li>01-4544400</li>
+       <li>panthipratik100@gmail.com</li>
+       </ul>
       </section>
 
 

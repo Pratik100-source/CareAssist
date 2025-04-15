@@ -20,13 +20,13 @@ const ProfessionalLayout = ({ children }) => {
     const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    navigate("/professionalthome", { state: { reload: true } });
+    navigate("/professionalhome", { state: { reload: true } });
     setIsLoginClicked(true);
     setIsSignupClicked(false);
   };
   
   const handleSignupClick = () => {
-    navigate("/professionalthome", { state: { reload: true } });
+    navigate("/professionalhome", { state: { reload: true } });
     setIsSignupClicked(true);
     setIsLoginClicked(false);
   };
@@ -54,7 +54,7 @@ const ProfessionalLayout = ({ children }) => {
 
 
   return (
-    <div className="patient-app">
+    <div className="professional-app">
       {(isLoginClicked || isSignupClicked) && (
   <div className="overlay" onClick={closeModal}></div>
     )}
@@ -85,7 +85,7 @@ const ProfessionalLayout = ({ children }) => {
                   />
                 </div>
               )}
-      <main className="content">{children}</main>
+      <main className="professional_content">{children}</main>
      
     </div>
   );

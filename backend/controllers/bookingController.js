@@ -12,6 +12,7 @@ const saveOnlineBooking = async (req, res) => {
     startTime,
     endTime,
     charge,
+    transactionId,
   } = req.body;
 
   try {
@@ -26,6 +27,7 @@ const saveOnlineBooking = async (req, res) => {
       endTime,
       status: "Pending",
       charge,
+      transactionId,
     });
 
     await newBooking.save();
@@ -137,6 +139,25 @@ const updateProfessionalLocation = async (req, res) => {
   }
 };
 
+const handle_cancellation = async (req, res) => {
+  const { bookingId } = req.params;
+
+  try {
+    const booking = await OBooking.findByIdAndUpdate(
+      bookingId,
+      { status: "cancelled" },
+      { new: true }
+    );
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    res.status(200).json(booking);
+  } catch (error) {
+    console.error("Error updating the booking status:", error);
+    res.status(500).json({ message: "Failed to update the booking status" });
+  }
+};
+
 module.exports = {
   saveOnlineBooking,
   getOnlineBooking,
@@ -145,4 +166,5 @@ module.exports = {
   getPendingBookings,
   getBookingById,
   updateProfessionalLocation,
+  handle_cancellation,
 };

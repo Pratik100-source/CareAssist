@@ -99,7 +99,7 @@
   flex: 4;
 }
 
-input {
+.signup_main input {
   height: 30px;
   width: 19rem;
   margin-top: 15px;

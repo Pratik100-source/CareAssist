@@ -2,6 +2,8 @@ const Payment = require("../models/payment");
 const dotenv = require("dotenv");
 const axios = require("axios");
 
+const OBooking = require("../models/onlinebooking");
+
 dotenv.config();
 
 const KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY;
@@ -72,8 +74,15 @@ const verify_payment = async (req, res) => {
 };
 
 const save_payment = async (req, res) => {
-  const { patientEmail, professionalEmail, pidx, PaymentTime, token, charge } =
-    req.body;
+  const {
+    patientEmail,
+    professionalEmail,
+    pidx,
+    PaymentTime,
+    token,
+    charge,
+    transactionId,
+  } = req.body;
 
   // Validate required fields
   if (
@@ -82,7 +91,8 @@ const save_payment = async (req, res) => {
     !pidx ||
     !PaymentTime ||
     !token ||
-    !charge
+    !charge ||
+    !transactionId
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -95,6 +105,7 @@ const save_payment = async (req, res) => {
       PaymentTime,
       token,
       charge,
+      transactionId,
     });
     await newPayment.save();
     return res.status(201).send("Payment has been saved successfully");
@@ -135,9 +146,62 @@ const show_payment = async (req, res) => {
   }
 };
 
+const refund_payment = async (req, res) => {
+  const { transactionId, amount, patientEmail, bookingId } = req.body;
+
+  // Validate required fields
+  if (!transactionId || !amount || !patientEmail || !bookingId) {
+    return res.status(400).json({ error: "Missing refund details" });
+  }
+
+  const secretKey = process.env.KHALTI_SECRET_KEY;
+  if (!secretKey) {
+    console.error("KHALTI_SECRET_KEY is not defined");
+    return res
+      .status(500)
+      .json({ error: "Server configuration error: Missing Khalti secret key" });
+  }
+
+  try {
+    // Use the sandbox refund endpoint
+    const refundUrl = `https://dev.khalti.com/api/merchant-transaction/${transactionId}/refund/`;
+
+    const refundPayload = {
+      amount: amount, // Amount in paisa
+      reason: "User requested refund", // Optional, confirm with Khalti
+    };
+
+    const response = await axios.post(refundUrl, refundPayload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Key ${secretKey}`,
+      },
+    });
+
+    // Update booking refund status in database
+    const updatedBooking = await OBooking.findByIdAndUpdate(
+      bookingId,
+      { refund: "yes" },
+      { new: true }
+    );
+
+    if (!updatedBooking) {
+      throw new Error("Failed to update booking refund status");
+    }
+
+    res.status(200).json({ message: "Refund successful", data: response.data });
+  } catch (error) {
+    console.error("Refund failed:", error.response?.data || error.message);
+    res.status(500).json({
+      error: "Refund failed",
+      details: error.response?.data || error.message,
+    });
+  }
+};
 module.exports = {
   initiate_payment,
   verify_payment,
   save_payment,
   show_payment,
+  refund_payment,
 };

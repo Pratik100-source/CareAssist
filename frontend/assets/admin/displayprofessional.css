@@ -53,21 +53,21 @@
 }
 
 .edit-button {
-  background-color: #4caf50;
+  background-color: #ff3131;
   color: white;
 }
 
 .edit-button:hover {
-  background-color: #3e8e41;
+  background-color: #b8100ad7;
 }
 
 .delete-button {
-  background-color: #f44336;
+  background-color: #ff3131;
   color: white;
 }
 
 .delete-button:hover {
-  background-color: #d32f2f;
+  background-color: #b8100ad7;
 }
 
 .document_view {
@@ -76,12 +76,12 @@
 
 .view_button {
   font-size: 1.2rem;
-  color: #4a6fa5;
+  color: #ff3131;
   transition: color 0.2s;
 }
 
 .view_button:hover {
-  color: #3a5a8f;
+  color: #b8100ad7;
 }
 
 /* Modal Styles */
@@ -183,14 +183,14 @@
 
 .save-button,
 .confirm-button {
-  background-color: #4caf50;
+  background-color: #ff3131;
   color: white;
   border: none;
 }
 
 .save-button:hover,
 .confirm-button:hover {
-  background-color: #3e8e41;
+  background-color: #b8100ad7;
 }
 
 .cancel-button {
@@ -227,7 +227,7 @@
 }
 
 .download-button {
-  background-color: #4a6fa5;
+  background-color: #ff3131;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -237,7 +237,7 @@
 }
 
 .download-button:hover {
-  background-color: #3a5a8f;
+  background-color: #b8100ad7;
 }
 
 /* Confirmation Dialog */

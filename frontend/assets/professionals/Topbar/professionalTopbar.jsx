@@ -3,164 +3,158 @@ import "./professionalTopbar.css";
 import { useNavigate } from "react-router-dom";
 import propType from "prop-types";
 import { IoIosNotifications } from "react-icons/io";
-import { IoMdArrowDropdown } from "react-icons/io";
+import { IoMdArrowDropdown, IoMdMenu, IoMdClose } from "react-icons/io";
 import { useState, useEffect, useRef } from "react";
-
 import { useDispatch } from "react-redux";
 import { logout } from "../../../features/userSlice";
-
-import Notification from "../notification/notification";
-
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
-
+import { useSelector } from "react-redux";
 const ProfessionalTopbar = ({ onProfileClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [ProfileClick, setProfileClick] = useState(false);
-  const [notificationClick, setNotificationClick] = useState(false);
-  const profileDropdownRef = useRef(null);
-  const notificationDropdownRef = useRef(null); // Reference for the dropdown
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const profileToggleRef = useRef(null);
+
+  // Get user data from token
+  const token = localStorage.getItem('token');
+
+  const user = useSelector((state)=>(state.user));
+  const gender = user.gender;
+  const name = user.firstname;
 
   const handleHomeReload = () => {
+    navigate("/professionalHome", { state: { reload: true } });
+  };
+
+  const toggleProfile = (e) => {
+    e.stopPropagation(); // Prevent event from bubbling up
+    setIsProfileOpen(!isProfileOpen);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    if (isProfileOpen) setIsProfileOpen(false);
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
     dispatch(showLoader());
-    setTimeout(() => {
-      localStorage.setItem("reload", "true");
-      navigate("/professionalHome", { state: { reload: true } });
-    }, 700);
-  };
-
-  const token = localStorage.getItem("token");
-  let gender = "";
-  let name = "";
-  if (token) {
     try {
-      const tokenParts = token.split(".");
-
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        gender = payload.gender;
-        name = payload.name;
-      }
-    } catch (error) {
-      console.error("Error decoding token:", error);
+      localStorage.removeItem('token');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      dispatch(logout());
+      navigate("/", { state: { reload: true } });
+    } finally {
+      dispatch(hideLoader());
     }
-  }
-
-  const handle_profile_click = () => {
-    if (ProfileClick === true) {
-      setProfileClick(false);
-    } else {
-      setProfileClick(true);
-    }
-  };
-
-  const handle_notification_click = () => {
-    notificationClick
-      ? setNotificationClick(false)
-      : setNotificationClick(true);
   };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notificationDropdownRef.current &&
-        !notificationDropdownRef.current.contains(event.target) &&
-        !event.target.closest(".notification")
-      ) {
-        setNotificationClick(false);
+      // Close profile dropdown if clicking outside of it and not on the toggle button
+      if (dropdownRef.current && 
+          !dropdownRef.current.contains(event.target) &&
+          !profileToggleRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
       }
-
-      else if(
-        profileDropdownRef.current &&
-        !profileDropdownRef.current.contains(event.target) &&
-        !event.target.closest(".after_login_profile") 
-      ) {
-        setProfileClick(false);
+      
+      // Close mobile menu if clicking outside of it and not on the menu toggle
+      if (mobileMenuRef.current && 
+          !mobileMenuRef.current.contains(event.target) &&
+          !event.target.closest(".mobile-menu-toggle")) {
+        setIsMobileMenuOpen(false);
       }
     };
 
-    if (notificationClick) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    else if(ProfileClick){
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [notificationClick, ProfileClick]);
-
-  const handlelogout = async () => {
-    dispatch(showLoader());
-    localStorage.removeItem("token");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    dispatch(logout());
-
-    localStorage.setItem("reload", "true");
-    navigate("/", { state: { reload: true } });
-
-    dispatch(hideLoader());
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
-      <div className="top_main">
-        <div className="top_submain">
-          <img
-            className="logo"
-            src={Logo}
-            alt="Logo"
-            onClick={handleHomeReload}
+        <div className="topbar-container">
+          <img 
+            className="logo" 
+            src={Logo} 
+            alt="CareAssist Logo" 
+            onClick={handleHomeReload} 
           />
-          <nav className="top_nav">
-            <ul className="inside_navigator">
-              <li>Manage Bookings</li>
-              <li>How it Works?</li>
-            </ul>
-            <div className="outside_navigator">
-              <div className="notification" onClick={handle_notification_click}>
-                <IoIosNotifications />
-              </div>
-
-              <div
-                onClick={handle_profile_click}
-                className="after_login_profile"
-              >
-                <div
-                  className={
-                    gender === "male"
-                      ? "profile_picture_male"
-                      : "profile_picture_female"
-                  }
-                ></div>
-                <div className="display_username">
-                  <p>{name}</p>
-                  <IoMdArrowDropdown className="dropdown_icon" />
+          
+          <div className="right_topbar">
+            <button 
+              className="mobile-menu-toggle" 
+              onClick={toggleMobileMenu}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <IoMdClose size={24} /> : <IoMdMenu size={24} />}
+            </button>
+            
+            <nav 
+              className={`topbar-nav ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`} 
+              ref={mobileMenuRef}
+              aria-hidden={!isMobileMenuOpen}
+            >
+              <ul className="nav-links">
+                <li>
+                  <button onClick={() => handleNavigation("/bookedAppointment")}>
+                    Manage Booking
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleNavigation("/how-it-works")}>
+                    How it Works?
+                  </button>
+                </li>
+              </ul>
+              
+              <div className="user-controls">
+                <button className="notification-btn" aria-label="Notifications">
+                  <IoIosNotifications />
+                </button>
+                
+                <div className="profile-dropdown">
+                  <button 
+                    ref={profileToggleRef}
+                    className="profile-toggle" 
+                    onClick={toggleProfile}
+                    aria-expanded={isProfileOpen}
+                    aria-label="User profile"
+                  >
+                    <div className={`profile-picture ${gender === 'male' ? 'male' : 'female'}`}></div>
+                    <span className="username">{name}</span>
+                    <IoMdArrowDropdown className={`dropdown-icon ${isProfileOpen ? 'open' : ''}`} />
+                  </button>
+                  
+                  {isProfileOpen && (
+                    <div className="dropdown-menu" ref={dropdownRef}>
+                      <ul>
+                        <li><button onClick={onProfileClick}>My Profile</button></li>
+                        <li><button onClick={() => handleNavigation("/bookedAppointment")}>My Appointments</button></li>
+                        <li><button onClick={() => handleNavigation("/change-password")}>Change Password</button></li>
+                        <li><button onClick={handleLogout}>Logout</button></li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
-                {ProfileClick && (
-                  <div className="dropdown_profile" ref={profileDropdownRef}>
-                    <ul className="drop_ul">
-                      <li onClick={onProfileClick}>My Profile</li>
-                      <li onClick={()=>{navigate("/bookedAppointment")}}>Appointments</li>
-                      <li>Change Password</li>
-                      <li onClick={handlelogout}>Logout</li>
-                    </ul>
-                  </div>
-                )}
-                {notificationClick && <div className="dropdown_notification" ref={notificationDropdownRef}><Notification/><p className="show_more_notification" onClick={()=>navigate("/professionalnotification")}>Show more</p></div>}
               </div>
-              <p></p>
-            </div>
-          </nav>
+            </nav>
+          </div>
         </div>
-      </div>
+    
     </>
   );
 };
 
 ProfessionalTopbar.propTypes = {
-  onProfileClick: propType.func.isRequired,
+  onProfileClick: propType.func.isRequired
 };
 
 export default ProfessionalTopbar;

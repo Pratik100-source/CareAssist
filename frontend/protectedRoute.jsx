@@ -10,9 +10,17 @@ const ProtectedRoute = ({ allowedRole }) => {
     return <Navigate to="/" replace />;
   }
   const userType = user?.userType?.toLowerCase() || "";
+
+  if(allowedRole)
   if (userType && userType !== allowedRole) {
-    console.log(`Redirecting to /${userType}Home - mismatch: ${userType} !== ${allowedRole}`);
-    return <Navigate to={`/${userType}Home`} replace />;
+    
+    if(userType==="admin"){
+      return <Navigate to={`/${userType}dashboard`} replace />;
+    }
+    else{
+      return <Navigate to={`/${userType}Home`} replace />;
+    }
+   
   }
   console.log("Rendering Outlet for:", allowedRole);
   return <Outlet />;

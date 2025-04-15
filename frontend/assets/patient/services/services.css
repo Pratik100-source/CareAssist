@@ -1,161 +1,101 @@
+/* Updated services.css */
 .services_main {
   width: 100%;
-  height: 100%;
-  color: black;
+  padding: 5rem 0;
 }
 
-.services_main .services_first .services_heading {
-  font-size: 1.5rem;
-  font-weight: 600;
+.services_first {
   text-align: center;
-  color: black;
+  margin-bottom: 3rem;
 }
 
-.services_main .services_first .services_sub_heading {
-  font-size: 1rem;
-  text-align: center;
-  color: black;
+.services_heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
 }
 
-.services_main .services_second {
-  box-sizing: border-box;
+.services_heading::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #ff5f6d, #ff3131);
+  border-radius: 2px;
+}
+
+.services_sub_heading {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.services_second {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  row-gap: 20px;
-  column-gap: 20px;
-  height: 70%;
-  padding-top: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 0 2rem;
 }
 
-/*first box */
-
-.services_main .services_second .first {
-  /* border: 2px solid black; */
-  padding-left: 2rem;
-  float: left;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  box-sizing: border-box;
-  box-shadow: 0 4px 6px whitesmoke;
-  background-color: whitesmoke;
+.services_second > div {
+  background: white;
   border-radius: 15px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
 }
 
-.services_main .services_second .first .visuals {
-  flex: 0.5;
+.services_second > div:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
-.services_main .services_second .first .visuals .icon {
-  font-size: 3rem;
-  color: #FF3131;
-  transform: scaleX(-1);
-  width: 40px;
-}
-.services_main .services_second .first .visuals .icon_heading {
-  font-size: 1rem;
-  font-weight: 600;
-}
-.service_main .services_second .first .visuals .written_instructions {
-  font-size: 14px;
-  flex: 2;
-}
-
-/*second box*/
-
-.services_main .services_second .second {
-  
-  padding-left: 2rem;
-  float: left;
+.visuals {
+  margin-bottom: 1.5rem;
   display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  box-sizing: border-box;
-  box-shadow: 0 4px 6px whitesmoke;
-  background-color: whitesmoke;
-  border-radius: 15px;
+  align-items: center;
 }
 
-.services_main .services_second .second .visuals {
-  flex: 0.5;
+.icon {
+  font-size: 2.5rem;
+  color: #ff3131;
+  margin-right: 1rem;
 }
 
-.services_main .services_second .second .visuals .icon {
-  font-size: 3rem;
-  color: #FF3131;
-  transform: scaleX(-1);
-  width: 40px;
-}
-.services_main .services_second .second .visuals .icon_heading {
-  font-size: 1rem;
+.icon_heading {
+  font-size: 1.2rem;
   font-weight: 600;
-}
-.service_main .services_second .second .visuals .written_instructions {
-  font-size: 14px;
-  flex: 2;
+  color: #2c3e50;
 }
 
-/*third box*/
-
-.services_main .services_second .third {
-  padding-left: 2rem;
-  float: left;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  box-sizing: border-box;
-  box-shadow: 0 4px 6px whitesmoke;
-  background-color: whitesmoke;
-  border-radius: 15px;
+.written_instructions {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  line-height: 1.6;
 }
 
-.services_main .services_second .third .visuals {
-  flex: 0.5;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .services_heading {
+    font-size: 2rem;
+  }
 
-.services_main .services_second .third .visuals .icon {
-  font-size: 3rem;
-  color: #FF3131;
-  transform: scaleX(-1);
-  width: 40px;
-}
-.services_main .services_second .third .visuals .icon_heading {
-  font-size: 1rem;
-  font-weight: 600;
-}
-.service_main .services_second .third .visuals .written_instructions {
-  font-size: 14px;
-  flex: 2;
-}
+  .services_sub_heading {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
 
-/*fourth box*/
-.services_main .services_second .fourth {
-  padding-left: 2rem;
-  float: left;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-  box-sizing: border-box;
-  box-shadow: 0 4px 6px whitesmoke;
-  background-color: whitesmoke;
-  border-radius: 15px;
-}
-
-.services_main .services_second .fourth .visuals {
-  flex: 0.5;
-}
-
-.services_main .services_second .fourth .visuals .icon {
-  font-size: 3rem;
-  color: #FF3131;
-  transform: scaleX(-1);
-  width: 40px;
-}
-.services_main .services_second .fourth .visuals .icon_heading {
-  font-size: 1rem;
-  font-weight: 600;
-}
-.service_main .services_second .fourth .visuals .written_instructions {
-  font-size: 14px;
-  flex: 2;
+  .services_second {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
 }

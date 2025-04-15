@@ -45,6 +45,14 @@ const homebookingSchema = new mongoose.Schema({
   charge: { type: Number, required: true },
   paid: { type: Boolean, default: false },
   paymentMethod: { type: String },
+  token: { type: String },
+});
+
+homebookingSchema.pre("save", function (next) {
+  if (!this.token && this._id) {
+    this.token = this._id.toString().slice(-6);
+  }
+  next();
 });
 
 const HBooking = mongoose.model("HBooking", homebookingSchema);

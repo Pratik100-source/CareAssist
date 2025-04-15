@@ -1,16 +1,27 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import "./showdoctors.css";
-import PatientTopbar from "../Topbar/topbar";
 import { useNavigate } from "react-router-dom";
-import { setProfessionalInfo, NotAvailable } from "../../../features/professionalSlice";
+import { setProfessionalInfo } from "../../../features/professionalSlice";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
 
 function ShowDoctors() {
   const [professionalData, setProfessionalsData] = useState([]);
-  const [bookingData, setBookingData] = useState([]); // New state for bookings
+  const [filteredData, setFilteredData] = useState([]);
+  const [bookingData, setBookingData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState("All");
+  const [specializations] = useState([
+    "Gynecologist",
+    "Orthopedist",
+    "Dietician",
+    "Dermatologist",
+    "General Physician",
+    "Pediatrician",
+    "Cardiologist",
+    "Neurologist",
+  ]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -25,8 +36,16 @@ function ShowDoctors() {
           throw new Error("Failed to fetch professional data");
         }
         const data = await professionalResponse.json();
-        const professionalData = data.filter(professional=>(professional.consultationMethod==="online" || professional.consultationMethod==="both")&&(professional.status===true));
+        
+        // Filter only doctors with online consultation available
+        const professionalData = data.filter(professional => 
+          (professional.consultationMethod === "online" || professional.consultationMethod === "both") && 
+          (professional.status === true) &&
+          (professional.profession.toLowerCase() === "doctor")
+        );
+        
         setProfessionalsData(professionalData);
+        setFilteredData(professionalData);
 
         // Fetch bookings
         const bookingResponse = await fetch(
@@ -47,8 +66,27 @@ function ShowDoctors() {
     fetchData();
   }, []);
 
-  const token = Date.now().toString().slice(-8);
-  // Function to find next available dates
+  // Filter doctors based on search term and specialization
+  useEffect(() => {
+    let result = professionalData;
+    
+    // Filter by search term (name)
+    if (searchTerm) {
+      result = result.filter(professional => 
+        professional.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filter by specialization
+    if (selectedSpecialization !== "All") {
+      result = result.filter(professional => 
+        professional.specialization === selectedSpecialization
+      );
+    }
+    
+    setFilteredData(result);
+  }, [searchTerm, selectedSpecialization, professionalData]);
+
   const getNextAvailableDates = (availableDays = []) => {
     if (!availableDays.length) return [];
 
@@ -63,25 +101,25 @@ function ShowDoctors() {
     };
 
     const today = new Date();
-    const todayDay = today.getDay(); // 0 = Sunday, 6 = Saturday
+    const todayDay = today.getDay();
 
     let nextDates = availableDays.map((day) => {
       const targetDay = daysOfWeek[day];
       if (targetDay === undefined) return null;
 
       let diff = targetDay - todayDay;
-      if (diff <= 0) diff += 7; // Get the next occurrence
+      if (diff <= 0) diff += 7;
 
       const nextDate = new Date();
       nextDate.setDate(today.getDate() + diff);
 
       return {
         day,
-        date: nextDate.toISOString().split("T")[0], // Format YYYY-MM-DD
+        date: nextDate.toISOString().split("T")[0],
       };
     });
 
-    return nextDates.filter(Boolean).slice(0, 3); // Ensure valid dates & limit to 3
+    return nextDates.filter(Boolean).slice(0, 3);
   };
 
   const generateTimeSlots = (startTime, endTime, selectedDate, professionalEmail) => {
@@ -102,7 +140,6 @@ function ShowDoctors() {
 
       if (!isToday || currentTime > now) {
         const slot = `${slotStart} - ${slotEnd}`;
-        // Check if this slot is booked
         const isBooked = bookingData.some(booking => 
           booking.professionalEmail === professionalEmail &&
           booking.date === selectedDate &&
@@ -120,8 +157,8 @@ function ShowDoctors() {
 
     return slots.slice(0, 3);
   };
+
   const time_slot_clicked = async (slot, dateInfo, professional) => {
-    // Only proceed if slot is not booked
     if (!slot.isBooked) {
       const professionalName = professional.name;
       const professionalEmail = professional.email;
@@ -145,13 +182,39 @@ function ShowDoctors() {
 
   return (
     <div className="doctor-container">
+      <div className="filters-container">
+        
+        <div className="specialization-filter">
+          <p>Find by Speciality: </p>
+          <select
+            value={selectedSpecialization}
+            onChange={(e) => setSelectedSpecialization(e.target.value)}
+          >
+            <option value="All">All Speciality</option>
+            {specializations.map((spec, index) => (
+              <option key={index} value={spec}>{spec}</option>
+            ))}
+          </select>
+        </div>
+        <div className="search-filter">
+          <input
+            type="text"
+            placeholder="Search by doctor name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+      
       <div className="doctor-container-submain">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
           <p>Error: {error}</p>
+        ) : filteredData.length === 0 ? (
+          <p>No doctors found matching your criteria.</p>
         ) : (
-          professionalData.map((professional, index) => {
+          filteredData.map((professional, index) => {
             if (!professional.availableDays || !professional.availability) return null;
 
             const availableDates = getNextAvailableDates(professional.availableDays);
@@ -186,7 +249,7 @@ function ShowDoctors() {
                           professional.availability.startTime,
                           professional.availability.endTime,
                           dateInfo.date,
-                          professional.email // Pass email to identify bookings
+                          professional.email
                         );
 
                         return (
