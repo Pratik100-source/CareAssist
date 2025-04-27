@@ -26,7 +26,7 @@ const MakeAppointment = () => {
 
       const response = await axios.post("http://localhost:3003/api/payment/initiate-payment", payload);
       if (response.data.payment_url) {
-        window.location.href = response.data.payment_url;
+        window.location.href = response.data.payment_url
       }
     } catch (error) {
       console.error("Payment error:", error.response?.data || error.message);
