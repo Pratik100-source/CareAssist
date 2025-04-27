@@ -93,9 +93,20 @@ function ShowDoctors() {
   useEffect(() => {
     if (!socket) return;
 
+    // Fetch active professionals immediately
     socket.emit("getActiveProfessionals");
+    console.log("Requesting active professionals list");
+
+    // Setup periodic refresh of active professionals
+    const intervalId = setInterval(() => {
+      if (socket && socket.connected) {
+        socket.emit("getActiveProfessionals");
+        console.log("Refreshing active professionals list");
+      }
+    }, 10000); // Check every 10 seconds
 
     const activeProsHandler = (activePros) => {
+      console.log("Received active professionals:", activePros);
       setActiveProfessionals(activePros);
     };
 
@@ -134,6 +145,7 @@ function ShowDoctors() {
     socket.on("bookingTimeout", bookingTimeoutHandler);
 
     return () => {
+      clearInterval(intervalId);
       socket.off("activeProfessionals", activeProsHandler);
       socket.off("bookingError", bookingErrorHandler);
       socket.off("bookingAccepted", bookingAcceptedHandler);

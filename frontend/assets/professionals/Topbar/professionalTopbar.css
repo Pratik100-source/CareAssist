@@ -9,7 +9,7 @@
   --transition: all 0.3s ease;
 }
 
-.topbar-container {
+.professional-topbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -23,92 +23,148 @@
   padding: 0.5rem 10vw 0 10vw;
 }
 
-.right_topbar {
+.professional-topbar-container .right_topbar {
   display: flex;
   align-items: center;
 }
 
-.logo {
+.professional-topbar-container .logo {
   width: 80px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
-.logo:hover {
+.professional-topbar-container .logo:hover {
   opacity: 0.9;
 }
 
-.mobile-menu-toggle {
+.professional-topbar-container .mobile-menu-toggle {
   display: none;
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: #f44336;
   font-size: 24px;
   cursor: pointer;
   padding: 10px;
   z-index: 1001;
 }
 
-.topbar-nav {
+.professional-topbar-container .topbar-nav {
   display: flex;
   align-items: center;
   gap: 40px;
 }
 
-.nav-links {
+.professional-topbar-container .nav-links {
   display: flex;
   gap: 25px;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding-top: 14px;
 }
 
-.nav-links li button {
+.professional-topbar-container .nav-links li button {
   background: none;
   border: none;
   font-size: 16px;
   font-weight: 500;
-  color: var(--secondary-color);
+  color: #2c3e50;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   padding: 5px 0;
   position: relative;
 }
 
-.nav-links li button:hover {
-  color: var(--primary-color);
+.professional-topbar-container .nav-links li button:hover {
+  color: #f44336;
 }
 
-.nav-links li button::after {
+.professional-topbar-container .nav-links li button::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   width: 0;
   height: 2px;
-  background-color: var(--primary-color);
-  transition: var(--transition);
+  background-color: #f44336;
+  transition: all 0.3s ease;
 }
 
-.nav-links li button:hover::after {
+.professional-topbar-container .nav-links li button:hover::after {
   width: 100%;
 }
 
-.user-controls {
+.professional-topbar-container .user-controls {
   display: flex;
   align-items: center;
   gap: 20px;
   margin-left: 20px;
   padding-left: 20px;
-  border-left: 1px solid var(--medium-gray);
-  color: var(--secondary-color);
+  border-left: 1px solid #eeeeee;
+  color: #2c3e50;
 }
 
-.profile-dropdown {
+/* Notification Dropdown Styles */
+.professional-topbar-container .notification-dropdown {
   position: relative;
 }
 
-.profile-toggle {
+.professional-topbar-container .notification-btn {
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #2c3e50;
+  cursor: pointer;
+  padding: 5px;
+  transition: var(--transition);
+}
+
+.professional-topbar-container .notification-btn:hover {
+  color: var(--primary-color);
+}
+
+.professional-topbar-container .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  width: 16px;
+  height: 18px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.professional-topbar-container .notification-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1010;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: var(--transition);
+}
+
+.professional-topbar-container
+  .notification-btn[aria-expanded="true"]
+  + .notification-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.professional-topbar-container .profile-dropdown {
+  position: relative;
+}
+
+.professional-topbar-container .profile-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -117,75 +173,77 @@
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 20px;
-  transition: var(--transition);
-  color: var(--secondary-color);
+  transition: all 0.3s ease;
+  color: #2c3e50;
 }
 
-.profile-toggle:hover {
+.professional-topbar-container .profile-toggle:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-.profile-picture {
+.professional-topbar-container .profile-picture {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  border: 1px solid var(--medium-gray);
+  border: 1px solid #eeeeee;
 }
 
-.profile-picture.male {
+.professional-topbar-container .profile-picture.male {
   background-image: url("../../images/male.jpg");
 }
 
-.profile-picture.female {
+.professional-topbar-container .profile-picture.female {
   background-image: url("../../images/female.jpg");
 }
 
-.username {
+.professional-topbar-container .username {
   font-size: 14px;
   font-weight: 500;
-  color: var(--secondary-color);
+  color: #2c3e50;
 }
 
-.dropdown-icon {
-  transition: var(--transition);
+.professional-topbar-container .dropdown-icon {
+  transition: all 0.3s ease;
 }
 
-.dropdown-icon.open {
+.professional-topbar-container .dropdown-icon.open {
   transform: rotate(180deg);
 }
 
-.dropdown-menu {
+.professional-topbar-container .dropdown-menu {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background: var(--white);
+  background: #ffffff;
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   min-width: 200px;
   padding: 10px 0;
   z-index: 1010;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: var(--transition);
-  color: var(--secondary-color);
+  transition: all 0.3s ease;
+  color: #2c3e50;
 }
 
-.profile-toggle[aria-expanded="true"] + .dropdown-menu {
+.professional-topbar-container
+  .profile-toggle[aria-expanded="true"]
+  + .dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
-.dropdown-menu ul {
+.professional-topbar-container .dropdown-menu ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.dropdown-menu li button {
+.professional-topbar-container .dropdown-menu li button {
   width: 100%;
   text-align: left;
   background: none;
@@ -193,99 +251,118 @@
   padding: 10px 20px;
   font-size: 14px;
   cursor: pointer;
-  transition: var(--transition);
-  color: var(--secondary-color);
+  transition: all 0.3s ease;
+  color: #2c3e50;
 }
 
-.dropdown-menu li button:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
+.professional-topbar-container .dropdown-menu li button:hover {
+  background-color: #f44336;
+  color: #ffffff;
 }
 
 /* Mobile Menu Styles */
 @media (max-width: 992px) {
-  .mobile-menu-toggle {
+  .professional-topbar-container .mobile-menu-toggle {
     display: block;
   }
 
-  .topbar-nav {
+  .professional-topbar-container .topbar-nav {
     position: fixed;
     top: 0;
     right: -320px;
     width: 300px;
     height: 100vh;
-    background: var(--white);
+    background: #ffffff;
     flex-direction: column-reverse;
     align-items: flex-start;
-    padding: 300px 30px 17rem 30px;
+    padding: 300px 30px 15rem 30px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
     z-index: 1000;
   }
 
-  .topbar-nav.mobile-menu-open {
+  .professional-topbar-container .topbar-nav.mobile-menu-open {
     transform: translateX(-320px);
   }
 
-  .nav-links {
+  .professional-topbar-container .nav-links {
     flex-direction: column;
     gap: 20px;
     margin-bottom: 30px;
     width: 100%;
   }
 
-  .nav-links li button {
+  .professional-topbar-container .nav-links li button {
     width: 100%;
     text-align: left;
     padding: 10px 0;
     font-size: 18px;
   }
 
-  .user-controls {
+  .professional-topbar-container .user-controls {
     border-left: none;
-    border-bottom: 1px solid var(--dark-gray);
+    border-bottom: 1px solid #757575;
     padding-left: 0;
     margin-left: 0;
-    flex-direction: row;
+    flex-direction: row-reverse;
     align-items: flex-start;
     gap: 20px;
     width: 100%;
     justify-content: space-around;
   }
 
-  .profile-dropdown {
-    position: relative;
-    width: auto;
+  .professional-topbar-container .user-controls .profile-toggle {
+    float: right;
   }
 
-  .dropdown-menu {
+  .professional-topbar-container .profile-dropdown {
+    position: relative;
+    width: auto; /* Remove full width */
+  }
+
+  .professional-topbar-container .dropdown-menu {
     position: absolute;
     top: 100%;
     right: 0;
-    width: 200px;
-    box-shadow: var(--shadow);
+    width: 200px; /* Fixed width */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transform: none;
     opacity: 0;
     visibility: hidden;
-    transition: var(--transition);
-    background: var(--white);
+    transition: all 0.3s ease;
+    background: #ffffff;
     border-radius: 8px;
     padding: 10px 0;
     margin-top: 10px;
   }
+  .professional-topbar-container .notification-menu {
+    position: fixed;
+    top: 140px;
+    right: 20px;
+    width: calc(100% - 40px);
+    max-width: 400px;
+  }
+
+  .professional-topbar-container .notification-dropdown {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
-  .topbar-container {
+  .professional-topbar-container {
     padding: 0 15px;
   }
 
-  .topbar-nav {
+  .professional-topbar-container .topbar-nav {
     width: 280px;
     right: -280px;
   }
 
-  .topbar-nav.mobile-menu-open {
+  .professional-topbar-container .topbar-nav.mobile-menu-open {
     transform: translateX(-280px);
+  }
+  .professional-topbar-container .notification-menu {
+    width: calc(100% - 30px);
+    right: 15px;
   }
 }

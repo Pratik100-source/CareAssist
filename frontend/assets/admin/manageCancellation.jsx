@@ -101,7 +101,7 @@ const ManageCancellation = () => {
                 <td>{booking.status || 'N/A'}</td>
                 <td>Rs. {booking.charge || 'N/A'}</td>
                 <td>
-                  <button onClick={() => handleRefund(booking)}>Refund</button>
+                  <button onClick={() => handleRefund(booking)} className='refund_button'>Refund</button>
                 </td>
               </tr>
             ))

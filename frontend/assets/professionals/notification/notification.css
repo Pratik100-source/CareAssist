@@ -81,8 +81,9 @@
 .notification-content {
   display: flex;
   padding: 1.5rem;
-  gap: 1.5rem;
+  gap: 0.2rem;
   align-items: flex-start;
+  flex-direction: column;
 }
 
 .notification-icon svg {
@@ -215,4 +216,150 @@
     transform: none;
     box-shadow: none;
   }
+}
+
+/* Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown Specific Styles */
+.notification-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notification-menu .notification-container {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  height: auto;
+  max-height: 400px;
+}
+
+.notification-dropdown {
+  position: relative;
+}
+
+.notification-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 24px;
+  padding: 8px;
+}
+
+/* Responsive styles for the dropdown */
+@media (max-width: 768px) {
+  .notification-menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: calc(100vh - 60px);
+    border-radius: 0;
+  }
+}
+
+/* Add these styles */
+
+.dropdown-view {
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.notification-dropdown-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.unread-count {
+  font-size: 12px;
+  color: #4a6bff;
+  background-color: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin: 0 8px;
+}
+
+.view-all-btn {
+  font-size: 13px;
+  color: #4a6bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+/* Adjust spacing in dropdown view */
+.dropdown-view .notification-card {
+  margin-bottom: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.dropdown-view .notification-content {
+  padding: 12px 15px;
+}
+
+.dropdown-view .notification-actions {
+  padding: 0 15px 12px 15px;
+}
+
+.dropdown-view .empty-state {
+  padding: 20px 10px;
+}
+
+.dropdown-view .empty-state .empty-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.dropdown-view .empty-state h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.dropdown-view .empty-state p {
+  font-size: 12px;
 }

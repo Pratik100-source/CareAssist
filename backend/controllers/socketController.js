@@ -1,5 +1,6 @@
 const BookingRequest = require("../models/homebooking");
 const ChatMessage = require("../models/chatMessage");
+const Notification = require("../models/notification"); // Add this line
 
 const handleSocketEvents = (io) => {
   const connectedPatients = new Map();
@@ -156,6 +157,29 @@ const handleSocketEvents = (io) => {
       }
     });
 
+    socket.on("fetchNotifications", async (email) => {
+      try {
+        const notifications = await Notification.find({ recipient: email })
+          .sort({ createdAt: -1 })
+          .limit(20);
+        socket.emit("notificationList", { email, notifications });
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    });
+
+    socket.on("markNotificationRead", async (notificationId) => {
+      try {
+        await Notification.findByIdAndUpdate(
+          notificationId,
+          { isRead: true },
+          { new: true }
+        );
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    });
+
     socket.on("acceptBooking", async (data) => {
       const { bookingId, professionalEmail } = data;
       const booking = await BookingRequest.findByIdAndUpdate(
@@ -163,31 +187,59 @@ const handleSocketEvents = (io) => {
         { status: "ongoing" },
         { new: true }
       );
-
+      const patientEmail = booking.patientEmail;
       if (!booking) return;
 
-      const patientSocketId = connectedPatients.get(booking.patientEmail);
+      // Create notification for patient
+      const patientNotification = new Notification({
+        recipient: booking.patientEmail,
+        type: "booking-confirmed",
+        title: "Booking Confirmed",
+        message: `Your booking with ${professionalEmail} has been confirmed.`,
+        isRead: false,
+      });
+
+      // Create notification for professional
+      const professionalNotification = new Notification({
+        recipient: professionalEmail,
+        type: "booking-confirmed",
+        title: "Booking Confirmed",
+        message: `You have a new booking from ${patientEmail}.`,
+        isRead: false,
+      });
+
+      // Save both notifications
+      await patientNotification.save();
+      await professionalNotification.save();
+
+      const patientSocketId = connectedPatients.get(patientEmail);
       if (patientSocketId) {
+        // Emit the same notification data that was saved to MongoDB
+        io.to(patientSocketId).emit(
+          "newNotification",
+          patientNotification.toObject()
+        );
+
         io.to(patientSocketId).emit("bookingAccepted", {
           bookingId,
           professionalEmail,
         });
-        console.log("Emitted to patient:", booking.patientEmail);
+        console.log("Emitted to patient:", patientEmail);
       }
 
       const professionalSocketId =
         connectedProfessionals.get(professionalEmail);
       if (professionalSocketId) {
+        // Emit the same notification data that was saved to MongoDB
+        io.to(professionalSocketId).emit(
+          "newNotification",
+          professionalNotification.toObject()
+        );
         io.to(professionalSocketId).emit("bookingAccepted", {
           bookingId,
-          professionalEmail,
+          patientEmail,
         });
-        console.log(
-          "Emitted to professional:",
-          professionalEmail,
-          "with bookingId:",
-          bookingId
-        );
+        console.log("Emitted to patient:", professionalEmail);
       }
     });
 
@@ -219,33 +271,139 @@ const handleSocketEvents = (io) => {
 
     socket.on("paymentCompleted", async (data) => {
       const { bookingId, paymentMethod } = data;
-      await BookingRequest.findByIdAndUpdate(
+      const response = await BookingRequest.findByIdAndUpdate(
         bookingId,
         { paid: true, paymentMethod },
         { new: true }
       );
+
+      const patientEmail = response.patientEmail;
+      const professionalEmail = response.professionalEmail;
+      if (!response) return;
+      // Create notification for patient
+      const patientNotification = new Notification({
+        recipient: patientEmail,
+        type: "booking-completed",
+        title: "Booking Completed",
+        message: `Your booking with ${professionalEmail} has been completed.`,
+        isRead: false,
+      });
+      // Create notification for professional
+      const professionalNotification = new Notification({
+        recipient: professionalEmail,
+        type: "booking-completed",
+        title: "Booking Completed",
+        message: `You booking with ${patientEmail} has been completed.`,
+        isRead: false,
+      });
+      const patientSocketId = connectedPatients.get(patientEmail);
+      if (patientSocketId) {
+        // Emit the same notification data that was saved to MongoDB
+        io.to(patientSocketId).emit(
+          "newNotification",
+          patientNotification.toObject()
+        );
+      }
+      const professionalSocketId =
+        connectedProfessionals.get(professionalEmail);
+      if (professionalSocketId) {
+        // Emit the same notification data that was saved to MongoDB
+        io.to(professionalSocketId).emit(
+          "newNotification",
+          professionalNotification.toObject()
+        );
+      }
+
+      // Save both notifications
+      await patientNotification.save();
+      await professionalNotification.save();
+
       io.to(bookingId).emit("bookingCompleted", { bookingId });
     });
 
+    socket.on("joinUserRoom", ({ userEmail, userType }) => {
+      try {
+        // Store the socket connection appropriately based on user type
+        if (userType === "patient") {
+          connectedPatients.set(userEmail, socket.id);
+          console.log(
+            `Patient ${userEmail} joined user room with socket ID: ${socket.id}`
+          );
+        } else if (userType === "professional") {
+          connectedProfessionals.set(userEmail, socket.id);
+          console.log(
+            `Professional ${userEmail} joined user room with socket ID: ${socket.id}`
+          );
+
+          // Broadcast updated professional list whenever a professional joins
+          io.emit(
+            "activeProfessionals",
+            Array.from(connectedProfessionals.keys())
+          );
+        }
+
+        // Join a room named after the user's email for direct messaging
+        socket.join(userEmail);
+        console.log(`${userType} joined room: ${userEmail}`);
+
+        // Send confirmation back to client
+        socket.emit("joinedRoom", {
+          success: true,
+          message: `Successfully joined room as ${userType}: ${userEmail}`,
+        });
+
+        // If it's a patient, send them the current active professionals list
+        if (userType === "patient") {
+          socket.emit(
+            "activeProfessionals",
+            Array.from(connectedProfessionals.keys())
+          );
+        }
+      } catch (error) {
+        console.error(`Error in joinUserRoom for ${userEmail}:`, error);
+        socket.emit("joinedRoom", {
+          success: false,
+          message: "Failed to join room due to server error",
+        });
+      }
+    });
+
     socket.on("disconnect", () => {
+      console.log(`Socket disconnected: ${socket.id}`);
+
+      // Check if this was a patient socket
+      let disconnectedPatient = null;
       for (let [email, id] of connectedPatients) {
         if (id === socket.id) {
+          disconnectedPatient = email;
           connectedPatients.delete(email);
           console.log(`Patient ${email} disconnected`);
           break;
         }
       }
+
+      // Check if this was a professional socket
+      let disconnectedProfessional = null;
       for (let [email, id] of connectedProfessionals) {
         if (id === socket.id) {
+          disconnectedProfessional = email;
           connectedProfessionals.delete(email);
           console.log(`Professional ${email} disconnected`);
+
+          // Broadcast updated active professionals list
           io.emit(
             "activeProfessionals",
             Array.from(connectedProfessionals.keys())
           );
+          console.log("Updated active professionals list broadcast");
           break;
         }
       }
+
+      // Log current connection counts for debugging
+      console.log(
+        `Current connections - Patients: ${connectedPatients.size}, Professionals: ${connectedProfessionals.size}`
+      );
     });
   });
 };

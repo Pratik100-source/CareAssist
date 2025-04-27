@@ -1,14 +1,16 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { FaCog, FaTimes } from "react-icons/fa"; // Import icons for settings and cross
+import { FaCog, FaTimes } from "react-icons/fa";
 import "./BHistory.css";
 import { useState, useEffect } from "react";
 
 const BHistory = () => {
   const user = useSelector((state) => state.user);
   const [bookingHistory, setBookingHistory] = useState([]);
+  const [filteredHistory, setFilteredHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all"); // Default to showing all bookings
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -21,14 +23,14 @@ const BHistory = () => {
         }
         const data = await response.json();
 
-        // Filter for bookings with status "PENDING"
-        const pendingBookings = data.filter(
+        // Filter for bookings with status "completed" or "cancelled"
+        const userBookings = data.filter(
           (booking) =>
             booking.patientEmail === `${user.email}` &&
             (booking.status === "completed" || booking.status === "cancelled")
         );
 
-        const formattedBookings = pendingBookings.map((booking, index) => {
+        const formattedBookings = userBookings.map((booking, index) => {
           return {
             id: index + 1,
             urgency: booking.bookingType,
@@ -40,10 +42,13 @@ const BHistory = () => {
             appStart: booking.startTime,
             type: booking.meetLink ? "Telemedicine" : "In-Person",
             cost: booking.charge,
+            status: booking.status,
+            refund: booking.refund || "no" // Add refund status with default "no"
           };
         });
 
         setBookingHistory(formattedBookings);
+        setFilteredHistory(formattedBookings);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -53,6 +58,15 @@ const BHistory = () => {
 
     fetchBookings();
   }, []);
+
+  useEffect(() => {
+    // Filter bookings whenever activeFilter changes
+    if (activeFilter === "all") {
+      setFilteredHistory(bookingHistory);
+    } else {
+      setFilteredHistory(bookingHistory.filter(booking => booking.status === activeFilter));
+    }
+  }, [activeFilter, bookingHistory]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -65,32 +79,62 @@ const BHistory = () => {
   return (
     <div className="booking_history_container">
       <h2 className="section_header">Booking History</h2>
-      {bookingHistory.length === 0 ? (
-        <p>No pending bookings found.</p>
+      
+      {/* Toggle filter bar */}
+      <div className="filter_toggle">
+        <button
+          className={`toggle_button ${activeFilter === "all" ? "active" : ""}`}
+          onClick={() => setActiveFilter("all")}
+        >
+          All
+        </button>
+        <button
+          className={`toggle_button ${activeFilter === "completed" ? "active" : ""}`}
+          onClick={() => setActiveFilter("completed")}
+        >
+          Completed
+        </button>
+        <button
+          className={`toggle_button ${activeFilter === "cancelled" ? "active" : ""}`}
+          onClick={() => setActiveFilter("cancelled")}
+        >
+          Cancelled
+        </button>
+      </div>
+      
+      {filteredHistory.length === 0 ? (
+        <p>No {activeFilter === "all" ? "" : activeFilter} bookings found.</p>
       ) : (
         <div className="booking_cards_grid">
-          {bookingHistory.map((booking) => (
+          {filteredHistory.map((booking) => (
             <div key={booking.id} className="booking_card">
-              {/* Top Section */}
               <div className="top_section">
-                <div className="urgency">{booking.urgency}</div>
+                <div className={`urgency ${booking.status === "cancelled" ? "cancelled" : ""}`}>
+                  {booking.urgency} {booking.status === "cancelled" ? "(Cancelled)" : ""}
+                </div>
                 <div className="app_no">Token : {booking.appNo}</div>
               </div>
 
-              {/* Middle Section */}
               <div className="middle_section">
                 <div className="doctor">{booking.doctor}</div>
                 <div className="department">{booking.department}</div>
                 <div className="patient">Patient: {booking.patient}</div>
                 <div className="appt_date">Appt. Date: {booking.apptDate}</div>
                 <div className="bs_date">Appt. Time: {booking.appStart}</div>
+                {/* Add refund status for cancelled appointments */}
+                {booking.status === "cancelled" && (
+                  <div className="refund_status">
+                    Refund Status: 
+                    <span className={`refund-${booking.refund}`}>
+                      {booking.refund === "yes" ? "Completed" : "In Progress"}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              {/* Bottom Section */}
               <div className="bottom_section">
                 <div className="cost">Cost: {booking.cost}</div>
-                <div className="settings_icon">
-                </div>
+                <div className="settings_icon"></div>
               </div>
             </div>
           ))}

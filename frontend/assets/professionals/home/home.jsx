@@ -43,10 +43,17 @@ const ProfessionalHome = () => {
           window.location.reload();
         }, 500);
       } 
+      if (location.hash) {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }
     };
+    
   
     reload_window();
-  }, [location.state]);
+  }, [location]);
 
 
 
@@ -64,12 +71,12 @@ const ProfessionalHome = () => {
                 hire trusted professionals who bring care to your home or connect with 
                 you online when you need it most.</p>
 
-                <button>Manage Booking</button>
+                <button className="manage-booking-button" onClick={()=>{navigate("/bookedAppointment")}}>Manage Booking</button>
           </div>
         </div>
-      <div className="professional_second_body"><Services/></div>
+      <div className="professional_second_body" id="services"><Services/></div>
       <div className="professional_third_body"><Queries/></div>
-      <div className="professional_footer"><Footer/></div>
+      <div className="professional_footer" id="footer"><Footer/></div>
       </div>
     </>
   );

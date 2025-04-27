@@ -16,6 +16,7 @@ const bookingRoutes = require("./routes/bookingRouter");
 const chatRoutes = require("./routes/chatRouter");
 const editRoutes = require("./routes/editRouter");
 const deleteRoutes = require("./routes/deleteRouter");
+const notificationRoutes = require("./routes/notificationRouter");
 
 require("./cronJobs");
 
@@ -45,6 +46,7 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/edit", editRoutes);
 app.use("/api/delete", deleteRoutes);
+app.use("/api/notification", notificationRoutes);
 
 // HTTP Server with Socket.io
 const server = http.createServer(app);

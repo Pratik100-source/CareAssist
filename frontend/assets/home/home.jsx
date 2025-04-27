@@ -37,9 +37,15 @@ const PatientHome = () => {
         }, 500);
       } 
     };
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
   
     reload_window();
-  }, [location.state]);
+  }, [location]);
 
 
   const handleLoginClick = () => {  
@@ -105,9 +111,9 @@ const PatientHome = () => {
                 <button>Consult now</button>
           </div>
         </div>
-      <div className="second_body"><Services/></div>
+      <div className="second_body" id="services"><Services/></div>
       <div className="third_body"><Queries/></div>
-      <div className="footer"><Footer/></div>
+      <div className="footer" id="footer"><Footer/></div>
              
      
 

@@ -4,6 +4,7 @@ const Professional = require("../models/professional");
 const transporter = require("../config/emailConnection");
 
 let currentOTP = null;
+let forgetOTP = null;
 let currentEmail = null;
 let otpTimeout = null;
 
@@ -85,4 +86,76 @@ const sendMeetLink = async (to, subject, text) => {
   }
 };
 
-module.exports = { sendOtp, verifyOtp, sendMeetLink };
+const Forget_password_otp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email is required",
+    });
+  }
+  let user = await Patient.findOne({ email });
+
+  if (!user) {
+    user = await Professional.findOne({ email });
+  }
+
+  if (user) {
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    forgetOTP = otp;
+    currentEmail = email;
+
+    // Set timeout for OTP
+    if (otpTimeout) clearTimeout(otpTimeout);
+    otpTimeout = setTimeout(() => {
+      forgetOTP = null;
+      currentEmail = null;
+    }, 300000);
+
+    // Send mail with OTP using nodemailer transporter
+    try {
+      await transporter.sendMail({
+        from: process.env.Company_Email,
+        to: email,
+        subject: "OTP for forget Password",
+        text: `Here is your OTP for password forget: ${otp}`,
+      });
+
+      res.status(200).json({
+        message: "Check your email for the OTP",
+        success: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        message: "Failed to send the OTP",
+      });
+    }
+  } else {
+    res.status(400).json({
+      message: "No such email found",
+    });
+    console.log("Email not registered");
+  }
+};
+
+const verifyForgetOtp = async (req, res) => {
+  const { otp } = req.body;
+
+  if (parseInt(otp) === forgetOTP) {
+    return res
+      .status(200)
+      .json({ message: "OTP verified successfully", success: true });
+  } else {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+};
+
+module.exports = {
+  sendOtp,
+  verifyOtp,
+  sendMeetLink,
+  Forget_password_otp,
+  verifyForgetOtp,
+};

@@ -62,7 +62,7 @@
   padding-top: 1rem;
   padding-bottom: 2rem;
 }
-.patient_content .patient_home_body .patient_home_body_content button {
+.consult-now-button {
   background: linear-gradient(90deg, #ef0e0e, #81c784);
   color: white;
   padding: 12px 24px;
@@ -73,6 +73,10 @@
   cursor: pointer;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+}
+.consult-now-button:hover {
+  background: linear-gradient(90deg, #81c784, #ef0e0e);
+  font-size: 17px;
 }
 .patient_content .patient_second_body {
   flex: 4;
@@ -92,40 +96,6 @@
 
 .patient_content .patient_footer {
   flex: 2;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.login_show,
-.signup_show {
-  width: 70%;
-  height: min(70vh, 500px);
-  z-index: 1005;
-  margin: 10% 0 0 15%;
-  background-color: white;
-  animation: slideIn 0.3s ease-in;
-  animation-delay: 0.2ms;
-  position: fixed;
-  border-radius: 8px;
-  padding: 0.5rem 0.5rem 2rem 2rem;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  opacity: 1;
-}
-.login_hide,
-.signup_hide {
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-  pointer-events: none;
 }
 
 .patient_content .patient_footer {

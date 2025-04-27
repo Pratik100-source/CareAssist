@@ -145,7 +145,7 @@ const handle_cancellation = async (req, res) => {
   try {
     const booking = await OBooking.findByIdAndUpdate(
       bookingId,
-      { status: "cancelled" },
+      { status: "cancelled", refund: "no" },
       { new: true }
     );
     if (!booking) {

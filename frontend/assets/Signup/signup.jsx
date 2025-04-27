@@ -287,9 +287,6 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
 
       <RxCross2 className="signup_cross" onClick={cross_clicked} />
       <div className="signup_main">
-        <div className="signup_image">
-          <img src={photo} alt="Signup Visual" />
-        </div>
         <div className="signup_form">
           {step === 1 && (
             <div className="signup_first">
@@ -443,6 +440,9 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
               </button>
             </form>
           )}
+        </div>
+        <div className="signup_image">
+          <img src={photo} alt="Signup Visual" />
         </div>
       </div>
     </>

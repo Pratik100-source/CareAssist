@@ -335,6 +335,92 @@
   background-color: var(--light-gray);
 }
 
+/* Cancel Button Styles */
+.cancel-btn {
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.cancel-btn:hover {
+  background-color: #c9302c;
+  transform: translateY(-2px);
+}
+
+/* Cancel Confirmation Dialog */
+.cancel-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.cancel-confirm-dialog {
+  background: #fff;
+  border-radius: var(--border-radius);
+  padding: 25px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: var(--box-shadow);
+  text-align: center;
+}
+
+.cancel-confirm-dialog h3 {
+  margin-top: 0;
+  color: var(--danger-color);
+}
+
+.cancel-confirm-dialog p {
+  margin-bottom: 25px;
+  color: var(--text-light);
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.confirm-yes,
+.confirm-no {
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.confirm-yes {
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+}
+
+.confirm-yes:hover {
+  background-color: #c9302c;
+}
+
+.confirm-no {
+  background-color: white;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.confirm-no:hover {
+  background-color: var(--light-gray);
+}
+
 @media (max-width: 768px) {
   .booking-summary {
     flex-direction: column;
@@ -355,6 +441,14 @@
 
   .primary-btn,
   .secondary-btn {
+    width: 100%;
+  }
+  .confirm-buttons {
+    flex-direction: column;
+  }
+
+  .confirm-yes,
+  .confirm-no {
     width: 100%;
   }
 }

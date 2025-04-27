@@ -68,6 +68,65 @@ const edit_patient = async (req, res) => {
   }
 };
 
+const edit_password = async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+
+  // Validate input
+  if (!email || !currentPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Kuch to gayab hey daya",
+    });
+  }
+
+  try {
+    // Check both collections for the user
+    let user =
+      (await Patient.findOne({ email })) ||
+      (await Professional.findOne({ email }));
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Verify current password
+    if (user.password !== currentPassword) {
+      return res.status(401).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // Prevent setting same password
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be different from current password",
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Password change error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   edit_patient,
+  edit_password,
 };

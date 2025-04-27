@@ -25,7 +25,7 @@ import ProfessionalNotification from "./assets/professionals/notification/notifi
 import PatientNotification from "./assets/patient/notification/notification.jsx";
 import ShowHomeDoctors from "./assets/patient/homeConsultation/showdoctors.jsx";
 import ActiveBooking from "./assets/activeBooking/activeBooking.jsx";
-
+import ChangePassword from "./assets/changePassword/changePassword.jsx";
 /* Layouts */
 import PatientLayout from "./assets/patient/patientLayout.jsx";
 import ProfessionalLayout from "./assets/professionals/professionalLayout.jsx";
@@ -44,6 +44,7 @@ function App() {
   const userDashboard = {
     professional: <ProfessionalLayout><ProfessionalHome /></ProfessionalLayout>,
     patient: <PatientLayout><PatientHome /></PatientLayout>,
+    admin:<Admindashboard></Admindashboard>
   };
 
   useEffect(() => {
@@ -54,17 +55,29 @@ function App() {
 
   const ProfessionalRoutesWithSocket = () => {
     const { joinAsProfessional } = useSocket();
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-      if (userType === "professional" && user?.email) joinAsProfessional(user.email);
-    }, [joinAsProfessional]);
+      if (userType === "professional" && user?.email) {
+        console.log("Professional setup in App.jsx - once only");
+        joinAsProfessional(user.email);
+      }
+    }, [userType, user?.email]); // Deliberately exclude joinAsProfessional from dependencies
+    
     return null;
   };
 
   const PatientRoutesWithSocket = () => {
     const { joinAsPatient } = useSocket();
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-      if (userType === "patient" && user?.email) joinAsPatient(user.email);
-    }, [joinAsPatient]);
+      if (userType === "patient" && user?.email) {
+        console.log("Patient setup in App.jsx - once only");
+        joinAsPatient(user.email);
+      }
+    }, [userType, user?.email]); // Deliberately exclude joinAsPatient from dependencies
+    
     return null;
   };
 
@@ -80,6 +93,7 @@ function App() {
         <Route path="/paymentSuccess" element={<PatientLayout><PaymentSuccess /></PatientLayout>} />
         <Route path="/showhomedoctors" element={<PatientLayout><ShowHomeDoctors /></PatientLayout>} />
         <Route path="/patientnotification" element={<PatientLayout><PatientNotification /></PatientLayout>} />
+        
       </Route>
       {/* Professional Routes */}
       <Route element={<ProtectedRoute allowedRole="professional" />}>
@@ -87,7 +101,7 @@ function App() {
         <Route path="/professionalProfile/*" element={<ProfessionalLayout><ProfessionalProfile /></ProfessionalLayout>} />
         <Route path="/professionalnotification" element={<ProfessionalLayout><ProfessionalNotification /></ProfessionalLayout>} />
       </Route>
-      {/* Shared Route */}
+    
       <Route
         path="/active-booking/:bookingId"
         element={
@@ -104,6 +118,17 @@ function App() {
         element={
           userType === "patient" || userType === "professional" ? (
            (userType === "patient")?<PatientLayout><BookedAppointment /></PatientLayout> : <ProfessionalLayout><BookedAppointment /></ProfessionalLayout>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+        
+      />
+      <Route
+        path="/changePassword"
+        element={
+          userType === "patient" || userType === "professional" ? (
+           (userType === "patient")?<PatientLayout><ChangePassword /></PatientLayout> : <ProfessionalLayout><ChangePassword /></ProfessionalLayout>
           ) : (
             <Navigate to="/" replace />
           )

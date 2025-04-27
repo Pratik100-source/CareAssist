@@ -13,7 +13,7 @@ import { showLoader} from "../../../features/loaderSlice"
 const PatientHome = () => {
 
   const [token, setToken] = useState(localStorage.getItem('token'))
-
+  const navigate = useNavigate();
   useEffect(() => {
      
     const handleTokenStorageChange = ()=>{
@@ -43,10 +43,17 @@ const PatientHome = () => {
           window.location.reload();
         }, 500);
       } 
+
+      if (location.hash) {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }
     };
   
     reload_window();
-  }, [location.state]);
+  }, [location]);
 
 
 
@@ -64,12 +71,12 @@ const PatientHome = () => {
                 hire trusted professionals who bring care to your home or connect with 
                 you online when you need it most.</p>
 
-                <button>Consult now</button>
+                <button className="consult-now-button" onClick={()=>{navigate("/showdoctors")}}>Consult now</button>
           </div>
         </div>
-      <div className="patient_second_body"><Services/></div>
+      <div className="patient_second_body" id="services"><Services/></div>
       <div className="patient_third_body"><Queries/></div>
-      <div className="patient_footer"><Footer/></div>
+      <div className="patient_footer" id="footer"><Footer/></div>
       </div>
     </>
   );

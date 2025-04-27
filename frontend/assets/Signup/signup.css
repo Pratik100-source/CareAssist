@@ -1,55 +1,29 @@
+/* Base styles */
 .signup_main {
   width: 100%;
-  height: 100%;
+  min-height: auto;
   display: flex;
+  flex-direction: column; /* Stack on mobile */
+  padding-top: 2rem;
 }
 
-.user_prompt {
-  height: 30%;
-  width: 30%;
-  z-index: 1002;
-  background-color: white;
-  justify-content: center;
-  text-align: center;
-  box-sizing: border-box;
-  border-radius: 1rem;
-  box-shadow: 5px 5px 20px whitesmoke;
+.signup_cross {
   position: absolute;
-  margin: 15% 0 0 30%;
-}
-
-.user_prompt h1 {
-  font-size: 1.2rem;
-  padding-bottom: 1rem;
-  padding-top: 1rem;
-}
-.user_prompt button {
-  padding: 1rem;
-  cursor: pointer;
-  transition: 0.3s all;
-  background-color: white;
-  border: none;
-  border-radius: 1rem;
-}
-.user_prompt button:hover {
-  background-color: #ff3131;
-  color: white;
-}
-.signup_cross,
-.user_prompt_cross {
+  top: 1rem;
+  right: 1rem;
   font-size: 1.6rem;
-  float: right;
   cursor: pointer;
-  transition: 0.3s all;
+  z-index: 1;
 }
 
-.signup_cross:hover,
-.user_prompt_cross:hover {
+.signup_cross:hover {
   color: #ff3131;
 }
 
 .signup_image {
-  flex: 2;
+  flex: none; /* Don't grow on mobile */
+  height: 200px; /* Fixed height for mobile */
+  background-color: #f5f5f5;
 }
 
 .signup_image img {
@@ -60,34 +34,28 @@
 }
 
 .signup_form {
-  flex: 1.75;
   display: flex;
   flex-direction: column;
-  padding: 2vw;
+  padding: 0rem 1.5rem;
   text-align: center;
   color: rgba(0, 0, 0, 0.8);
-  background-color: #ffffff;
-  float: right;
 }
 
 .signup_first h1,
 .signup_second h1,
 .signup_third h1 {
-  font-family: "Poppins", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 7px;
-  letter-spacing: 0.07vw;
+  margin-bottom: 0.5rem;
 }
 
 .signup_first p {
-  font-size: 0.8vw;
-  margin-bottom: 15px;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
+
 .signup_first span {
-  font-size: 0.8vw;
   color: #ff3131;
-  padding-left: 0.2vw;
   cursor: pointer;
 }
 
@@ -95,167 +63,181 @@
   color: #b8100ad7;
 }
 
-.signup_third {
-  flex: 4;
+/* Form elements */
+.signup_main input,
+.signup_main select {
+  width: 100%;
+  height: 45px;
+  margin: 0.75rem 0;
+  padding: 0 1rem;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.signup_main input {
-  height: 30px;
-  width: 19rem;
-  margin-top: 15px;
-  padding-left: 5px;
-  border: 1px solid #bdbdbd;
-}
 .first_signup_submit,
-.second_signup_submit {
-  cursor: pointer;
-  color: white;
+.second_signup_submit,
+.third_signup_submit {
+  width: 100%;
+  height: 45px;
+  margin: 1rem 0;
   background-color: #ff3131;
-  height: 30px;
-  width: 5vw;
-  border: 0 white;
-  transition: 0.3s all;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
+
 .first_signup_submit:hover,
 .second_signup_submit:hover,
 .third_signup_submit:hover {
   background-color: #b8100ad7;
 }
 
-.third_signup_submit {
-  height: 30px;
-  width: 19rem;
-  margin-top: 15px;
-  color: white;
-  background-color: #ff3131;
-  border: 0 white;
-  transition: 0.3s all;
-  cursor: pointer;
-}
-
-/*signup step third*/
-
-.signup_third .first_row {
+/* Step 3 form layout */
+.signup_third .first_row,
+.signup_third .second_row {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
-.signup_third .first_row input {
-  align-items: center;
-  width: 9.5rem;
-  height: 35px;
-  margin-top: 15px;
-  border: 1px solid #bdbdbd;
-  border-radius: 4px;
-  background-color: #fff;
-  position: relative;
-  transition: border-color 0.3s ease;
-}
-
-.signup_third .second_row input {
-  align-items: center;
-  width: 9.5rem;
-  height: 35px;
-  margin-top: 15px;
-  border: 1px solid #bdbdbd;
-  border-radius: 4px;
-  background-color: #fff;
-  position: relative;
-  transition: border-color 0.3s ease;
-}
-
+.signup_third .first_row input,
+.signup_third .second_row input,
 .signup_third .second_row select {
-  align-items: center;
-  width: 9.5rem;
-  height: 35px;
-  margin-top: 15px;
-  border: 1px solid #bdbdbd;
-  border-radius: 4px;
-  background-color: #fff;
-  position: relative;
-  transition: border-color 0.3s ease;
+  flex: 1;
+  min-width: calc(50% - 0.25rem);
 }
 
-.signup_third .third_row input {
-  align-items: center;
-  width: 19rem;
-  height: 35px;
-  margin-top: 15px;
-  border: 1px solid #bdbdbd;
-  border-radius: 4px;
-  background-color: #fff;
-  position: relative;
-  transition: border-color 0.3s ease;
-}
-
-.password-field {
+/* Password field */
+.signup_main .password-field {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 19rem;
-  height: 35px;
-  margin: 15px auto 0 auto;
+  width: 100%;
+  height: 45px;
+  margin: 0.75rem 0;
   border: 1px solid #bdbdbd;
   border-radius: 4px;
-  background-color: #fff;
   position: relative;
-  transition: border-color 0.3s ease;
 }
 
-.password-field:focus-within {
+.signup_main .password-field:focus-within {
   border-color: #ff3131;
   box-shadow: 0 0 5px rgba(255, 49, 49, 0.3);
 }
 
-.password-field input {
+.signup_main .password-field input {
   flex: 1;
   height: 100%;
-  width: 100%;
+  padding: 0 3rem 0 1rem;
   border: none;
-  padding: 0 0 10px 5px;
-  font-size: 14px;
-  background: transparent;
   outline: none;
+  margin: 0;
 }
 
-.password-feedback {
-  color: #ff3131;
-  text-align: center;
-  font-size: 12px;
-  width: auto;
+.signup_main .password-feedback {
+  font-size: 0.8rem;
+  margin: -0.5rem 0 0.5rem;
+  text-align: left;
 }
 
-.password-field .eye-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 100%;
+.signup_main .password-feedback.valid {
+  color: #28a745;
+}
+
+.signup_main .password-feedback.invalid {
+  color: #dc3545;
+}
+
+.signup_main .password-field .eye-icon {
+  position: absolute;
+  right: 1rem;
   color: #666;
   cursor: pointer;
-  transition: color 0.3s ease;
-  position: absolute;
-  right: 5px;
+  transition: color 0.3s;
 }
 
-.password-field .eye-icon:hover {
+.signup_main .password-field .eye-icon:hover {
   color: #ff3131;
 }
 
-.third_signup_submit {
-  height: 35px;
-  width: 19rem;
-  margin-top: 15px;
-  color: white;
-  background-color: #ff3131;
-  border: none;
-  border-radius: 4px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  cursor: pointer;
+/* User prompt modal */
+.user_prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  z-index: 1002;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-.third_signup_submit:hover {
-  background-color: #b8100ad7;
-  transform: translateY(-2px);
+.user_prompt h1 {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
+
+.user_prompt button {
+  padding: 0.75rem 1.5rem;
+  margin: 0 0.5rem;
+  background-color: white;
+  border: 1px solid #ff3131;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user_prompt button:hover {
+  background-color: #ff3131;
+  color: white;
+}
+
+.user_prompt_cross {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.user_prompt_cross:hover {
+  color: #ff3131;
+}
+
+/* Desktop styles (1024px and up) */
+@media (min-width: 1024px) {
+  .signup_main {
+    flex-direction: row;
+    min-height: 60vh;
+    height: 100%;
+  }
+
+  .signup_image {
+    flex: 2;
+    height: auto;
+  }
+
+  .signup_form {
+    flex: 1.75;
+    padding: 1rem;
+  }
+
+  .signup_first h1,
+  .signup_second h1,
+  .signup_third h1 {
+    font-size: 1.8rem;
+  }
+
+  .signup_first p,
+  .signup_first span {
+    font-size: 1rem;
+  }
 }

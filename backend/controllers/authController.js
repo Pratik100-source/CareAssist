@@ -150,4 +150,45 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { patientSignup, login, professionalSignup };
+const forget_password = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  // Validate input
+  if (!email || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Kuch to gayab hey daya",
+    });
+  }
+
+  try {
+    // Check both collections for the user
+    let user =
+      (await Patient.findOne({ email })) ||
+      (await Professional.findOne({ email }));
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password forgetted successfully",
+    });
+  } catch (error) {
+    console.error("Password forget error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { patientSignup, login, professionalSignup, forget_password };

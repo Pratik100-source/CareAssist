@@ -9,14 +9,23 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../../features/userSlice";
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
 import { useSelector } from "react-redux";
+import ProfessionalNotification from "../notification/notification";
+import NotificationBadge from "../notification/NotificationBadge";
+import { useSocket } from "../context/SocketContext";
+
 const ProfessionalTopbar = ({ onProfileClick }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [wasNotificationOpen, setWasNotificationOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const profileToggleRef = useRef(null);
+  const notificationToggleRef = useRef(null);
+  const { joinAsProfessional, joinUserRoom, markAllAsRead } = useSocket();
 
   // Get user data from token
   const token = localStorage.getItem('token');
@@ -25,23 +34,76 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
   const gender = user.gender;
   const name = user.firstname;
 
+  // Initialize socket connection for notifications
+  useEffect(() => {
+    if (user && user.email) {
+      // Connect both as professional (for booking requests) and general user (for notifications)
+      joinAsProfessional(user.email);
+      // Also join user room to receive general notifications
+      joinUserRoom(user.email, 'professional');
+      console.log(`Professional topbar: joined as professional and for notifications: ${user.email}`);
+    }
+  }, [user, joinAsProfessional, joinUserRoom]);
+  
+  // Track when notification panel is opened
+  useEffect(() => {
+    if (isNotificationOpen) {
+      setWasNotificationOpen(true);
+    }
+  }, [isNotificationOpen]);
+  
+  // Handle marking notifications as read when the dropdown is closed
+  useEffect(() => {
+    // Only mark as read if the notification was previously open and is now closed
+    if (wasNotificationOpen && !isNotificationOpen && user?.email) {
+      const markNotificationsAsRead = async () => {
+        try {
+          await markAllAsRead(user.email);
+          console.log('Marked all notifications as read on dropdown close');
+          // Reset the tracking flag after successfully marking as read
+          setWasNotificationOpen(false);
+        } catch (error) {
+          console.error('Error marking notifications as read:', error);
+        }
+      };
+      
+      // Add a small delay to ensure the dropdown is fully closed first
+      const timeoutId = setTimeout(() => {
+        markNotificationsAsRead();
+      }, 200);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isNotificationOpen, wasNotificationOpen, user?.email, markAllAsRead]);
+
   const handleHomeReload = () => {
-    navigate("/professionalHome", { state: { reload: true } });
+      localStorage.setItem("reload", "true");
+    navigate("/", { state: { reload: true } });
   };
 
   const toggleProfile = (e) => {
     e.stopPropagation(); // Prevent event from bubbling up
     setIsProfileOpen(!isProfileOpen);
+    if (isNotificationOpen) setIsNotificationOpen(false);
+  };
+
+  const toggleNotification = (e) => {
+    e.stopPropagation();
+    setIsNotificationOpen(!isNotificationOpen);
+    if (isProfileOpen) setIsProfileOpen(false);
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     if (isProfileOpen) setIsProfileOpen(false);
+    if (isNotificationOpen) setIsNotificationOpen(false);
   };
 
   const handleNavigation = (path) => {
     navigate(path);
     setIsMobileMenuOpen(false);
+    setIsNotificationOpen(false);
+    setIsProfileOpen(false);
   };
 
   const handleLogout = async () => {
@@ -65,6 +127,13 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
         setIsProfileOpen(false);
       }
       
+      // Close notification dropdown if clicking outside
+      if (notificationRef.current && 
+          !notificationRef.current.contains(event.target) &&
+          !notificationToggleRef.current.contains(event.target)) {
+        setIsNotificationOpen(false);
+      }
+      
       // Close mobile menu if clicking outside of it and not on the menu toggle
       if (mobileMenuRef.current && 
           !mobileMenuRef.current.contains(event.target) &&
@@ -79,7 +148,7 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
 
   return (
     <>
-        <div className="topbar-container">
+        <div className="professional-topbar-container">
           <img 
             className="logo" 
             src={Logo} 
@@ -108,17 +177,38 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
                     Manage Booking
                   </button>
                 </li>
+
                 <li>
-                  <button onClick={() => handleNavigation("/how-it-works")}>
-                    How it Works?
+                  <button onClick={() => handleNavigation("/professionalHome#services")}>
+                    Services
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleNavigation("/professionalHome#footer")}>
+                    Contact Us
                   </button>
                 </li>
               </ul>
               
               <div className="user-controls">
-                <button className="notification-btn" aria-label="Notifications">
-                  <IoIosNotifications />
-                </button>
+                <div className="notification-dropdown">
+                  <button 
+                    ref={notificationToggleRef}
+                    className="notification-btn" 
+                    onClick={toggleNotification}
+                    aria-expanded={isNotificationOpen}
+                    aria-label="Notifications"
+                  >
+                    <IoIosNotifications />
+                    <NotificationBadge />
+                  </button>
+                  
+                  {isNotificationOpen && (
+                    <div className="notification-menu" ref={notificationRef}>
+                      <ProfessionalNotification isDropdown={true} />
+                    </div>
+                  )}
+                </div>
                 
                 <div className="profile-dropdown">
                   <button 
@@ -138,7 +228,7 @@ const ProfessionalTopbar = ({ onProfileClick }) => {
                       <ul>
                         <li><button onClick={onProfileClick}>My Profile</button></li>
                         <li><button onClick={() => handleNavigation("/bookedAppointment")}>My Appointments</button></li>
-                        <li><button onClick={() => handleNavigation("/change-password")}>Change Password</button></li>
+                        <li><button onClick={() => handleNavigation("/changePassword")}>Change Password</button></li>
                         <li><button onClick={handleLogout}>Logout</button></li>
                       </ul>
                     </div>

@@ -29,3 +29,14 @@
 .bookings table th {
   background-color: #f4f4f4;
 }
+
+.refund_button {
+  cursor: pointer;
+}
+
+.refund_button:hover {
+  background-color: #ff3131;
+  color: white;
+  border: none;
+  padding: 3px;
+}

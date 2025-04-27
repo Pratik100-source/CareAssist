@@ -162,7 +162,9 @@ function ShowDoctors() {
     if (!slot.isBooked) {
       const professionalName = professional.name;
       const professionalEmail = professional.email;
-      const [startTime, endTime] = slot.time.split("-");
+      const [startTimeRaw, endTimeRaw] = slot.time.split("-");
+      const startTime = startTimeRaw.trim();
+      const endTime = endTimeRaw.trim();
       const date = dateInfo.date;
       const profession = professional.profession;
       const experience = professional.experience;
