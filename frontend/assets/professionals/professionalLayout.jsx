@@ -15,7 +15,7 @@ const ProfessionalLayout = ({ children }) => {
   const [isSignupClicked, setIsSignupClicked] = useState(false);
 
 
-    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [token, setToken] = useState(localStorage.getItem("accessToken"));
        
     const navigate = useNavigate();
 

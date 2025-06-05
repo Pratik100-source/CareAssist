@@ -1,10 +1,12 @@
 const BookingRequest = require("../models/homebooking");
 const ChatMessage = require("../models/chatMessage");
-const Notification = require("../models/notification"); // Add this line
+const Notification = require("../models/notification");
+const Admin = require('../models/admin');
 
 const handleSocketEvents = (io) => {
   const connectedPatients = new Map();
   const connectedProfessionals = new Map();
+  const connectedAdmins = new Map();
 
   io.on("connection", (socket) => {
     console.log("A user connected:", socket.id);
@@ -22,6 +24,30 @@ const handleSocketEvents = (io) => {
         `Professional ${professionalEmail} connected with socket ID: ${socket.id}`
       );
       io.emit("activeProfessionals", Array.from(connectedProfessionals.keys()));
+    });
+
+    socket.on("userStatusChanged", async (data) => {
+      const { userEmail, userType, newStatus } = data;
+      
+      try {
+        let socketId;
+        if (userType.toLowerCase() === "patient") {
+          socketId = connectedPatients.get(userEmail);
+        } else if (userType.toLowerCase() === "professional") {
+          socketId = connectedProfessionals.get(userEmail);
+        }
+
+        if (socketId) {
+          console.log(`Emitting status change to ${userEmail}: ${newStatus}`);
+          io.to(socketId).emit("forceLogout", {
+            message: "Your account has been " + newStatus + " by admin. You will be logged out."
+          });
+        } else {
+          console.log(`User ${userEmail} not currently connected`);
+        }
+      } catch (error) {
+        console.error("Error in userStatusChanged event:", error);
+      }
     });
 
     socket.on("getActiveProfessionals", () => {
@@ -74,6 +100,11 @@ const handleSocketEvents = (io) => {
       } catch (error) {
         console.error("Error saving chat message:", error);
       }
+    });
+
+    socket.on("adminJoin", (adminEmail) => {
+      connectedAdmins.set(adminEmail, socket.id);
+      console.log(`Admin ${adminEmail} connected with socket ID: ${socket.id}`);
     });
 
     socket.on("bookingMessage", async (data) => {
@@ -146,6 +177,12 @@ const handleSocketEvents = (io) => {
               message: `Professional ${professionalEmail} is not currently available`,
             });
         }
+
+        // Add admin notification
+        await notifyAdmin("new-booking", {
+          patientEmail: data.patientEmail,
+          professionalEmail: data.professionalEmail
+        });
       } catch (error) {
         console.error("Error saving booking:", error);
         const patientSocketId = connectedPatients.get(patientEmail);
@@ -258,11 +295,7 @@ const handleSocketEvents = (io) => {
 
     socket.on("finishBooking", async (data) => {
       const { bookingId } = data;
-      const booking = await BookingRequest.findByIdAndUpdate(
-        bookingId,
-        { status: "completed", endTime: new Date().toISOString() },
-        { new: true }
-      );
+      const booking = await BookingRequest.findByIdAndUpdate(bookingId);
 
       const patientSocketId = connectedPatients.get(booking.patientEmail);
       if (patientSocketId)
@@ -271,54 +304,79 @@ const handleSocketEvents = (io) => {
 
     socket.on("paymentCompleted", async (data) => {
       const { bookingId, paymentMethod } = data;
-      const response = await BookingRequest.findByIdAndUpdate(
-        bookingId,
-        { paid: true, paymentMethod },
-        { new: true }
-      );
-
-      const patientEmail = response.patientEmail;
-      const professionalEmail = response.professionalEmail;
-      if (!response) return;
-      // Create notification for patient
-      const patientNotification = new Notification({
-        recipient: patientEmail,
-        type: "booking-completed",
-        title: "Booking Completed",
-        message: `Your booking with ${professionalEmail} has been completed.`,
-        isRead: false,
-      });
-      // Create notification for professional
-      const professionalNotification = new Notification({
-        recipient: professionalEmail,
-        type: "booking-completed",
-        title: "Booking Completed",
-        message: `You booking with ${patientEmail} has been completed.`,
-        isRead: false,
-      });
-      const patientSocketId = connectedPatients.get(patientEmail);
-      if (patientSocketId) {
-        // Emit the same notification data that was saved to MongoDB
-        io.to(patientSocketId).emit(
-          "newNotification",
-          patientNotification.toObject()
+      let response;
+      const currentTime = `${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')}`;
+      
+      try {
+        response = await BookingRequest.findByIdAndUpdate(
+          bookingId,
+          { 
+            paid: true, 
+            status: "completed",
+            endTime: currentTime,
+            paymentMethod 
+          },
+          { new: true }
         );
-      }
-      const professionalSocketId =
-        connectedProfessionals.get(professionalEmail);
-      if (professionalSocketId) {
-        // Emit the same notification data that was saved to MongoDB
-        io.to(professionalSocketId).emit(
-          "newNotification",
-          professionalNotification.toObject()
-        );
-      }
 
-      // Save both notifications
-      await patientNotification.save();
-      await professionalNotification.save();
+        if (!response) {
+          console.error(`No booking found with ID: ${bookingId}`);
+          return;
+        }
 
-      io.to(bookingId).emit("bookingCompleted", { bookingId });
+        const patientEmail = response.patientEmail;
+        const professionalEmail = response.professionalEmail;
+
+        // Create notification for patient
+        const patientNotification = new Notification({
+          recipient: patientEmail,
+          type: "booking-completed",
+          title: "Booking Completed",
+          message: `Your booking with ${professionalEmail} has been completed.`,
+          isRead: false,
+        });
+        
+        // Create notification for professional
+        const professionalNotification = new Notification({
+          recipient: professionalEmail,
+          type: "booking-completed",
+          title: "Booking Completed",
+          message: `Your booking with ${patientEmail} has been completed.`,
+          isRead: false,
+        });
+
+        const patientSocketId = connectedPatients.get(patientEmail);
+        if (patientSocketId) {
+          io.to(patientSocketId).emit(
+            "newNotification",
+            patientNotification.toObject()
+          );
+        }
+
+        const professionalSocketId = connectedProfessionals.get(professionalEmail);
+        if (professionalSocketId) {
+          io.to(professionalSocketId).emit(
+            "newNotification",
+            professionalNotification.toObject()
+          );
+        }
+
+        // Save both notifications
+        await Promise.all([
+          patientNotification.save(),
+          professionalNotification.save()
+        ]);
+
+        io.to(bookingId).emit("bookingCompleted", { bookingId });
+
+        // Add admin notification
+        await notifyAdmin("payment-received", {
+          bookingId: data.bookingId,
+          amount: response.charge // Assuming charge is available in the response
+        });
+      } catch (error) {
+        console.error("Error in paymentCompleted:", error);
+      }
     });
 
     socket.on("joinUserRoom", ({ userEmail, userType }) => {
@@ -368,6 +426,184 @@ const handleSocketEvents = (io) => {
       }
     });
 
+    socket.on("OnlineBookingConfirmed", async (data) => {
+      const { patientEmail, professionalEmail, date, time } = data;
+      
+      try {
+        const patientNotification = new Notification({
+          recipient: patientEmail,
+          type: "booking-confirmed",
+          title: "Online Booking Initiated",
+          message: `You have an online booking with ${professionalEmail} scheduled at date: ${date} and time: ${time}.`,
+          isRead: false
+        });
+
+        const professionalNotification = new Notification({
+          recipient: professionalEmail,
+          type: "booking-confirmed",
+          title: "New Online Booking",
+          message: `You have an online booking with ${patientEmail} scheduled at date: ${date} and time: ${time}.`,
+          isRead: false
+        });
+
+        // Save notifications
+        await Promise.all([
+          patientNotification.save(),
+          professionalNotification.save()
+        ]);
+
+        // Send notification to patient
+        const patientSocketId = connectedPatients.get(patientEmail);
+        if (patientSocketId) {
+          io.to(patientSocketId).emit("newNotification", patientNotification.toObject());
+        }
+
+        // Send notification to professional
+        const professionalSocketId = connectedProfessionals.get(professionalEmail);
+        if (professionalSocketId) {
+          io.to(professionalSocketId).emit("newNotification", professionalNotification.toObject());
+        }
+
+      } catch (error) {
+        console.error("Error in initiatedOnlineBooking:", error);
+      }
+    });
+
+    socket.on("bookingCancelled", async (data) => {
+      const { patientEmail, professionalEmail, date, time } = data;
+      
+      try {
+        const patientNotification = new Notification({
+          recipient: patientEmail,
+          type: "booking-cancelled",
+          title: "Booking Cancelled",
+          message: `Your online booking with ${professionalEmail} scheduled for ${date} at ${time} has been cancelled.`,
+          isRead: false
+        });
+
+        const professionalNotification = new Notification({
+          recipient: professionalEmail,
+          type: "booking-cancelled",
+          title: "Booking Cancelled",
+          message: `The online booking with ${patientEmail} scheduled for ${date} at ${time} has been cancelled.`,
+          isRead: false
+        });
+
+        // Save notifications
+        await Promise.all([
+          patientNotification.save(),
+          professionalNotification.save()
+        ]);
+
+        // Send notification to patient
+        const patientSocketId = connectedPatients.get(patientEmail);
+        if (patientSocketId) {
+          io.to(patientSocketId).emit("newNotification", patientNotification.toObject());
+        }
+
+        // Send notification to professional
+        const professionalSocketId = connectedProfessionals.get(professionalEmail);
+        if (professionalSocketId) {
+          io.to(professionalSocketId).emit("newNotification", professionalNotification.toObject());
+        }
+
+        // Add admin notification
+        await notifyAdmin("booking-cancelled", {
+          patientEmail: data.patientEmail,
+          professionalEmail: data.professionalEmail,
+          date: data.date,
+          time: data.time
+        });
+      } catch (error) {
+        console.error("Error in bookingCancelled:", error);
+      }
+    });
+
+    socket.on("VerificationUpdate", async (data) => {
+      const { professionalEmail } = data;
+      
+      try {
+        // Add admin notification
+        await notifyAdmin("verification-request", {
+          professionalEmail
+        });
+      } catch (error) {
+        console.error("Error in Verification Update:", error);
+      }
+    });
+
+    socket.on("verificationResponse", async (data) => {
+      const { professionalEmail, status, message } = data;
+      
+      try {
+        console.log("Received verification response:", data);
+
+        // Create notification for professional
+        const professionalNotification = new Notification({
+          recipient: professionalEmail,
+          type: "general",
+          title: status === 'accepted' ? "Verification Accepted" : "Verification Rejected",
+          message: message || (status === 'accepted' 
+            ? "Your verification documents have been accepted. You can now start providing services."
+            : "Your verification documents have been rejected. Please check your email for more details."),
+          isRead: false,
+          createdAt: new Date()
+        });
+
+        // Save notification
+        await professionalNotification.save();
+        console.log("Saved notification:", professionalNotification);
+
+        // Send real-time notification if professional is connected
+        const professionalSocketId = connectedProfessionals.get(professionalEmail);
+        if (professionalSocketId) {
+          console.log("Professional is connected, sending real-time notification");
+          io.to(professionalSocketId).emit("newNotification", professionalNotification.toObject());
+          io.to(professionalSocketId).emit("verificationStatusUpdate", {
+            status,
+            message: professionalNotification.message
+          });
+        } else {
+          console.log("Professional not connected, notification saved for later");
+        }
+      } catch (error) {
+        console.error("Error in verification response:", error);
+      }
+    });
+
+    socket.on("ProfessionalPaid", async (data) => {
+      const { professionalEmail, amount, bookingDate, bookingTime} = data;
+      
+      try {
+        console.log("Received payment response:", data);
+
+        // Create notification for professional
+        const professionalNotification = new Notification({
+          recipient: professionalEmail,
+          type: "general",
+          title: "Payment Received",
+          message: `You have received a payment of ${amount} for the booking on ${bookingDate} at ${bookingTime}.`,
+          isRead: false,
+          createdAt: new Date()
+        });
+
+        // Save notification
+        await professionalNotification.save();
+        console.log("Saved notification:", professionalNotification);
+
+        // Send real-time notification if professional is connected
+        const professionalSocketId = connectedProfessionals.get(professionalEmail);
+        if (professionalSocketId) {
+          console.log("Professional is connected, sending real-time notification");
+          io.to(professionalSocketId).emit("newNotification", professionalNotification.toObject());
+        } else {
+          console.log("Professional not connected, notification saved for later");
+        }
+      } catch (error) {
+        console.error("Error in verification response:", error);
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log(`Socket disconnected: ${socket.id}`);
 
@@ -400,12 +636,88 @@ const handleSocketEvents = (io) => {
         }
       }
 
+      // Check if this was an admin socket
+      let disconnectedAdmin = null;
+      for (let [email, id] of connectedAdmins) {
+        if (id === socket.id) {
+          disconnectedAdmin = email;
+          connectedAdmins.delete(email);
+          console.log(`Admin ${email} disconnected`);
+          break;
+        }
+      }
+
       // Log current connection counts for debugging
       console.log(
-        `Current connections - Patients: ${connectedPatients.size}, Professionals: ${connectedProfessionals.size}`
+        `Current connections - Patients: ${connectedPatients.size}, Professionals: ${connectedProfessionals.size}, Admins: ${connectedAdmins.size}`
       );
     });
   });
+
+  // Handle admin notifications for various events
+  const notifyAdmin = async (type, data) => {
+    try {
+      // Fetch all admin emails from database
+      const admins = await Admin.find({}, 'email');
+      const adminEmails = admins.map(admin => admin.email);
+      
+      if (adminEmails.length === 0) {
+        console.log('No admins found in database');
+        return;
+      }
+
+      for (const adminEmail of adminEmails) {
+        const notification = new Notification({
+          recipient: adminEmail,
+          type: type,
+          title: getNotificationTitle(type),
+          message: getNotificationMessage(type, data),
+          isRead: false
+        });
+
+        await notification.save();
+
+        // If admin is connected, emit the notification
+        if (connectedAdmins.has(adminEmail)) {
+          const adminSocket = connectedAdmins.get(adminEmail);
+          adminSocket.emit('newNotification', notification);
+        }
+      }
+    } catch (error) {
+      console.error('Error in notifyAdmin:', error);
+    }
+  };
+
+  // Helper functions for notification content
+  const getNotificationTitle = (type) => {
+    switch (type) {
+      case "booking-cancelled":
+        return "Booking Cancelled";
+      case "payment-received":
+        return "Payment Received";
+      case "verification-request":
+        return "Professional Verification Request";
+      case "verification-response":
+        return "Verification Status Update";
+      default:
+        return "System Notification";
+    }
+  };
+
+  const getNotificationMessage = (type, data) => {
+    switch (type) {
+      case "booking-cancelled":
+        return `Booking between ${data.patientEmail} and ${data.professionalEmail} has been cancelled.`;
+      case "payment-received":
+        return `Payment of ${data.amount} received for booking ID: ${data.bookingId}.`;
+      case "verification-request":
+        return `Professional ${data.professionalEmail} has submitted documents for verification.`;
+      case "verification-response":
+        return data.message || `Your verification status has been updated to ${data.status}`;
+      default:
+        return data.message || "System notification";
+    }
+  };
 };
 
 module.exports = { handleSocketEvents };

@@ -19,6 +19,7 @@ const findPatient = async (req, res) => {
       email: patient.email,
       number: patient.number,
       birthdate: patient.birthdate,
+      user_status: patient.user_status,
     }));
 
     res.status(200).json(formattedPatients);
@@ -57,6 +58,7 @@ const findProfessional = async (req, res) => {
       availability: professional.availability,
       availableDays: professional.availableDays,
       charge: professional.charge,
+      user_status: professional.user_status,
     }));
 
     res.status(200).json(formattedProfessionals);

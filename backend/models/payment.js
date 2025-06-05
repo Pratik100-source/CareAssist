@@ -5,9 +5,10 @@ const PaymentSchema = new mongoose.Schema({
   professionalEmail: { type: String, required: true },
   pidx: { type: String, required: true },
   PaymentTime: { type: String, required: true },
-  token: { type: Number, required: true },
+  token: { type: String, required: true },
   charge: { type: Number, required: true },
   transactionId: { type: String },
+  bookingType: {type:String, enum:["video", "home"]}
 });
 
 const Payment = mongoose.model("Payment", PaymentSchema);

@@ -7,7 +7,7 @@ import { showLoader, hideLoader } from "../../../features/loaderSlice";
 import ProfessionalVerification from "./professionalVerification";
 import { RxCross1 } from "react-icons/rx";
 // import DocumentUpload from "./DocumentUpload";
-
+import { api } from "../../../services/authService";
 const PersonalInfo = () => {
   const professional = useSelector((state) => state.user);
   console.log("Redux professional State:", professional);
@@ -45,19 +45,19 @@ const PersonalInfo = () => {
 
   useEffect(() => {
     const fetch_status = async () => {
-      const response = await fetch("http://localhost:3003/api/display/getprofessionalInfo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: professional.email }),
-      });
-
-      const data = await response.json();
-      console.log("response from backend", data);
-      setSubmissionStatus(data.result.submission);
-      setVerificationStatus(data.result.verification);
+      try {
+        const response = await api.post(`/display/getprofessionalInfo`, {email: professional.email});
+        console.log("response from backend", response.data);
+        setSubmissionStatus(response.data.result.submission);
+        setVerificationStatus(response.data.result.verification);
+      } catch (error) {
+        console.error("Error fetching professional status:", error.message || "Failed to fetch professional data");
+      }
     };
 
-    fetch_status();
+    if (professional && professional.email) {
+      fetch_status();
+    }
   }, [professional.email, verificationTrigger]);
 
   return (
@@ -100,9 +100,14 @@ const PersonalInfo = () => {
         </div>
       </div>
       {verifyClicked && (
+        <div className="modal-overlay">
         <div className="verification_modal">
-          <div className="cross_section"><RxCross1 className="cross" onClick={()=>{setVerifyClicked(false)}}></RxCross1></div>
+        <div className="modal-header">
+        <h3>Verify Profile</h3>
+        <div className="cross_section"><RxCross1 className="cross" onClick={()=>{setVerifyClicked(false)}}></RxCross1></div>
+        </div>
               <ProfessionalVerification handleVerifyClick = {handleVerifyClick} handleVerificationTrigger = {handleVerificationTrigger}/>
+        </div>
         </div>
       )}
     </>

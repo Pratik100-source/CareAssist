@@ -5,6 +5,8 @@ const { Server } = require("socket.io");
 const bodyParser = require("body-parser");
 const connectdb = require("./config/dbConnection");
 const { handleSocketEvents } = require("./controllers/socketController");
+const { verifyToken } = require("./controllers/jwtController");
+const jwt = require("jsonwebtoken");
 
 // Routes
 const emailRoutes = require("./routes/emailRouter");
@@ -39,14 +41,14 @@ connectdb();
 // Routes
 app.use("/api/otp", emailRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/display", displayinfoRoutes);
-app.use("/api/verification", verifyprofessionalRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/booking", bookingRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/edit", editRoutes);
-app.use("/api/delete", deleteRoutes);
-app.use("/api/notification", notificationRoutes);
+app.use("/api/display", verifyToken, displayinfoRoutes);
+app.use("/api/verification", verifyToken, verifyprofessionalRoutes);
+app.use("/api/payment", verifyToken, paymentRoutes);
+app.use("/api/booking", verifyToken, bookingRoutes);
+app.use("/api/chat", verifyToken, chatRoutes);
+app.use("/api/edit", verifyToken, editRoutes);
+app.use("/api/delete", verifyToken, deleteRoutes);
+app.use("/api/notification", verifyToken, notificationRoutes);
 
 // HTTP Server with Socket.io
 const server = http.createServer(app);
@@ -56,6 +58,33 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
+});
+
+// Socket.IO authentication middleware
+io.use((socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    
+    if (!token) {
+      // Allow connection even without token for backward compatibility
+      console.log("Socket connecting without token");
+      return next();
+    }
+    
+    // Verify the token
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.user = decoded; // Attach the user data to the socket
+      console.log(`Authenticated socket connection for user: ${decoded.email}`);
+      return next();
+    } catch (err) {
+      console.log("Invalid socket auth token:", err.message);
+      return next();  // Still allow connection for now, but log the error
+    }
+  } catch (error) {
+    console.error("Socket auth error:", error);
+    return next();  // Continue anyway for backward compatibility
+  }
 });
 
 app.set("io", io);

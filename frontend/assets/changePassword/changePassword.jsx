@@ -4,13 +4,20 @@ import axios from "axios";
 import "./changePassword.css";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
+import { api } from "../../services/authService";
+import {logout} from "../../features/userSlice"
+import { useDispatch } from "react-redux";
+import { hideLoader, showLoader } from "../../features/loaderSlice";
+import { useNavigate } from "react-router-dom";
 const ChangePassword = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  
+  const dispatch = useDispatch();
 
   const user = useSelector((state)=>state.user);
 
@@ -75,7 +82,7 @@ const ChangePassword = () => {
       newErrors.confirmPassword = "Please confirm your new password";
       valid = false;
     } else if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords don't match";
+      newErrors.confirmPassword = "Passwords is not matching";
       valid = false;
     }
 
@@ -87,49 +94,38 @@ const ChangePassword = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsLoading(true);
+    dispatch(showLoader());;
     try {
-
-        const response = await fetch("http://localhost:3003/api/edit/edit-password", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user.email,   currentPassword: formData.currentPassword,
-                newPassword: formData.newPassword, }),
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            throw new Error(data.message || "Failed to change password");
-          }
+      const response = await api.put(`/edit/edit-password`, { 
+        email: user.email,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword 
+      });
       
-          if (data.success) {
-            toast.success("Password changed successfully", { 
-              position: "top-right", 
-              autoClose: 3000 
-            });
-            setFormData({
-              currentPassword: "",
-              newPassword: "",
-              confirmPassword: "",
-            });
-            setPasswordFeedback("");
-          } else {
-            toast.error(data.message || "Password change failed", { 
-              position: "top-right", 
-              autoClose: 3000 
-            });
-          }
-        } catch (error) {
-          console.error("Password change error:", error);
-          toast.error(error.message || "An error occurred during password change", { 
-            position: "top-right", 
-            autoClose: 3000 
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
+      dispatch(logout());
+      toast.success("Password changed successfully", { 
+        position: "top-right", 
+        autoClose: 3000 
+      });
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordFeedback("");
+      dispatch(hideLoader());
+    } catch (error) {
+      console.error("Password change error:", error);
+      toast.error(error.response?.data?.message || "An error occurred during password change", { 
+        position: "top-right", 
+        autoClose: 3000 
+      });
+      dispatch(hideLoader());
+    } finally {
+      setIsLoading(false);
+      dispatch(hideLoader());
+    }
+  };
 
   return (
     <div className="change-password-container">

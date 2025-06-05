@@ -1,4 +1,8 @@
-const jwt = require("jsonwebtoken");
+const { 
+  generateAccessToken, 
+  generateRefreshToken, 
+  verifyRefreshToken 
+} = require("./jwtController");
 
 const Patient = require("../models/patient");
 const Professional = require("../models/professional");
@@ -31,6 +35,7 @@ const patientSignup = async (req, res) => {
     gender: gender_string,
     birthdate: date_object,
     password,
+    user_status: "active",
   });
 
   try {
@@ -69,6 +74,7 @@ const professionalSignup = async (req, res) => {
     gender: gender_string,
     birthdate: date_object,
     password,
+    user_status: "active",
   });
 
   console.log(newProfessional);
@@ -101,11 +107,23 @@ const login = async (req, res) => {
       user = await Patient.findOne({ email });
       if (user) {
         userType = "Patient";
+        // Check if patient is blocked
+        if (user.user_status === "blocked") {
+          return res.status(403).json({ 
+            message: "Your account has been blocked. Please contact support for assistance." 
+          });
+        }
       } else {
         // Try Professional
         user = await Professional.findOne({ email });
         if (user) {
           userType = "Professional";
+          // Check if professional is blocked
+          if (user.user_status === "blocked") {
+            return res.status(403).json({ 
+              message: "Your account has been blocked. Please contact support for assistance." 
+            });
+          }
         }
       }
     }
@@ -114,24 +132,27 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if (password !== user.password) {
+    // Verify password using the method defined in the schema
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        userType,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
 
-    console.log(user.gender);
+    const userData = {
+      id: user._id,
+      email: user.email,
+      userType,
+    };
+
+    // Generate tokens
+    const accessToken = generateAccessToken(userData);
+    const refreshToken = generateRefreshToken(userData);
+
     res.status(200).json({
       message: "Login successful",
       userType,
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         firstname: user.firstname || "",
         lastname: user.lastname || "",
@@ -140,6 +161,7 @@ const login = async (req, res) => {
         gender: user.gender || "",
         birthdate: user.birthdate || "",
         status: user.verification || "",
+        user_status: user.user_status || "active"
       },
     });
   } catch (error) {
@@ -148,6 +170,36 @@ const login = async (req, res) => {
       message: "Server error",
     });
   }
+};
+
+const refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ message: "Refresh token is required" });
+  }
+
+  // Verify the refresh token
+  const userData = verifyRefreshToken(refreshToken);
+  if (!userData) {
+    return res.status(401).json({ message: "Invalid or expired refresh token" });
+  }
+
+  // Extract only necessary user data without exp property
+  const newUserData = {
+    id: userData.id,
+    email: userData.email,
+    userType: userData.userType
+  };
+
+  // Generate new tokens with clean user data
+  const newAccessToken = generateAccessToken(newUserData);
+  const newRefreshToken = generateRefreshToken(newUserData);
+
+  return res.status(200).json({
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  });
 };
 
 const forget_password = async (req, res) => {
@@ -179,10 +231,10 @@ const forget_password = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Password forgetted successfully",
+      message: "Password reset successfully",
     });
   } catch (error) {
-    console.error("Password forget error:", error);
+    console.error("Password reset error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -191,4 +243,10 @@ const forget_password = async (req, res) => {
   }
 };
 
-module.exports = { patientSignup, login, professionalSignup, forget_password };
+module.exports = { 
+  patientSignup, 
+  login, 
+  professionalSignup, 
+  forget_password,
+  refreshToken 
+};

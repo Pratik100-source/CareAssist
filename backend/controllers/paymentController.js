@@ -1,8 +1,9 @@
 const Payment = require("../models/payment");
+const Professional = require("../models/professional");
+const OBooking = require("../models/onlinebooking");
+const HBooking = require("../models/homebooking");
 const dotenv = require("dotenv");
 const axios = require("axios");
-
-const OBooking = require("../models/onlinebooking");
 
 dotenv.config();
 
@@ -10,8 +11,19 @@ const KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY;
 
 const initiate_payment = async (req, res) => {
   try {
+    const bookingType = req.body.bookingType;
+    let return_url;
+
+    if (bookingType === "online") {
+      return_url = "http://localhost:5173/onlinePaymentSuccess";
+    } else if (bookingType === "home") {
+      return_url = `http://localhost:5173/homePaymentSuccess?bookingId=${req.body.bookingId}`;
+    } else if (bookingType === "payout") {
+      return_url = `http://localhost:5173/payoutSuccess?bookingId=${req.body.purchase_order_id.split('-')[1]}`;
+    }
+
     const payload = {
-      return_url: "http://localhost:5173/paymentSuccess",
+      return_url: return_url,
       website_url: "http://localhost:5173",
       amount: req.body.amount,
       purchase_order_id: req.body.purchase_order_id,
@@ -82,6 +94,7 @@ const save_payment = async (req, res) => {
     token,
     charge,
     transactionId,
+    bookingType
   } = req.body;
 
   // Validate required fields
@@ -92,7 +105,8 @@ const save_payment = async (req, res) => {
     !PaymentTime ||
     !token ||
     !charge ||
-    !transactionId
+    !transactionId ||
+    !bookingType
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -106,6 +120,7 @@ const save_payment = async (req, res) => {
       token,
       charge,
       transactionId,
+      bookingType
     });
     await newPayment.save();
     return res.status(201).send("Payment has been saved successfully");
@@ -135,6 +150,7 @@ const show_payment = async (req, res) => {
       PaymentTime: payment.PaymentTime,
       token: payment.token,
       charge: payment.charge,
+      bookingType: payment.bookingType
     }));
 
     res.status(200).json(formattedPayments);
@@ -198,6 +214,7 @@ const refund_payment = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   initiate_payment,
   verify_payment,

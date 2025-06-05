@@ -4,12 +4,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
-
-const PaymentSuccess = () => {
+import { api } from "../../../services/authService";
+import { useSocket } from "../../professionals/context/SocketContext";
+const OnlinePaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const { socket } = useSocket();
   const user = useSelector((state) => state.user);
   const professional = useSelector((state) => state.professional);
 
@@ -21,7 +22,7 @@ const PaymentSuccess = () => {
   const professionalEmail = professional?.professionalEmail;
   const token = professional?.token;
   const date = professional?.date;
-  const startTime = professional?.startTime;
+  const startTime = professional?.startTime;;
   const endTime = professional?.endTime;
   const charge = professional?.charge;
   const patientName = `${user?.firstname || ""} ${user?.lastname || ""}`.trim();
@@ -41,10 +42,7 @@ const PaymentSuccess = () => {
 
       try {
         dispatch(showLoader());
-        const response = await axios.post(
-          "http://localhost:3003/api/payment/verify-payment",
-          { pidx }
-        );
+        const response = await api.post(`/payment/verify-payment`, {pidx});
 
         if (response.data.status === "Completed") {
           setIsPaymentSuccessful(true);
@@ -82,31 +80,43 @@ const PaymentSuccess = () => {
 
       try {
         dispatch(showLoader());
-        const bookingResponse = await fetch(
-          "http://localhost:3003/api/booking/save-online-booking",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              professionalName,
-              patientName,
-              patientEmail,
-              professionalEmail,
-              token,
-              date,
-              startTime,
-              endTime,
-              charge,
-              transactionId,
-            }),
-          }
-        );
+        const bookingResponse = await api.post(`/booking/save-online-booking`, {
+          professionalName,
+          patientName,
+          patientEmail,
+          professionalEmail,
+          token,
+          date,
+          startTime,
+          endTime,
+          charge,
+          transactionId,
+        });
 
-        if (!bookingResponse.ok) throw new Error("Booking failed");
         await savePayment(); // Call savePayment after booking succeeds
+
+        // // Connect to socket and emit booking confirmation
+        // const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000");
+        // socket.emit("OnlineBookingConfirmed", {
+        //   patientEmail,
+        //   professionalEmail,
+        //   serviceType: "video consultation",
+        //   date,
+        //   time: startTime
+        // });
+        if (socket) {
+          socket.emit("OnlineBookingConfirmed", { 
+            patientEmail,
+            professionalEmail,
+            serviceType: "video consultation",
+            date,
+            time: startTime
+          });
+        }
         navigate("/bookedAppointment");
       } catch (bookingError) {
         console.error("Error saving booking:", bookingError);
+        toast.error("Failed to save booking. Please try again.");
       } finally {
         dispatch(hideLoader());
       }
@@ -117,28 +127,22 @@ const PaymentSuccess = () => {
 
       try {
         const PaymentTime = new Date().toISOString();
-        const response = await fetch(
-          "http://localhost:3003/api/payment/save-payment",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              patientEmail,
-              professionalEmail,
-              pidx: paymentId,
-              PaymentTime,
-              token,
-              charge,
-              transactionId, // Include transactionId
-            }),
-          }
-        );
+        const response = await api.post(`/payment/save-payment`, {
+          patientEmail,
+          professionalEmail,
+          pidx: paymentId,
+          PaymentTime,
+          token,
+          charge,
+          transactionId,
+          bookingType: "video"
+        });
 
-        if (!response.ok) throw new Error("Failed to save payment");
         setPaymentId(null);
         setTransactionId(null); // Clear transactionId after success
       } catch (error) {
         console.error("Error saving payment:", error);
+        toast.error("Payment record failed to save. Please contact support.");
       }
     };
 
@@ -148,4 +152,4 @@ const PaymentSuccess = () => {
   return <></>;
 };
 
-export default PaymentSuccess;
+export default OnlinePaymentSuccess;

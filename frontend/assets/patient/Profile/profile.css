@@ -68,9 +68,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: green;
   font-size: 1.5rem;
   margin: 0 auto 1rem;
+  background-size: cover;
+  background-position: center;
 }
 .patient_dashboard ul li .profile_picture_female {
   width: 80px;

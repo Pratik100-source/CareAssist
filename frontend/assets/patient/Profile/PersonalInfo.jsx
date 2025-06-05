@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { setUserInfo } from "../../../features/userSlice";
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
-
+import { api } from "../../../services/authService";
 const PersonalInfo = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -45,27 +45,17 @@ const PersonalInfo = () => {
 
       try {
         dispatch(showLoader()); // Show loader
-        const response = await fetch(
-          "http://localhost:3003/api/display/getpatientInfo",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: user.email }),
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to fetch information");
-        const data = await response.json();
-        setPatientDetails(data.result);
+        const response = await api.post(`/display/getpatientInfo`, {email: user.email});
+        
+        // With axios/api, we directly access response.data
+        setPatientDetails(response.data.result);
 
         // Update Redux store with the fetched patient details
         dispatch(
           setUserInfo({
             userType: user.userType,
             token: user.token,
-            basic_info: data.result,
+            basic_info: response.data.result,
           })
         );
       } catch (error) {
@@ -110,29 +100,15 @@ const PersonalInfo = () => {
   const handleConfirmSave = async () => {
     try {
       dispatch(showLoader()); // Show loader
-      const response = await fetch("http://localhost:3003/api/edit/edit-patient", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: user.email,
-          ...formData,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update user information");
-      }
-
-      const data = await response.json();
+      const response = await api.put(`/edit/edit-patient`, {email: user.email, ...formData});
+      
+      // With axios/api, we directly access response.data
       // Update Redux store with the updated patient details
       dispatch(
         setUserInfo({
           userType: user.userType,
           token: user.token,
-          basic_info: data.data, // Assuming the backend returns the updated patient in `data.data`
+          basic_info: response.data.data, // Assuming the backend returns the updated patient in `data.data`
         })
       );
 
@@ -143,7 +119,7 @@ const PersonalInfo = () => {
       }, 1500);
     } catch (error) {
       console.error("Update error:", error);
-      toast.error(error.message || "Update failed");
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       setShowConfirmation(false);
       setShowEditForm(false);

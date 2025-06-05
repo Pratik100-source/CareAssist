@@ -4,13 +4,15 @@ const NepaliDate = require("nepali-datetime");
 const emailController = require("./controllers/emailController");
 const { createJitsiMeetLink } = require("./jitsiMeet");
 
-// Check for bookings 10 minutes ahead in NPT with Gregorian date
+// Check for bookings 10 minutes ahead and current bookings in NPT with Gregorian date
 cron.schedule("* * * * *", async () => {
   const now = new NepaliDate(); // Current date and time in NPT (Nepali calendar)
   const futureTime = new NepaliDate(now.getTime() + 10 * 60 * 1000); // 10 minutes ahead in NPT
 
   const formattedDate = futureTime.formatEnglishDate("YYYY-MM-DD"); // Gregorian date (e.g., 2025-03-15)
   const targetStartTime = futureTime.format("HH:mm"); // NPT time (e.g., 00:17)
+  const currentDate = now.formatEnglishDate("YYYY-MM-DD");
+  const currentTime = now.format("HH:mm");
 
   console.log(
     `Cron job running at ${now.format(
@@ -19,6 +21,21 @@ cron.schedule("* * * * *", async () => {
   );
 
   try {
+    // First, update status to Ongoing for current appointments
+    const startingAppointments = await OBooking.updateMany(
+      {
+        date: currentDate,
+        startTime: currentTime,
+        status: "Pending"
+      },
+      { status: "Ongoing" }
+    );
+
+    if (startingAppointments.modifiedCount > 0) {
+      console.log(`${startingAppointments.modifiedCount} appointments marked as Ongoing`);
+    }
+
+    // Then, handle upcoming appointments that need meet links
     const upcomingAppointments = await OBooking.find({
       date: formattedDate,
       startTime: targetStartTime,
@@ -45,8 +62,8 @@ cron.schedule("* * * * *", async () => {
           Hello,
 
           Your appointment details:
-          - Patient: ${booking.patientName || "N/A"}
-          - Professional: ${booking.professionalName || "N/A"}
+          - Patient: ${booking.patient || "N/A"}
+          - Professional: ${booking.professional || "N/A"}
           - Date: ${booking.date} (Gregorian/AD)
           - Time: ${booking.startTime} - ${booking.endTime} (NPT)
           - Video Call Link: ${meetLink}
@@ -95,7 +112,7 @@ cron.schedule("* * * * *", async () => {
     )} (BS, NPT), date: ${formattedDate}, time: ${formattedTime} (NPT)`
   );
   console.log(
-    `Query: { date: "${formattedDate}", endTime: { $lte: "${formattedTime}" }, status: "Pending" }`
+    `Query: { date: "${formattedDate}", endTime: { $lte: "${formattedTime}" }, status: "Ongoing" }`
   );
 
   try {
@@ -103,7 +120,7 @@ cron.schedule("* * * * *", async () => {
       {
         date: formattedDate,
         endTime: { $lte: formattedTime },
-        status: "Pending",
+        status: "Ongoing",
       },
       { status: "Completed" }
     );

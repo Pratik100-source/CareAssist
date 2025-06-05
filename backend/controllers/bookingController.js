@@ -145,7 +145,7 @@ const handle_cancellation = async (req, res) => {
   try {
     const booking = await OBooking.findByIdAndUpdate(
       bookingId,
-      { status: "cancelled", refund: "no" },
+      { status: "Cancelled", refund: "no" },
       { new: true }
     );
     if (!booking) {
@@ -156,7 +156,141 @@ const handle_cancellation = async (req, res) => {
     console.error("Error updating the booking status:", error);
     res.status(500).json({ message: "Failed to update the booking status" });
   }
+  };
+
+
+  const updateHomeBooking = async (req, res) => {
+    const { bookingId, transactionId } = req.body;
+    try {
+      const booking = await HBooking.findByIdAndUpdate(
+        bookingId,
+        {
+          transactionId,
+          status: "completed",
+          paymentMethod: "online",
+        },
+        { new: true }
+      );
+  
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+  
+      res.status(200).json({ message: "Booking updated successfully", booking });
+      console.log("Updating booking:", { bookingId, transactionId });
+    } catch (error) {
+      console.error("Error updating the booking status:", error);
+      res.status(500).json({ message: "Failed to update the booking status" });
+    }
+  };
+  
+
+const getHomeBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await HBooking.findById(bookingId);
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching booking", error });
+  }
 };
+
+const updateBooking = async (req, res) => {
+  const { bookingId, paidOut } = req.body;
+
+  try {
+    // First try to find and update as Home Booking
+    let booking = await HBooking.findByIdAndUpdate(
+      bookingId,
+      { paidOut: paidOut },
+      { new: true, runValidators: true }
+    );
+
+    // If not found as Home Booking, try as Online Booking
+    if (!booking) {
+      booking = await OBooking.findByIdAndUpdate(
+        bookingId,
+        { paidOut: paidOut },
+        { new: true, runValidators: true }
+      );
+    }
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({
+      message: "Booking updated successfully",
+      booking,
+      bookingType: booking instanceof HBooking ? "Home" : "Online"
+    });
+
+  } catch (error) {
+    console.error("Error updating booking:", error);
+    res.status(500).json({ 
+      message: "Failed to update booking",
+      error: error.message 
+    });
+  }
+};
+
+// const updatePayoutStatus = async (req, res) => {
+//   const { bookingId, transactionId, paidOut, payoutDate } = req.body;
+
+//   if (!bookingId || !transactionId) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "Missing required fields"
+//     });
+//   }
+
+//   try {
+//     // Try to update online booking first
+//     let updatedBooking = await OBooking.findByIdAndUpdate(
+//       bookingId,
+//       {
+//         paidOut,
+//         payoutDate,
+//         payoutTransactionId: transactionId
+//       },
+//       { new: true }
+//     );
+
+//     // If not found in online bookings, try home bookings
+//     if (!updatedBooking) {
+//       updatedBooking = await HBooking.findByIdAndUpdate(
+//         bookingId,
+//         {
+//           paidOut,
+//           payoutDate,
+//           payoutTransactionId: transactionId
+//         },
+//         { new: true }
+//       );
+//     }
+
+//     if (!updatedBooking) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Booking not found"
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Payout status updated successfully",
+//       booking: updatedBooking
+//     });
+
+//   } catch (error) {
+//     console.error("Error updating payout status:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to update payout status",
+//       error: error.message
+//     });
+//   }
+// };
 
 module.exports = {
   saveOnlineBooking,
@@ -167,4 +301,7 @@ module.exports = {
   getBookingById,
   updateProfessionalLocation,
   handle_cancellation,
+  updateHomeBooking,
+  getHomeBooking,
+  updateBooking,
 };

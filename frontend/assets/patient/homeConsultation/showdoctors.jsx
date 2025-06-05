@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "../../professionals/context/SocketContext";
 import Doctors from "../../images/doctors.svg";
-
+import { api } from "../../../services/authService";
 function ShowDoctors() {
   // State declarations
   const [professionalData, setProfessionalsData] = useState([]);
@@ -70,19 +70,15 @@ function ShowDoctors() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const professionalResponse = await fetch("http://localhost:3003/api/display/getprofessional", {
-          credentials: "include",
-        });
-        if (!professionalResponse.ok) throw new Error("Failed to fetch professional data");
-        const data = await professionalResponse.json();
-        const filteredData = data.filter(
+        const professionalResponse = await api.get(`/display/getprofessional`);
+        const filteredData = professionalResponse.data.filter(
           (professional) =>
             (professional.consultationMethod === "home" || professional.consultationMethod === "both") &&
             professional.status === true
         );
         setProfessionalsData(filteredData);
       } catch (error) {
-        setError(error.message);
+        setError(error.message || "Failed to fetch professional data");
       } finally {
         setLoading(false);
       }

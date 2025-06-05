@@ -6,6 +6,8 @@ import { IoClose } from 'react-icons/io5';
 import NoData from '../error/noData/noData';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { api } from '../../services/authService';
+import { useSocket } from '../professionals/context/SocketContext';
 
 const DisplayProfessional = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,13 +18,15 @@ const DisplayProfessional = () => {
   const [selectedProfessional, setSelectedProfessional] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const { socket } = useSocket();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     number: '',
     profession: '',
     specialization: '',
-    consultationMethod: ''
+    consultationMethod: '',
+    user_status: ''
   });
 
   useEffect(() => {
@@ -31,14 +35,10 @@ const DisplayProfessional = () => {
 
   const fetchProfessional = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/display/getprofessional');
-      if (!response.ok) {
-        throw new Error('Failed to fetch professional data');
-      }
-      const data = await response.json();
-      setProfessionalsData(data);
+      const response = await api.get('/display/getprofessional');
+      setProfessionalsData(response.data);
     } catch (error) {
-      setError(error.message);
+      setError(error.message || 'Failed to fetch professional data');
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,8 @@ const DisplayProfessional = () => {
       number: professional.number || '',
       profession: professional.profession || '',
       specialization: professional.specialization || '',
-      consultationMethod: professional.consultationMethod || ''
+      consultationMethod: professional.consultationMethod || '',
+      user_status: professional.user_status || ''
     });
     setShowEditForm(true);
   };
@@ -68,20 +69,27 @@ const DisplayProfessional = () => {
 
   const handleConfirmSave = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/edit/edit-professional', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          originalEmail: selectedProfessional.email,
-          ...formData
-        }),
+      // Store the previous status to check if it changed
+      const previousStatus = selectedProfessional.user_status;
+
+      const response = await api.put('/edit/edit-professional', {
+        originalEmail: selectedProfessional.email,
+        ...formData
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update professional information');
+      // Only emit socket event if status is changed to blocked
+      if (previousStatus === 'active' && formData.user_status === 'blocked' && socket) {
+        console.log("Emitting block status:", {
+          userEmail: selectedProfessional.email,
+          userType: "Professional",
+          newStatus: formData.user_status
+        });
+        
+        socket.emit("userStatusChanged", {
+          userEmail: selectedProfessional.email,
+          userType: "Professional",
+          newStatus: formData.user_status
+        });
       }
 
       toast.success('Professional updated successfully!');
@@ -124,24 +132,12 @@ const DisplayProfessional = () => {
   const handleDeleteProfessional = async (professionalEmail) => {
     if (window.confirm('Are you sure you want to delete this professional?')) {
       try {
-        const response = await fetch(
-          `http://localhost:3003/api/delete/delete-professional/${professionalEmail}`, 
-          {
-            method: 'DELETE',
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error('Failed to delete professional');
-        }
+        const response = await api.delete(`/delete/delete-professional/${professionalEmail}`);
         
         toast.success('Professional deleted successfully!');
         fetchProfessional();
       } catch (error) {
-        toast.error(error.message);
+        toast.error(error.message || 'Failed to delete professional');
       }
     }
   };
@@ -172,6 +168,7 @@ const DisplayProfessional = () => {
             <th>Profession</th>
             <th>Specialization</th>
             <th>Consult Method</th>
+            <th>Status</th>
             <th>Documents</th>
             <th>Action</th>
           </tr>
@@ -185,6 +182,7 @@ const DisplayProfessional = () => {
               <td>{professional.profession}</td>
               <td>{professional.specialization || "None"}</td>
               <td>{professional.consultationMethod}</td>
+              <td>{professional.user_status || "active"}</td>
               <td>
                 <div className='document_view' onClick={() => handleViewClick(professional)}>
                   <CgFileDocument className='view_button' />
@@ -330,6 +328,21 @@ const DisplayProfessional = () => {
                   <option value="In-person">In-person</option>
                   <option value="Online">Online</option>
                   <option value="Both">Both</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="user_status">User Status</label>
+                <select
+                  id="user_status"
+                  name="user_status"
+                  value={formData.user_status}
+                  onChange={handleInputChange}
+                  required
+                >
+                  {/* <option value="">Select Status</option> */}
+                  <option value="active">Active</option>
+                  <option value="blocked">Blocked</option>
                 </select>
               </div>
 

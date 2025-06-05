@@ -11,14 +11,14 @@ import { useDispatch } from "react-redux";
 import { showLoader} from "../../features/loaderSlice"
 
 
-
-
-const PatientHome = () => {
+const Home = () => {
   const navigate = useNavigate(); // Initialize the navigate function
+  
   const [isLoginClicked, setIsLoginClicked] = useState(false);
   const [isSignupClicked, setIsSignupClicked] = useState(false);
+  
+  
 
- 
   const location= useLocation();
   const dispatch = useDispatch();
 
@@ -29,7 +29,7 @@ const PatientHome = () => {
        
         dispatch(showLoader());
         window.scrollTo({ top: 0, behavior: "auto" });
-  
+        
        
         setTimeout(() => {
           localStorage.removeItem("reload"); 
@@ -47,6 +47,7 @@ const PatientHome = () => {
     reload_window();
   }, [location]);
 
+    
 
   const handleLoginClick = () => {  
     navigate("/", {state:{reload:true}});
@@ -126,4 +127,4 @@ const PatientHome = () => {
   );
 };
 
-export default PatientHome;
+export default Home;

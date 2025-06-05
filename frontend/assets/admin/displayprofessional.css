@@ -53,21 +53,24 @@
 }
 
 .edit-button {
-  background-color: #ff3131;
-  color: white;
+  color: black;
+  background-color: white;
 }
 
 .edit-button:hover {
-  background-color: #b8100ad7;
-}
-
-.delete-button {
   background-color: #ff3131;
   color: white;
 }
 
+.delete-button {
+  color: black;
+  background-color: white;
+}
+
 .delete-button:hover {
-  background-color: #b8100ad7;
+  color: white;
+  background-color: #ff3131;
+    
 }
 
 .document_view {
@@ -76,7 +79,6 @@
 
 .view_button {
   font-size: 1.2rem;
-  color: #ff3131;
   transition: color 0.2s;
 }
 

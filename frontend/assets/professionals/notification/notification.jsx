@@ -5,7 +5,7 @@ import { useSocket } from "../context/SocketContext";
 import { toast } from "react-toastify";
 import { FaTrash, FaCheck, FaCheckDouble } from 'react-icons/fa';
 import "./notification.css";
-
+import { api } from "../../../services/authService";
 // Helper function to format relative time
 const formatRelativeTime = (dateString) => {
   const now = new Date();
@@ -118,12 +118,9 @@ function ProfessionalNotification({ isDropdown = false }) {
     const fetchPendingBookings = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`http://localhost:3003/api/booking/pending/${professionalEmail}`, {
-          credentials: "include",
-        });
-        if (!response.ok) throw new Error("Failed to fetch pending bookings");
+        await api.get(`/booking/pending/${professionalEmail}`);
       } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error("Error fetching bookings:", error.message || "Failed to fetch pending bookings");
         toast.error("Failed to load bookings");
       } finally {
         setIsLoading(false);
@@ -181,14 +178,8 @@ function ProfessionalNotification({ isDropdown = false }) {
     
     try {
       professionalLocation = await requestLocationPermission(bookingId);
-      const response = await fetch(`http://localhost:3003/api/booking/update-location/${bookingId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ professionalLocation }),
-        credentials: "include",
-      });
+      await api.put(`/booking/update-location/${bookingId}`, {professionalLocation});
       
-      if (!response.ok) throw new Error("Failed to update professional location");
       acceptBooking(bookingId, professionalEmail);
       setTimeout(() => {
         navigate(`/active-booking/${bookingId}`)

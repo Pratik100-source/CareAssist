@@ -2,7 +2,8 @@ import React from "react";
 import "./makeAppointment.css";
 import { useSelector } from "react-redux";
 import KhaltiLogo from "../../images/khalti_icon.png"
-import axios from "axios";
+import { api } from "../../../services/authService";
+import { toast } from "react-toastify";
 
 const MakeAppointment = () => {
   const patient = useSelector((state) => (state.user));
@@ -21,16 +22,17 @@ const MakeAppointment = () => {
           email: patient.email,
           phone: patient.number.toString(),
         },
-        return_url: "http://localhost:5173/paymentSuccess",
+        bookingType: "online",
+        return_url: "http://localhost:5173/onlinePaymentSuccess",
       };
 
-      const response = await axios.post("http://localhost:3003/api/payment/initiate-payment", payload);
+      const response = await api.post(`/payment/initiate-payment`, payload);
       if (response.data.payment_url) {
-        window.location.href = response.data.payment_url
+        window.location.href = response.data.payment_url;
       }
     } catch (error) {
       console.error("Payment error:", error.response?.data || error.message);
-      alert("Payment failed. Please try again.");
+      toast.error("Payment failed. Please try again.");
     }
   };
 

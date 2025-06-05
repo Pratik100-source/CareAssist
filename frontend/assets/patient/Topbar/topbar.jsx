@@ -29,7 +29,7 @@ const Topbar = ({ onProfileClick }) => {
   const { joinUserRoom, markAllAsRead } = useSocket();
 
   // Get user data from token
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   const user = useSelector((state) => state.user);
   const gender = user.gender;
   const name = user.firstname;
@@ -65,7 +65,7 @@ const Topbar = ({ onProfileClick }) => {
   const handleLogout = async () => {
     dispatch(showLoader());
     try {
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
       await new Promise(resolve => setTimeout(resolve, 500));
       dispatch(logout());
       navigate("/", { state: { reload: true } });

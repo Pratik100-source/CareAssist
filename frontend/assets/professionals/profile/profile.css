@@ -72,6 +72,8 @@
   color: #ffffff;
   font-size: 1.5rem;
   margin: 0 auto 1rem;
+  background-size: cover;
+  background-position: center;
 }
 .professional_dashboard ul li .profile_picture_female {
   width: 80px;

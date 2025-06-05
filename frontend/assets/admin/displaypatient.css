@@ -53,8 +53,8 @@
 }
 
 .edit-button {
-  background-color: #ff3131;
-  color: white;
+  color: black;
+  background-color: white;
 }
 
 .edit-button:hover {
@@ -62,8 +62,8 @@
 }
 
 .delete-button {
-  background-color: #ff3131;
-  color: white;
+  color: black;
+  background-color: white;
 }
 
 .delete-button:hover {

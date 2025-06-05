@@ -1,0 +1,65 @@
+.verification-response {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.verification-response h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.verification-response .form-group {
+  margin-bottom: 15px;
+}
+
+.verification-response label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.verification-response select,
+.verification-response textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.verification-response select {
+  background-color: white;
+  cursor: pointer;
+}
+
+.verification-response textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.verification-response .submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.verification-response .submit-btn:hover {
+  background-color: #45a049;
+}
+
+.verification-response .submit-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+} 

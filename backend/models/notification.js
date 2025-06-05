@@ -14,6 +14,8 @@ const notificationSchema = new mongoose.Schema({
       "booking-completed",
       "message",
       "general",
+      "verification-request",
+      "verification-response",
     ],
     required: true,
   },

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./bookedAppointment.css";
 import NoBookingHistory from "../../error/notAvailable/noBookingHistory";
 import ViewMore from "../../viewMore/viewMore"; // Import the ViewMore component
-
+import { api } from "../../../services/authService";
 const BookedAppointment = () => {
   const user = useSelector((state) => state.user);
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -19,19 +19,16 @@ const BookedAppointment = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("http://localhost:3003/api/booking/get-every-booking");
-        if (!response.ok) {
-          throw new Error("Failed to fetch booking data");
-        }
-        const data = await response.json();
+        const response = await api.get(`/booking/get-every-booking`);
+        const data = response.data;
 
         const pendingBookings = data.filter(booking => 
           ((userType === "patient" ? booking.patientEmail : booking.professionalEmail) === user.email) && 
-          (booking.status === "Pending" || booking.status === "ongoing")
+          (booking.status.toLowerCase() === "pending" || booking.status.toLowerCase() === "ongoing")
         );
 
         const formattedBookings = pendingBookings.map((booking, index) => ({
-          _id: booking._id, // Add _id for booking details fetch
+          _id: booking._id, 
           id: index + 1,
           urgency: booking.bookingType,
           appNo: booking.token,
@@ -48,7 +45,7 @@ const BookedAppointment = () => {
 
         setBookingHistory(formattedBookings);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Failed to fetch booking data");
       } finally {
         setLoading(false);
       }
@@ -61,7 +58,7 @@ const BookedAppointment = () => {
     if (booking.urgency === "Online") {
       setSelectedBooking(booking); // Open overlay for online bookings
     } else {
-      navigate('/hero'); // Navigate to /hero for home bookings
+      navigate(`/active-booking/${booking._id}`); 
     }
   };
 

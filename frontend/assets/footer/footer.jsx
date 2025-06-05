@@ -20,8 +20,8 @@ return(
         <p className="heading">Services</p>
           <ul>
             
-          <li><a href="">Online Consultation</a></li>
-          <li><a href="">Home Booking</a></li>
+          <li>Online Consultation</li>
+          <li>Home Booking</li>
 
           </ul>
       </section>
@@ -29,9 +29,8 @@ return(
        
        <p className="heading">Quick links</p>
        <ul>
-       <li><a href="">Find Professionals</a></li>
-       <li><a href="">Video Counselling</a></li>
-       <li><a href="">How it works</a></li>
+       <li><a href="/showhomedoctors">Find Professionals</a></li>
+       <li><a href="/showdoctors">Video Counselling</a></li>
        
        </ul>
       </section>

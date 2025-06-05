@@ -144,7 +144,7 @@
     background: var(--white);
     flex-direction: column-reverse;
     align-items: flex-start;
-    padding: 100px 30px 30px 30px;
+    padding:300px 30px 12rem 30px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
     z-index: 1000;

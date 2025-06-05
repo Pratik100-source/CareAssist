@@ -5,6 +5,8 @@ import { showLoader, hideLoader } from "../../../features/loaderSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
+import { api } from "../../../services/authService";
+import { useSocket } from '../../professionals/context/SocketContext';
 
 const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}) => {
   const [selectedProfession, setSelectedProfession] = useState("");
@@ -12,12 +14,21 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
   const [documentFile, setDocumentFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const timeOptions = Array.from({ length: 24 }, (_, i) => {
+    const hour = i < 10 ? `0${i}:00` : `${i}:00`;
+    return hour;
+  });
+
+  const [startTime, setStartTime] = useState(timeOptions[0]);
+  const [endTime, setEndTime] = useState(timeOptions[1]);
+  
   const professional = useSelector((state) => state.user);
   const professional_email = professional.email;
 
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const { socket } = useSocket();
   const doctorSpecializations = [
     "Gynecologist",
     "Orthopedist",
@@ -28,11 +39,6 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
     "Cardiologist",
     "Neurologist",
   ];
-
-  const timeOptions = Array.from({ length: 24 }, (_, i) => {
-    const hour = i < 10 ? `0${i}:00` : `${i}:00`;
-    return hour;
-  });
 
   const daysOfWeek = [
     "Sunday",
@@ -64,19 +70,7 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
 
   const saveToMongoDB = async (photoUrl, documentUrl, formData) => {
     console.log(formData);
-    const response = await fetch(
-      "http://localhost:3003/api/verification/saveVerification",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: professional_email,
-          photoUrl,
-          documentUrl,
-          ...formData,
-        }),
-      }
-    );
+    const response = await api.post(`/verification/saveVerification`, {email: professional_email, photoUrl, documentUrl, ...formData});
 
     if (!response.ok) throw new Error("Failed to save profile data");
   };
@@ -90,11 +84,12 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
     const formData = {
       experience: form.experience.value,
       charge: form.charge.value,
+      khalti_wallet: form.khalti_wallet.value,
       profession: form.profession.value,
       specialization: form.specialization?.value || "",
       consultationMethod: form.consultationMethod.value,
-      startTime: form.startTime.value,
-      endTime: form.endTime.value,
+      startTime: startTime,
+      endTime: endTime,
       availableDays: Array.from(form["availableDays"])
         .filter((input) => input.checked)
         .map((input) => input.value),
@@ -114,10 +109,6 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
     } catch (error) {
       dispatch(hideLoader());
       console.error("Error submitting profile:", error);
-      toast.error(
-        "Failed to submit verification information. Please try later",
-        { position: "top-right", autoClose: 3000 }
-      );
   
     } finally {
       setIsSubmitting(false);
@@ -126,13 +117,19 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
       handleVerificationTrigger();
       dispatch(hideLoader());
       toast.success("Verification has been submitted", {position:"top-right", autoClose:3000})
+
+       // Emit socket event for booking cancellation
+       if (socket) {
+        socket.emit("VerificationUpdate", {
+          professionalEmail: professional_email,
+        });
+      }
     
     }
   };
 
   return (
     <form className="professional-verification" onSubmit={handleSubmit}>
-      <h2 className="profile-title">Professional Profile Setup</h2>
       <div className="form-sections">
         <div className="form-section left-section">
           <div className="form-group">
@@ -230,6 +227,16 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
                 className="form-control"
                 required
                 disabled={isSubmitting}
+                value={startTime}
+                onChange={(e) => {
+                  setStartTime(e.target.value);
+                  // Reset endTime if it's now invalid
+                  const startIdx = timeOptions.indexOf(e.target.value);
+                  const endIdx = timeOptions.indexOf(endTime);
+                  if (endIdx <= startIdx) {
+                    setEndTime(timeOptions[startIdx + 1] || "");
+                  }
+                }}
               >
                 {timeOptions.map((time) => (
                   <option key={`start-${time}`} value={time}>
@@ -243,12 +250,16 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
                 className="form-control"
                 required
                 disabled={isSubmitting}
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
               >
-                {timeOptions.map((time) => (
-                  <option key={`end-${time}`} value={time}>
-                    {time}
-                  </option>
-                ))}
+                {timeOptions
+                  .filter((time) => timeOptions.indexOf(time) > timeOptions.indexOf(startTime))
+                  .map((time) => (
+                    <option key={`end-${time}`} value={time}>
+                      {time}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
@@ -278,6 +289,21 @@ const ProfessionalVerification = ({handleVerifyClick, handleVerificationTrigger}
                 className="form-control"
                 placeholder="Ruppee"
                 min="0"
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Khalti Wallet Number</label>
+            <div className="number_input">
+              <input
+                type="text"
+                name="khalti_wallet"
+                className="form-control"
+                placeholder="Enter your Khalti Wallet Number"
+                minLength={10}
+                maxLength={10}
                 required
                 disabled={isSubmitting}
               />

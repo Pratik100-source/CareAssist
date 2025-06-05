@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './viewMore.css';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../services/authService';
+import { useSocket } from '../professionals/context/SocketContext';
 
 const ViewMore = ({ booking, onClose }) => {
   const [patientInfo, setPatientInfo] = useState(null);
@@ -11,6 +13,7 @@ const ViewMore = ({ booking, onClose }) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const bookingId = booking._id;
+  const { socket } = useSocket();
   
 
 
@@ -21,34 +24,16 @@ const ViewMore = ({ booking, onClose }) => {
         setLoading(true);
         // Fetch all data in parallel
         const [patientResponse, profResponse, bookingResponse] = await Promise.all([
-          fetch("http://localhost:3003/api/display/getpatientInfo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: booking.patientEmail })
-          }),
-          fetch("http://localhost:3003/api/display/getprofessionalInfo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: booking.professionalEmail })
-          }),
-          fetch(`http://localhost:3003/api/booking/${bookingId}`)
+          api.post(`/display/getpatientInfo`, {email: booking.patientEmail}),
+          api.post(`/display/getprofessionalInfo`, {email: booking.professionalEmail}),
+          api.get(`/booking/${bookingId}`)
         ]);
 
-        if (!patientResponse.ok || !profResponse.ok || !bookingResponse.ok) {
-          throw new Error('Failed to fetch booking details');
-        }
-
-        const [patientData, profData, bookingData] = await Promise.all([
-          patientResponse.json(),
-          profResponse.json(),
-          bookingResponse.json()
-        ]);
-
-        setPatientInfo(patientData.result);
-        setProfessionalInfo(profData.result);
-        setBookingDetails(bookingData);
+        setPatientInfo(patientResponse.data.result);
+        setProfessionalInfo(profResponse.data.result);
+        setBookingDetails(bookingResponse.data);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to fetch booking details');
       } finally {
         setLoading(false);
       }
@@ -60,20 +45,24 @@ const ViewMore = ({ booking, onClose }) => {
   const handleCancelBooking = async () => {
     try {
       setIsCancelling(true);
-      const response = await fetch(`http://localhost:3003/api/booking/cancel/${bookingId}`, {
-        method: 'POST'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to cancel booking');
+      const response = await api.post(`/booking/cancel/${bookingId}`);
+      
+      // Emit socket event for booking cancellation
+      if (socket && bookingDetails) {
+        socket.emit("bookingCancelled", {
+          patientEmail: booking.patientEmail,
+          professionalEmail: booking.professionalEmail,
+          date: bookingDetails.date,
+          time: bookingDetails.startTime
+        });
       }
 
       // Close both dialogs and trigger a refresh
       setShowCancelConfirm(false);
       onClose();
-      navigate("/patientProfile/bookingHistory")
+      navigate("/patientProfile/bookingHistory");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to cancel booking');
     } finally {
       setIsCancelling(false);
     }

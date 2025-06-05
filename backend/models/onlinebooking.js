@@ -10,10 +10,11 @@ const onlinebookingSchema = new mongoose.Schema({
   startTime: { type: String, required: true },
   endTime: { type: String, required: true },
   meetLink: { type: String, default: null },
-  status: { type: String, default: "Pending" },
+  status: { type: String, default: "Pending", enum: ["Pending", "Completed", "Cancelled", "Ongoing"] },
   charge: { type: Number, required: true },
   refund: { type: String, enum: ["no", "yes"], default: null },
   transactionId: { type: String, required: true },
+  paidOut: { type: Boolean, default: false },
 });
 
 const OBooking = mongoose.model("OBooking", onlinebookingSchema);

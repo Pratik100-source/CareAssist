@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { showLoader, hideLoader } from "../../../features/loaderSlice";
-
+import { api } from '../../services/authService';
 const RefundSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,8 +25,8 @@ const RefundSuccess = () => {
 
       try {
         dispatch(showLoader());
-        const response = await axios.post(
-          "http://localhost:3003/api/payment/verify-payment",
+        const response = await api.post(
+          "/payment/verify-payment",
           { pidx }
         );
 

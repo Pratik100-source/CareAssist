@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
-
+import { api } from "../../services/authService";
 const Signup = ({ redirectToLogin, crossSignup }) => {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
@@ -72,12 +72,7 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
       }
 
       if (check_email_format(email)) {
-        const response = await axios.post(
-          "http://localhost:3003/api/otp/sendOtp",
-          {
-            email: email,
-          }
-        );
+        const response = await api.post(`/otp/sendOtp`, {email: email});
         if (response.data.message === "Email already registered") {
           toast.error("Email is already registered", {
             position: "top-right",
@@ -126,29 +121,55 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:3003/api/otp/verifyOtp",
-        { otp }
-      );
+      // Show loading toast
+      const loadingToast = toast.loading("Verifying OTP...", {
+        position: "top-right"
+      });
+      
+      try {
+        const response = await api.post(`/otp/verifyOtp`, {otp: otp});
+        
+        // Dismiss loading toast
+        toast.dismiss(loadingToast);
 
-      if (response.data.message === "OTP verified successfully") {
-        setStep(3);
-        toast.success("OTP verified", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      if (error.response) {
-        toast.error(
-          `Error: ${error.response.data.message || "Failed to verify OTP"}`,
-          {
+        if (response.data.message === "OTP verified successfully") {
+          setStep(3);
+          toast.success("OTP verified successfully", {
             position: "top-right",
             autoClose: 3000,
-          }
-        );
+          });
+        } else {
+          toast.error("Invalid OTP. Please try again.", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      } catch (error) {
+        // Dismiss loading toast
+        toast.dismiss(loadingToast);
+        
+        console.error("Error verifying OTP:", error);
+        if (error.response) {
+          toast.error(
+            error.response.data.message || "Failed to verify OTP",
+            {
+              position: "top-right",
+              autoClose: 3000,
+            }
+          );
+        } else {
+          toast.error("Network error. Please try again later.", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
       }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -231,10 +252,10 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
       try {
         const url =
           role === "patient"
-            ? "http://localhost:3003/api/auth/patientSignup"
-            : "http://localhost:3003/api/auth/professionalSignup";
+            ? "/auth/patientSignup"
+            : "/auth/professionalSignup";
 
-        await axios.post(url, formData);
+        await api.post(url, formData);
         toast.success("Signup successful", {
           position: "top-right",
           autoClose: 3000,
@@ -367,6 +388,8 @@ const Signup = ({ redirectToLogin, crossSignup }) => {
                   placeholder="Mobile Number"
                   value={formData.number}
                   onChange={handleInputChange}
+                  minLength={10}
+                  maxLength={10}
                   required
                 />
                 <select

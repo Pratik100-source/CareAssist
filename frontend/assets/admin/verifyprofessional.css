@@ -87,8 +87,8 @@
   background-color: white;
   padding: 40px;
   border-radius: 10px;
-  /* width: 29%; */
-  min-width: 29%;
+  min-width: 400px;
+  max-width: 600px;
   position: relative;
   display: flex;
   flex-direction: row;
@@ -125,7 +125,16 @@
 
 .download-button,
 .update_button {
-  background-color: #007bff;
+  background-color:   #ff3131;;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.download-button,
+.update_button:hover {
+  background-color:#b8100ad7;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -142,18 +151,62 @@
   cursor: pointer;
 }
 .download-button:hover {
-  background-color: #0056b3;
+  background-color: #b8100ad7;
 }
 
 .edit_insider {
-  display: flex;
+  padding: 20px;
 }
 
 .edit_insider select {
-  margin-top: 20px;
-  margin-right: 10px;
-}
-.edit_insider button {
+  margin-bottom: 15px;
+  padding: 8px;
   width: 100%;
-  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.update_button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background-color: #ff3131;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.update_button:hover {
+  background-color: #b8100ad7;
+}
+
+.message-group {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.message-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.message-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 100px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.message-group textarea:focus {
+  outline: none;
+  border-color: #ff3131;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
 }

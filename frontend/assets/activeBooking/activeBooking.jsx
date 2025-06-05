@@ -12,6 +12,7 @@ import { Navigate } from "react-router-dom";
 import { IoSend } from "react-icons/io5";
 import MalePhoto from "../images/male.jpg";
 import FemalePhoto from "../images/female.jpg";
+import { api } from "../../services/authService";
 
 // Define custom icons for patient and professional
 const patientIcon = new L.Icon({
@@ -72,21 +73,14 @@ const ActiveBooking = () => {
   useEffect(() => {
     const fetchChatMessages = async () => {
       try {
-        const response = await fetch(`http://localhost:3003/api/chat/${bookingId}`, {
-          method: "Post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) throw new Error("Failed to fetch chat messages");
-        const data = await response.json();
-
-        if (data && data.messages) {
+        const response = await api.post(`/chat/${bookingId}`);
+        
+        if (response.data && response.data.messages) {
           // Sort messages by timestamp
-          const sortedMessages = data.messages
+          const sortedMessages = response.data.messages
             .map((msg) => ({
               senderEmail: msg.senderEmail,
-              receiverEmail: data.participants.find((p) => p !== msg.senderEmail),
+              receiverEmail: response.data.participants.find((p) => p !== msg.senderEmail),
               message: msg.message,
               timestamp: msg.timestamp,
             }))
@@ -94,7 +88,7 @@ const ActiveBooking = () => {
           setMessages(sortedMessages);
         }
       } catch (error) {
-        console.error("Error fetching chat messages:", error);
+        console.error("Error fetching chat messages:", error.message || "Failed to fetch chat messages");
         toast.error("Failed to load chat messages");
       }
     };
@@ -130,20 +124,17 @@ const ActiveBooking = () => {
 
     const fetchBooking = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3003/api/booking/${bookingId}`,
-          {
-            // credentials: "include",
-          }
-        );
-        if (response.status===404){throw new Error(`Failed to fetch booking: ${response.status}`);}
-        else if(response.status===403){throw new Error("The booking is already completed")};
-          
-        const data = await response.json();
-        console.log("Booking data:", data);
-        setBooking(data);
-        setPatientLocation(parseLocation(data.location.patientLocation));
-        setProfessionalLocation(parseLocation(data.location.professionalLocation));
+        const response = await api.get(`/booking/home-booking/${bookingId}`);
+        if (response.status === 404) {
+          throw new Error(`Failed to fetch booking: ${response.status}`);
+        } else if (response.status === 403) {
+          throw new Error("The booking is already completed");
+        }
+        
+        console.log("Booking data:", response.data);
+        setBooking(response.data);
+        setPatientLocation(parseLocation(response.data.location.patientLocation));
+        setProfessionalLocation(parseLocation(response.data.location.professionalLocation));
       } catch (error) {
         console.error("Error loading booking details:", error.message);
         setFetchError(error.message);
@@ -195,19 +186,8 @@ const ActiveBooking = () => {
 
     const fetchPatientDetails = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3003/api/display/getpatientInfo",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: booking.patientEmail }),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch patient details");
-        const data = await response.json();
-        setPatientDetails(data.result);
+        const response = await api.post(`/display/getpatientInfo`, {email: booking.patientEmail});
+        setPatientDetails(response.data.result);
       } catch (error) {
         console.error("Error fetching patient details:", error);
         toast.error("Failed to load patient details");
@@ -216,20 +196,8 @@ const ActiveBooking = () => {
 
     const fetchProfessionalDetails = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3003/api/display/getprofessionalInfo",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: booking.professionalEmail }),
-          }
-        );
-        if (!response.ok)
-          throw new Error("Failed to fetch professional details");
-        const data = await response.json();
-        setProfessionalDetails(data.result);
+        const response = await api.post(`/display/getprofessionalInfo`, {email: booking.professionalEmail});
+        setProfessionalDetails(response.data.result);
       } catch (error) {
         console.error("Error fetching professional details:", error);
         toast.error("Failed to load professional details");
@@ -280,27 +248,33 @@ const ActiveBooking = () => {
   };
 
   const initiateOnlinePayment = async () => {
+    const total_amount = (professionalDetails?.charge * 100); 
     try {
-      const response = await fetch(
-        "http://localhost:3003/api/payment/initiate",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: 1000,
-            purchase_order_id: bookingId,
-            purchase_order_name: "Booking Payment",
-            customer_info: { email: userEmail },
-          }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to initiate payment");
-      const data = await response.json();
-      window.location.href = data.payment_url;
+      const payload = {
+        amount: total_amount,
+        purchase_order_id: `order_${Date.now()}`,
+        purchase_order_name: "Appointment Fee",
+        customer_info: {
+          name: `${patientDetails.firstname} ${patientDetails.lastname}`,
+          email: patientDetails.email,
+          phone: patientDetails.number.toString(),
+        },
+        bookingType: "home",
+        bookingId: bookingId,
+        return_url: `http://localhost:5173/homePaymentSuccess`,
+      };
+
+      const response = await api.post(`/payment/initiate-payment`, payload);
+      if (response.data.payment_url) {
+        window.location.href = response.data.payment_url;
+      }
     } catch (error) {
-      toast.error("Failed to initiate online payment");
+      console.error("Payment error:", error.response?.data || error.message);
+      toast.error("Payment failed. Please try again.");
     }
   };
+
+
 
   if (!userType || (userType !== "patient" && userType !== "professional")) {
     console.log("ActiveBooking - invalid userType, redirecting to /");

@@ -5,6 +5,8 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { IoClose } from 'react-icons/io5';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { api, authService } from '../../services/authService';
+import { useSocket } from '../professionals/context/SocketContext';
 
 const Displaypatient = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,12 +16,14 @@ const Displaypatient = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const { socket } = useSocket();
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
     number: '',
     gender: '',
-    birthdate: ''
+    birthdate: '',
+    user_status: ''
   });
 
   // Calculate max date (today - 18 years)
@@ -38,14 +42,20 @@ const Displaypatient = () => {
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/display/getpatient');
-      if (!response.ok) {
-        throw new Error('Failed to fetch patient data');
-      }
-      const data = await response.json();
-      setPatientsData(data);
+      // Debug authentication status
+      const token = localStorage.getItem('accessToken');
+      console.log('Auth check before fetchPatients:', { 
+        isAuthenticated: authService.isAuthenticated(),
+        tokenExists: !!token,
+        tokenFirstChars: token ? token.substring(0, 10) + '...' : 'none'
+      });
+      
+      const response = await api.get('/display/getpatient');
+      setPatientsData(response.data);
     } catch (error) {
-      setError(error.message);
+      console.error('Error details:', error.response || error);
+      setError(error.message || error.response?.data?.message || 'Failed to fetch patient data');
+      toast.error(`Error loading patients: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -58,7 +68,8 @@ const Displaypatient = () => {
       lastname: patient.name.split(' ')[1] || '',
       number: patient.number || '',
       gender: patient.gender || '',
-      birthdate: patient.birthdate.split('T')[0] || ''
+      birthdate: patient.birthdate.split('T')[0] || '',
+      user_status: patient.user_status || ''
     });
     setShowEditForm(true);
   };
@@ -74,21 +85,28 @@ const Displaypatient = () => {
 
   const handleConfirmSave = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/edit/edit-patient', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: selectedPatient.email,
-          ...formData,
-          name: `${formData.firstname} ${formData.lastname}`
-        }),
+      // Store the previous status to check if it changed
+      const previousStatus = selectedPatient.user_status;
+
+      const response = await api.put('/edit/edit-patient', {
+        email: selectedPatient.email,
+        ...formData,
+        name: `${formData.firstname} ${formData.lastname}`
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update patient information');
+      // Only emit socket event if status is changed to blocked
+      if (previousStatus === 'active' && formData.user_status === 'blocked' && socket) {
+        console.log("Emitting block status:", {
+          userEmail: selectedPatient.email,
+          userType: "Patient",
+          newStatus: formData.user_status
+        });
+        
+        socket.emit("userStatusChanged", {
+          userEmail: selectedPatient.email,
+          userType: "Patient",
+          newStatus: formData.user_status
+        });
       }
 
       toast.success('Patient updated successfully!');
@@ -96,31 +114,22 @@ const Displaypatient = () => {
       setShowConfirmation(false);
       setShowEditForm(false);
     } catch (error) {
-      toast.error(error.message || 'Update failed');
+      toast.error(error.message || error.response?.data?.message || 'Update failed');
     }
   };
 
   const handleDeletePatient = async (patientEmail) => {
     if (window.confirm('Are you sure you want to delete this patient?')) {
       try {
-        const response = await fetch(
-          `http://localhost:3003/api/delete/delete-patient/${patientEmail}`, 
-          {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error('Failed to delete patient');
-        }
+        setLoading(true);
+        await api.delete(`/delete/delete-patient/${patientEmail}`);
         
         toast.success('Patient deleted successfully!');
         fetchPatients();
       } catch (error) {
-        toast.error(error.message);
+        toast.error(`Delete failed: ${error.message || error.response?.data?.message || 'Unknown error'}`);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -262,6 +271,21 @@ const Displaypatient = () => {
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label htmlFor="user_status">User Status</label>
+                <select
+                  id="user_status"
+                  name="user_status"
+                  value={formData.user_status}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="active">Active</option>
+                  <option value="blocked">Blocked</option>  
+                </select>
+              </div>
+
 
               <div className="form-actions">
                 <button

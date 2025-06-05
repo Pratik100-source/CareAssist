@@ -18,7 +18,7 @@ const findUnverifiedProfessional = async (req, res) => {
     const formattedProfessionals = professionals.map((professional) => ({
       name: `${professional.firstname} ${professional.lastname}`,
       email: professional.email,
-      number: professional.mobile,
+      number: professional.number,
       status: professional.verification,
       document: professional.document,
       profession: professional.profession,
@@ -39,6 +39,7 @@ const uploadDocument = async (req, res) => {
   const {
     email,
     photoUrl,
+    khalti_wallet,
     documentUrl,
     profession,
     specialization,
@@ -50,16 +51,10 @@ const uploadDocument = async (req, res) => {
     availableDays,
   } = req.body;
 
-  console.log(email);
-  console.log(photoUrl);
-  console.log(documentUrl);
-  console.log(profession);
-  console.log(availableDays);
-  console.log(startTime);
-  console.log(endTime);
 
   if (
     !email ||
+    !khalti_wallet ||
     !photoUrl ||
     !documentUrl ||
     !profession ||
@@ -89,6 +84,7 @@ const uploadDocument = async (req, res) => {
           experience: experience,
           consultationMethod: consultationMethod,
           charge: charge,
+          khalti_wallet: khalti_wallet,
           availability: { startTime, endTime },
           availableDays: availableDays,
         },
@@ -115,7 +111,7 @@ const updateStatus = async (req, res) => {
   try {
     const result = await Professional.updateOne(
       { email: email },
-      { $set: { verification: true, status: status, submission: submission } }
+      { $set: { verification: status, submission: submission } }
     );
 
     if (result.matchedCount === 0) {

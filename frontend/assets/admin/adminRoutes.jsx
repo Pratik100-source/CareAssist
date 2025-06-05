@@ -5,6 +5,8 @@ import Verifyprofessional from "./verifyprofessional";
 import ManagePayments from "./managePayment"
 import ManageBooking from "./manageBooking"
 import ManageCancellation from "./manageCancellation";
+import PasswordChange from "../changePassword/changePassword";
+import AdminNotification from "./adminNotification";
 
 function AdminRoutes() {
   return (
@@ -15,7 +17,8 @@ function AdminRoutes() {
       <Route path="managePayment" element={<ManagePayments />} />
       <Route path="manageBooking" element={<ManageBooking />} />
       <Route path="manageCancellation" element={<ManageCancellation/>} />
-   
+      <Route path="passwordChange" element={<PasswordChange/>} />
+      <Route path="notifications" element={<AdminNotification/>} />
       <Route path="*" element={<Displaypatient />} />
     </Routes>
   );

@@ -29,8 +29,52 @@
 .sidebar-menu li {
   margin: 15px 0;
   cursor: pointer;
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .sidebar-menu li:hover {
   color: #1abc9c;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Notification menu item specific styles */
+.notification-menu-item {
+  display: flex;
+  /* align-items: left; */
+  /* justify-content: space-between; */
+  position: relative;
+}
+
+.notification-content-icon {
+  display: flex;
+  align-items: left;
+  flex-direction: row-reverse;
+  gap: 8px;
+  padding: 0;
+}
+
+.notification-icon {
+  font-size: 20px;
+}
+
+/* Position the badge for the notification menu item */
+.notification-menu-item .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }

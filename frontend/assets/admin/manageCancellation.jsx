@@ -1,26 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import './manageCancellation.css';
 import NoData from '../error/noData/noData';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useLocation } from 'react-router-dom';
+import { api, authService } from '../../services/authService';
+import { RiRefund2Fill } from "react-icons/ri";
 
 const ManageCancellation = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [bookingsData, setBookingsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const location = useLocation();
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('http://localhost:3003/api/booking/get-every-booking');
-      if (!response.ok) throw new Error('Failed to fetch booking data');
-      const data = await response.json();
-      const refundBookings = data.filter(booking => booking.refund === "no");
+      // Debug authentication status
+      const token = localStorage.getItem('accessToken');
+      console.log('Auth check before fetchBookings:', { 
+        isAuthenticated: authService.isAuthenticated(),
+        tokenExists: !!token,
+        tokenFirstChars: token ? token.substring(0, 10) + '...' : 'none'
+      });
+
+      console.log("Attempting to fetch bookings for cancellation...");
+      const response = await api.get('/booking/get-every-booking');
+      console.log("Response received:", response.status);
+      
+      const refundBookings = response.data.filter(booking => booking.refund === "no");
       setBookingsData(refundBookings);
     } catch (error) {
-      setError(error.message);
+      console.error("Fetch bookings error:", error.response || error);
+      setError(error.message || 'Failed to fetch booking data');
+      toast.error(`Error loading bookings: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -34,10 +48,7 @@ const ManageCancellation = () => {
     const transactionId = booking.transactionId;
     const amount = booking.charge;
     try {
-      const confirm = window.confirm(`Are you sure you want to refund Rs. ${booking.charge} to ${booking.patientEmail}?`);
-      if (!confirm) return;
-
-      const response = await axios.post("http://localhost:3003/api/payment/refund", {
+      const response = await api.post("/payment/refund", {
         transactionId,
         amount: amount, 
         patientEmail: booking.patientEmail,
@@ -46,14 +57,26 @@ const ManageCancellation = () => {
 
       if (response) {
         toast.success("Successfully refunded", { autoClose: 3000 });
+        setShowConfirmDialog(false);
+        // Better approach than page reload
         setTimeout(() => {
-          window.location.reload();
-        }, 3000); 
+          fetchBookings(); // Refresh data instead of reloading the page
+        }, 1000); 
       }
     } catch (err) {
-      console.error("Refund Error:", err);
-      alert("Failed to process refund. Try again.");
+      console.error("Refund Error:", err.response || err);
+      toast.error("Failed to process refund. " + (err.response?.data?.message || err.message || "Try again."));
     }
+  };
+
+  const openRefundConfirmation = (booking) => {
+    setSelectedBooking(booking);
+    setShowConfirmDialog(true);
+  };
+
+  const closeRefundConfirmation = () => {
+    setShowConfirmDialog(false);
+    setSelectedBooking(null);
   };
 
   const filteredBookings = bookingsData.filter(booking =>
@@ -101,7 +124,7 @@ const ManageCancellation = () => {
                 <td>{booking.status || 'N/A'}</td>
                 <td>Rs. {booking.charge || 'N/A'}</td>
                 <td>
-                  <button onClick={() => handleRefund(booking)} className='refund_button'>Refund</button>
+                  <button onClick={() => openRefundConfirmation(booking)} className='refund_button'><RiRefund2Fill /></button>
                 </td>
               </tr>
             ))
@@ -112,6 +135,30 @@ const ManageCancellation = () => {
           )}
         </tbody>
       </table>
+
+      {/* Custom Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="confirmation-overlay">
+          <div className="confirmation-dialog">
+            <h3>Confirm Refund</h3>
+            <p>Do you want to refund?</p>
+            <div className="confirmation-buttons">
+              <button 
+                className="confirm-button"
+                onClick={() => handleRefund(selectedBooking)}
+              >
+                Yes
+              </button>
+              <button 
+                className="cancel-button"
+                onClick={closeRefundConfirmation}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

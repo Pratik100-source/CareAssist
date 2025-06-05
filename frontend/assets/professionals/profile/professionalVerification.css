@@ -1,9 +1,7 @@
 .professional-verification {
   margin: 1rem auto;
   padding: 1rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .profile-title {
@@ -106,7 +104,6 @@
 }
 
 .days-grid {
-  background-color: yellow;
   display: flex;
   flex-direction: row;
   column-gap: 0.4rem;

@@ -3,6 +3,7 @@ import "./showdoctors.css";
 import { useNavigate } from "react-router-dom";
 import { setProfessionalInfo } from "../../../features/professionalSlice";
 import { useDispatch } from "react-redux";
+import { api } from "../../../services/authService";
 
 function ShowDoctors() {
   const [professionalData, setProfessionalsData] = useState([]);
@@ -29,18 +30,13 @@ function ShowDoctors() {
     const fetchData = async () => {
       try {
         // Fetch professionals
-        const professionalResponse = await fetch(
-          "http://localhost:3003/api/display/getprofessional"
-        );
-        if (!professionalResponse.ok) {
-          throw new Error("Failed to fetch professional data");
-        }
-        const data = await professionalResponse.json();
+        const professionalResponse = await api.get(`/display/getprofessional`);
         
         // Filter only doctors with online consultation available
-        const professionalData = data.filter(professional => 
+        const professionalData = professionalResponse.data.filter(professional => 
           (professional.consultationMethod === "online" || professional.consultationMethod === "both") && 
           (professional.status === true) &&
+          (professional.user_status === "active") &&
           (professional.profession.toLowerCase() === "doctor")
         );
         
@@ -48,17 +44,11 @@ function ShowDoctors() {
         setFilteredData(professionalData);
 
         // Fetch bookings
-        const bookingResponse = await fetch(
-          "http://localhost:3003/api/booking/get-online-booking" 
-        );
-        if (!bookingResponse.ok) {
-          throw new Error("Failed to fetch booking data");
-        }
-        const bookingData = await bookingResponse.json();
-        setBookingData(bookingData);
+        const bookingResponse = await api.get(`/booking/get-online-booking`);
+        setBookingData(bookingResponse.data);
 
       } catch (error) {
-        setError(error.message);
+        setError(error.message || "Failed to fetch data");
       } finally {
         setLoading(false);
       }
@@ -140,11 +130,14 @@ function ShowDoctors() {
 
       if (!isToday || currentTime > now) {
         const slot = `${slotStart} - ${slotEnd}`;
+        
+        // Check if this slot is booked AND not cancelled
         const isBooked = bookingData.some(booking => 
           booking.professionalEmail === professionalEmail &&
           booking.date === selectedDate &&
           booking.startTime.trim() === slotStart.trim() &&
-          booking.endTime.trim() === slotEnd.trim()
+          booking.endTime.trim() === slotEnd.trim() &&
+          booking.status !== "Cancelled" // Consider cancelled bookings as available
         );
         
         slots.push({

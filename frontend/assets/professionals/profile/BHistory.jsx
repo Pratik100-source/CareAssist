@@ -4,6 +4,7 @@ import { FaCog, FaTimes } from "react-icons/fa";
 import "./BHistory.css";
 import { useState, useEffect } from "react";
 import NoBookingHistory from "../../error/notAvailable/noBookingHistory";
+import { api } from "../../../services/authService";
 
 const BHistory = () => {
   const user = useSelector((state) => state.user);
@@ -11,24 +12,19 @@ const BHistory = () => {
   const [filteredHistory, setFilteredHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("completed"); // Default to showing completed bookings
+  const [activeFilter, setActiveFilter] = useState("Completed"); // Default to showing completed bookings
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3003/api/booking/get-every-booking"
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch booking data");
-        }
-        const data = await response.json();
+        const response = await api.get(`/booking/get-every-booking`);
+        const data = response.data;
 
         // Filter for bookings with status "completed" or "cancelled"
         const userBookings = data.filter(
           (booking) =>
             booking.professionalEmail === `${user.email}` &&
-            (booking.status === "completed" || booking.status === "cancelled")
+            (booking.status === "Completed" || booking.status === "Cancelled")
         );
 
         const formattedBookings = userBookings.map((booking, index) => {
@@ -49,9 +45,9 @@ const BHistory = () => {
 
         setBookingHistory(formattedBookings);
         // Initially filter for completed bookings
-        setFilteredHistory(formattedBookings.filter(booking => booking.status === "completed"));
+        setFilteredHistory(formattedBookings.filter(booking => booking.status === "Completed"));
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Failed to fetch booking data");
       } finally {
         setLoading(false);
       }
@@ -84,14 +80,14 @@ const BHistory = () => {
       {/* Toggle filter bar */}
       <div className="filter_toggle">
         <button
-          className={`toggle_button ${activeFilter === "completed" ? "active" : ""}`}
-          onClick={() => setActiveFilter("completed")}
+          className={`toggle_button ${activeFilter === "Completed" ? "active" : ""}`}
+          onClick={() => setActiveFilter("Completed")}
         >
           Completed
         </button>
         <button
-          className={`toggle_button ${activeFilter === "cancelled" ? "active" : ""}`}
-          onClick={() => setActiveFilter("cancelled")}
+          className={`toggle_button ${activeFilter === "Cancelled" ? "active" : ""}`}
+          onClick={() => setActiveFilter("Cancelled")}
         >
           Cancelled
         </button>
@@ -110,8 +106,8 @@ const BHistory = () => {
           {filteredHistory.map((booking) => (
             <div key={booking.id} className="booking_card">
               <div className="top_section">
-                <div className={`urgency ${booking.status === "cancelled" ? "cancelled" : ""}`}>
-                  {booking.urgency} {booking.status === "cancelled" ? "(Cancelled)" : ""}
+                <div className={`urgency ${booking.status === "Cancelled" ? "cancelled" : ""}`}>
+                  {booking.urgency} {booking.status === "Cancelled" ? "(Cancelled)" : ""}
                 </div>
                 <div className="app_no">Token : {booking.appNo}</div>
               </div>

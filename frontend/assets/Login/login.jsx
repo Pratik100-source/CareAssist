@@ -10,6 +10,7 @@ import { setUserInfo } from "../../features/userSlice";
 import { hideLoader, showLoader } from "../../features/loaderSlice";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { authService, api } from "../../services/authService";
 
 const Login = ({ redirectToSignup, crossLogin }) => {
   const [formData, setFormData] = useState({
@@ -109,7 +110,7 @@ const Login = ({ redirectToSignup, crossLogin }) => {
     
     try {
       dispatch(showLoader());
-      const response = await axios.post("http://localhost:3003/api/otp/send-forget-otp", {
+      const response = await api.post("/otp/send-forget-otp", {
         email: forgotPasswordData.email
       });
       
@@ -129,7 +130,7 @@ const Login = ({ redirectToSignup, crossLogin }) => {
     
     try {
       dispatch(showLoader());
-      const response = await axios.post("http://localhost:3003/api/otp/verify-forget-otp", {
+      const response = await api.post("/otp/verify-forget-otp", {
         otp: forgotPasswordData.otp
       });
       
@@ -149,7 +150,7 @@ const Login = ({ redirectToSignup, crossLogin }) => {
     
     try {
       dispatch(showLoader());
-      const response = await axios.post("http://localhost:3003/api/auth/reset-password", {
+      const response = await api.post("/auth/reset-password", {
         email: forgotPasswordData.email,
         newPassword: forgotPasswordData.newPassword
       });
@@ -178,37 +179,32 @@ const Login = ({ redirectToSignup, crossLogin }) => {
 
     try {
       dispatch(showLoader());
-      const response = await axios.post("http://localhost:3003/api/auth/login", formData);
-    
-      if (response.status === 200) {
-        const { userType, token, user } = response.data;
-        localStorage.setItem("token", token);
-        dispatch(setUserInfo({ userType, token, basic_info: user }));
-
+      
+      // Use authService for login instead of direct axios call
+      const result = await authService.login(formData.email, formData.password);
+      
+      if (result.success) {
+        const { userType } = result.data;
+        
         setTimeout(async () => {
+          dispatch(hideLoader());
+          localStorage.setItem("reload", "true");
+          
           if (userType === "Patient") {
-            dispatch(hideLoader());
-            localStorage.setItem("reload", "true");
             navigate("/patientHome", { state: { reload: true } });
           } else if (userType === "Professional") {
-            dispatch(hideLoader());
-            localStorage.setItem("reload", "true");
             navigate("/professionalHome", { state: { reload: true } });
-          }
-          else if (userType === "Admin") {
-            dispatch(hideLoader());
-            localStorage.setItem("reload", "true");
+          } else if (userType === "Admin") {
             navigate("/admindashboard", { state: { reload: true } });
           }
         }, 3000);
+      } else {
+        dispatch(hideLoader());
+        toast.error(result.error || "Login failed", { position: "top-right", autoClose: 3000 });
       }
     } catch (error) {
       dispatch(hideLoader());
-      if (error.response) {
-        toast.error(error.response.data.message || "Login failed", { position: "top-right", autoClose: 3000 });
-      } else {
-        toast.error("Network or server error. Please try again.", { position: "top-right", autoClose: 3000 });
-      }
+      toast.error("Network or server error. Please try again.", { position: "top-right", autoClose: 3000 });
     }
   };
 

@@ -5,7 +5,10 @@ import { showLoader, hideLoader } from "../../features/loaderSlice";
 import { FaRegEdit } from "react-icons/fa";
 import { CgFileDocument } from "react-icons/cg";
 import NoData from "../error/noData/noData";
-
+import { api, authService } from "../../services/authService";
+import { useSocket } from "../professionals/context/SocketContext";
+import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 const Verifyprofessional = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [professionalData, setprofessionalsData] = useState([]);
@@ -14,30 +17,36 @@ const Verifyprofessional = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProfessional, setSelectedProfessional] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState(false); // State for selected status
-  const [selectedSubmission, setSelectedSubmission] = useState("accepted"); // State for selected submission status
-
+  const [selectedStatus, setSelectedStatus] = useState("false");
+  const [selectedSubmission, setSelectedSubmission] = useState("rejected");
+  const { socket } = useSocket();
+  const location = useLocation();
   const dispatch = useDispatch();
 
+  const fetchProfessional = async () => {
+    try {
+      // Debug authentication status
+      const token = localStorage.getItem('accessToken');
+      console.log('Auth check before fetchProfessional:', { 
+        isAuthenticated: authService.isAuthenticated(),
+        tokenExists: !!token,
+        tokenFirstChars: token ? token.substring(0, 10) + '...' : 'none'
+      });
+
+      // Check if the route exists with a test request
+      console.log("Attempting to fetch unverified professionals...");
+      const response = await api.get("/verification/displayUnverifiedProfessional");
+      console.log("Response received:", response.status);
+      setprofessionalsData(response.data);
+    } catch (error) {
+      console.error("Fetch professionals error:", error.response || error);
+      setError(error.message || "Failed to fetch professional data");
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch professional data from the backend
   useEffect(() => {
-    const fetchProfessional = async () => {
-      try {
-        
-        const response = await fetch(
-          "http://localhost:3003/api/verification/displayUnverifiedProfessional"
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch professional data");
-        }
-        const data = await response.json();
-        setprofessionalsData(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchProfessional();
   }, []);
@@ -61,25 +70,22 @@ const Verifyprofessional = () => {
     }
 
     setSelectedProfessional(null);
-    setSelectedStatus(false); // Reset the selected status
-    setSelectedSubmission("accepted"); // Reset the selected submission status
+    setSelectedStatus("false");
+    setSelectedSubmission("rejected");
   };
 
   // Handle Download Click
   const handleDownload = async (url, filename) => {
     try {
-      const response = await fetch(url);
-      const blob = await response.blob(); // Convert the response to a blob
-      const blobUrl = window.URL.createObjectURL(blob); // Create a temporary URL for the blob
-
+      // Create a temporary anchor element
       const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename; // Set the filename for the downloaded file
+      link.href = url;
+      link.download = filename;
+      
+      // Append to the document body, click to trigger download, then remove
       document.body.appendChild(link);
-      link.click(); // Trigger the download
-      document.body.removeChild(link); // Clean up the DOM
-
-      window.URL.revokeObjectURL(blobUrl); // Release the blob URL
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
       console.error("Download failed:", error);
     }
@@ -90,35 +96,56 @@ const Verifyprofessional = () => {
     dispatch(showLoader());
 
     try {
-      const response = await fetch(
-        "http://localhost:3003/api/verification/updateStatus",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            status: status, // Include the selected status
-            submission: submission, // Include the selected submission status
-          }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update professional status");
-      }
-      const data = await response.json();
-      console.log(data);
+      // Convert string status to boolean properly
+      const verificationStatus = status === "true";
+      
+      // First update the status in the database
+      const response = await api.post("/verification/updateStatus", {
+        email: email,
+        status: verificationStatus,
+        submission: submission
+      });
+      
+      console.log("Update response:", response.data);
+      console.log("Verification status being sent:", verificationStatus);
 
-      // Update the local state to reflect the change
+      // Then emit the socket event for real-time notification
+      if (socket) {
+        const notificationStatus = verificationStatus ? "accepted" : "rejected";
+
+
+        socket.emit("verificationResponse", {
+          professionalEmail: email,
+          status: notificationStatus,
+          message: `Your verification request has been ${notificationStatus}`
+        });
+      } else {
+        console.warn("Socket not available for notification");
+      }
+
+      // Update the local state
       const updatedProfessionals = professionalData.map((professional) =>
         professional.email === email
-          ? { ...professional, status: status, submission: submission } 
+          ? { 
+              ...professional, 
+              status: verificationStatus,
+              submission: submission 
+            } 
           : professional
       );
-      setprofessionalsData(updatedProfessionals); // Update the state
+      
+      setprofessionalsData(updatedProfessionals);
+      toast.success(`Professional ${verificationStatus ? "verified" : "unverified"} successfully`);
+      
+      // Reset form
+      setMessage("");
+      await fetchProfessional();
+      handle_modal_close();
     } catch (error) {
-      setError(error.message);
+      console.error("Update error:", error);
+      setError(error.message || "Failed to update professional status");
+      window.location.reload();
+      // toast.error("Failed to update professional status");
     } finally {
       dispatch(hideLoader());
     }
@@ -190,7 +217,7 @@ const Verifyprofessional = () => {
 
       {/* Selected Professional Details */}
       {selectedProfessional && viewClicked && (
-        <div className="modal-overlay-view">
+        <div className="modal-overlay">
           <div className="selected-professional">
             <button className="close-button" onClick={handle_modal_close}>
               &times;
@@ -247,51 +274,59 @@ const Verifyprofessional = () => {
 
       {/* Edit Modal */}
       {selectedProfessional && editClicked && (
-        <div className="modal-overlay-edit">
+        <div className="modal-overlay">
           <div className="selected-professional-edit">
             <button className="close-button" onClick={handle_modal_close}>
               &times;
             </button>
             <div className="edit_insider">
               <div>
-              <h3>{selectedProfessional.name}</h3>
-              <label htmlFor="update_verification">
-                Status: 
-              </label>
-              <select
-                name="update_verification"
-                id="update_verification"
-                value={selectedStatus} // Bind to the state
-                onChange={(e) => setSelectedStatus(e.target.value)} // Update state on change
-              >
-                <option value={false}>unverified</option>
-                <option value={true}>verified</option>
-              </select>
-              <label htmlFor="update_submission">
-                Submission Status: 
-              </label>
-              <select
-                name="update_submission"
-                id="update_submission"
-                value={selectedSubmission} // Bind to the state
-                onChange={(e) => setSelectedSubmission(e.target.value)} // Update state on change
-              >
-                <option value="accepted">accepted</option>
-                <option value="rejected">rejected</option>
-              </select>{" "} <br />
-              <button
-                className="update_button"
-                onClick={() =>
-                  handleUpdate(
-                    selectedProfessional.email,
-                    selectedStatus,
-                    selectedSubmission
-                  )
-                }
-              >
-                update
-              </button>
-            </div>
+                <h3>{selectedProfessional.name}</h3>
+                <label htmlFor="update_verification">
+                  Status: 
+                </label>
+                <select
+                  name="update_verification"
+                  id="update_verification"
+                  value={selectedStatus}
+                  onChange={(e) => {
+                    const newStatus = e.target.value;
+                    console.log("Selected status:", newStatus); // Debug log
+                    setSelectedStatus(newStatus);
+                    setSelectedSubmission(newStatus === "true" ? "accepted" : "rejected");
+                  }}
+                >
+                  <option value="false">unverified</option>
+                  <option value="true">verified</option>
+                </select>
+
+                <label htmlFor="update_submission">
+                  Submission Status: 
+                </label>
+                <select
+                  name="update_submission"
+                  id="update_submission"
+                  value={selectedSubmission}
+                  onChange={(e) => setSelectedSubmission(e.target.value)}
+                  disabled={true}
+                >
+                  <option value="accepted">accepted</option>
+                  <option value="rejected">rejected</option>
+                </select>
+
+                <button
+                  className="update_button"
+                  onClick={() =>
+                    handleUpdate(
+                      selectedProfessional.email,
+                      selectedStatus,
+                      selectedSubmission
+                    )
+                  }
+                >
+                  update
+                </button>
+              </div>
             </div>
           </div>
         </div>

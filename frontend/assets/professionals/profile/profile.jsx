@@ -6,7 +6,7 @@ import ProfessionalProfileRoutes from "../../../routes/professionalProfileRoutes
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-
+import { api } from "../../../services/authService";
 const ProfessionalProfile = () => {
   const [pClicked, setpClicked] = useState(false);
   const [bClicked, setbClicked] = useState(false);
@@ -20,25 +20,10 @@ const ProfessionalProfile = () => {
   useEffect(() => {
     const fetchProfessionalInfo = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:3003/api/display/getprofessionalInfo",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: user.email }),
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch professional info");
-        }
-        
-        const data = await response.json();
-        setProfessionalInfo(data.result);
+        const response = await api.post(`/display/getprofessionalInfo`, {email: user.email});
+        setProfessionalInfo(response.data.result);
       } catch (error) {
-        console.error("Error fetching professional info:", error);
+        console.error("Error fetching professional info:", error.message || "Failed to fetch professional data");
       } finally {
         setLoading(false);
       }
